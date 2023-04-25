@@ -1,4 +1,4 @@
-﻿using GastroLab.Models;
+﻿using GastroLab.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

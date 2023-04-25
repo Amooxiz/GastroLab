@@ -1,4 +1,4 @@
-namespace GastroLab.Models
+﻿namespace GastroLab.Infrastructure.Models
 {
     public class ErrorViewModel
     {
