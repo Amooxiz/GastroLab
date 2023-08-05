@@ -1,5 +1,5 @@
 using GastroLab.Infrastructure.Data;
-using GastroLab.Infrastructure.Models;
+using GastroLab.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +11,7 @@ builder.Services.AddDbContext<GastroLabDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddDefaultUI()
     .AddDefaultTokenProviders()

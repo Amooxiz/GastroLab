@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GastroLab.Infrastructure.Models
+namespace GastroLab.Domain.Models
 {
-    public class Option
+    public class OptionSet
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public bool isSelected { get; set; } = false;
+
         public virtual ICollection<OptionSetOption>? OptionSetOptions { get; set; }
+        public virtual ICollection<ProductOptionSet>? ProductOptionSets { get; set; }
     }
 }

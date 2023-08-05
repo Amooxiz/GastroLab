@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GastroLab.Infrastructure.Models
+namespace GastroLab.Domain.Models
 {
     public class User : IdentityUser
     {
-        public string Name { get; set; }
-        public string Surname { get; set; }
+        public string? Name { get; set; }
+        public string? Surname { get; set; }
         public int? AddressId { get; set; }
         public virtual ICollection<Address>? Address { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
