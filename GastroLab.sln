@@ -3,9 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroLab", "GastroLab\GastroLab.csproj", "{5A45F58D-3B4D-4CCD-8406-8E85A4BA4D33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GastroLab.Presentation", "GastroLab\GastroLab.Presentation.csproj", "{5A45F58D-3B4D-4CCD-8406-8E85A4BA4D33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroLab.Infrastructure", "GastroLab.Infrastructure\GastroLab.Infrastructure.csproj", "{0A572845-56DF-43EE-89BE-633AD9D22FF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GastroLab.Infrastructure", "GastroLab.Infrastructure\GastroLab.Infrastructure.csproj", "{0A572845-56DF-43EE-89BE-633AD9D22FF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroLab.Domain", "GastroLab.Domain\GastroLab.Domain.csproj", "{4A1659EF-225F-4133-9321-5F7B7E2AACAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroLab.Contracts", "GastroLab.Contracts\GastroLab.Contracts.csproj", "{6BD3BB31-DA50-4493-9BC2-ABB7AA7FD9EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GastroLab.Application", "GastroLab.Application\GastroLab.Application.csproj", "{BA37AA4B-78E0-4EC7-ACA4-B22D5357B2CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{0A572845-56DF-43EE-89BE-633AD9D22FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A572845-56DF-43EE-89BE-633AD9D22FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A572845-56DF-43EE-89BE-633AD9D22FF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A1659EF-225F-4133-9321-5F7B7E2AACAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A1659EF-225F-4133-9321-5F7B7E2AACAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A1659EF-225F-4133-9321-5F7B7E2AACAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A1659EF-225F-4133-9321-5F7B7E2AACAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BD3BB31-DA50-4493-9BC2-ABB7AA7FD9EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BD3BB31-DA50-4493-9BC2-ABB7AA7FD9EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BD3BB31-DA50-4493-9BC2-ABB7AA7FD9EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BD3BB31-DA50-4493-9BC2-ABB7AA7FD9EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA37AA4B-78E0-4EC7-ACA4-B22D5357B2CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA37AA4B-78E0-4EC7-ACA4-B22D5357B2CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA37AA4B-78E0-4EC7-ACA4-B22D5357B2CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA37AA4B-78E0-4EC7-ACA4-B22D5357B2CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

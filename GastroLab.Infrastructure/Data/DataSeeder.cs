@@ -1,4 +1,4 @@
-﻿using GastroLab.Infrastructure.Models;
+﻿using GastroLab.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,11 +36,11 @@ namespace GastroLab.Infrastructure.Data
                 }
             }
 
-            if (userManager.FindByNameAsync(adminUsername).Result == null)
+            if (userManager.FindByNameAsync(adminEmail).Result == null)
             {
                 var admin = new User
                 {
-                    UserName = adminUsername,
+                    UserName = adminEmail,
                     Email = adminEmail,
                     EmailConfirmed = true
                 };
@@ -48,13 +48,13 @@ namespace GastroLab.Infrastructure.Data
                 var userResult = userManager.CreateAsync(admin, adminPassword).Result;
                 if (!userResult.Succeeded)
                 {
-                    throw new InvalidOperationException($"Seeding {adminUsername} user failed.");
+                    throw new InvalidOperationException($"Seeding {adminEmail} user failed.");
                 }
                 
                 var roleResult = userManager.AddToRoleAsync(admin, "Admin").Result;
                 if (!roleResult.Succeeded)
                 {
-                    throw new InvalidOperationException($"Adding {adminUsername} user to AdminRole failed.");
+                    throw new InvalidOperationException($"Adding {adminEmail} user to AdminRole failed.");
                 }
             }
         }

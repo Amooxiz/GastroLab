@@ -1,4 +1,4 @@
-﻿using GastroLab.Infrastructure.Models;
+﻿using GastroLab.Domain.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

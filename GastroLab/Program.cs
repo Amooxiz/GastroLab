@@ -1,24 +1,25 @@
 using GastroLab.Infrastructure.Data;
-using GastroLab.Infrastructure.Models;
+using GastroLab.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using GastroLab.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<GastroLabDbContext>(options =>
-    options.UseSqlServer(connectionString));
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddDefaultUI()
     .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<GastroLabDbContext>();
 
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddProjectService(builder.Configuration);
 
 var app = builder.Build();
 
