@@ -1,0 +1,156 @@
+﻿@model GastroLab.Application.ViewModels.ProductVM
+
+@{
+    ViewData["Title"] = "AddProduct";
+}
+
+<h1>AddProduct</h1>
+
+<h4>Product</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddProduct">
+            <!-- Existing form fields -->
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Image" class="control-label"></label>
+                <input asp-for="Image" class="form-control" />
+                <span asp-validation-for="Image" class="text-danger"></span>
+            </div>
+
+            <!-- Categories -->
+            <div class="form-group">
+                <label class="control-label">Categories</label>
+                <select asp-for="SelectedCategoryIds" class="form-control" asp-items="@(new SelectList(ViewBag.AllCategories, "Id", "Name"))">
+                    <option value="">Select categories</option>
+                </select>
+                <a href="javascript:void(0);" class="btn btn-link" onclick="createNewForm('category')">Create new category</a>
+                <span asp-validation-for="SelectedCategoryIds" class="text-danger"></span>
+            </div>
+
+            <!-- Ingredients -->
+            <div class="form-group">
+                <label class="control-label">Ingredients</label>
+                <select asp-for="SelectedIngredientIds" class="form-control" asp-items="@(new SelectList(ViewBag.AllIngredients, "Id", "Name"))">
+                    <option value="">Select ingredients</option>
+                </select>
+                <a href="javascript:void(0);" class="btn btn-link" onclick="createNewForm('ingredient')">Create new ingredient</a>
+                <span asp-validation-for="SelectedIngredientIds" class="text-danger"></span>
+            </div>
+
+            <!-- Option Sets -->
+            <div class="form-group">
+                <label class="control-label">Option Sets</label>
+                <select id="SelectedOptionsetIds" asp-for="SelectedOptionSetIds" class="form-control" asp-items="@(new SelectList(ViewBag.AllOptionSets, "Id", "Name"))">
+                    <option value="">Select option sets</option>
+                </select>
+                <a href="javascript:void(0);" class="btn btn-link" onclick="createNewForm('optionSet')">Create new option set</a>
+                <span asp-validation-for="SelectedOptionSetIds" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    
+    <!-- Create New Form Section -->
+    <div class="col-md-4" id="createNewFormSection" style="display: none;">
+        <h4>Create New <span id="newFormTitle"></span></h4>
+        <form id="newForm" style="display: none;">
+            <!-- Form fields for creating a new category/ingredient/optionSet -->
+            <div class="form-group">
+                <input type="text" class="form-control" id="newFormName" placeholder="Name" />
+            </div>
+            <button type="button" class="btn btn-success" onclick="confirmAdd()">Confirm</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelAdd()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    <script>
+        function createNewForm(formType) {
+            // Set the new form title based on the form type
+            var formTitle = formType.charAt(0).toUpperCase() + formType.slice(1);
+            document.getElementById("newFormTitle").textContent = formTitle;
+
+            // Show the create new form section
+            document.getElementById("createNewFormSection").style.display = "block";
+
+            // Show the specific new form based on the form type
+            document.getElementById("newForm").style.display = "block";
+        }
+
+        function confirmAdd() {
+            // Get the new form name input value
+            var newName = document.getElementById("newFormName").value;
+            var formType = document.getElementById("newFormTitle").textContent.toLowerCase();
+            debugger;
+            $.ajax({
+                url: '/Product/Add' + formType.charAt(0).toUpperCase() + formType.slice(1),
+                type: 'POST',
+                data: { name: newName }, // Send the new name as data
+                success: function () {
+                    reloadSelectList(formType);
+                    // Hide the create new form section
+                    document.getElementById("createNewFormSection").style.display = "none";
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+
+            // Hide the create new form section
+            document.getElementById("createNewFormSection").style.display = "none";
+        }
+
+        function cancelAdd() {
+            // Hide the create new form section
+            document.getElementById("createNewFormSection").style.display = "none";
+        }
+
+        function reloadSelectList(formType) {
+            debugger;
+            // Send a request to get the updated list of options
+            $.ajax({
+                url: '/Product/GetAll' + formType.charAt(0).toUpperCase() + formType.slice(1),
+                type: 'GET',
+                success: function (data) {
+                    // Update the select list options
+                    var selectList = document.getElementById("Selected" + formType.charAt(0).toUpperCase() + formType.slice(1) + "Ids");
+                    selectList.innerHTML = ""; // Clear existing options
+
+                    // Add new options based on the data received from the server
+                    for (var i = 0; i < data.length; i++) {
+                        var option = document.createElement("option");
+                        option.value = data[i].id;
+                        option.text = data[i].name;
+                        selectList.appendChild(option);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

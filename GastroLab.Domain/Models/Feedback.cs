@@ -9,7 +9,7 @@ namespace GastroLab.Domain.Models
     public class Feedback
     {
         public int Id { get; set; }
-        public string Comment { get; set; }
+        public string Comment { get; set; } = string.Empty;
         public int Rating { get; set; }
 
         public string? UserId { get; set; }
