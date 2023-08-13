@@ -10,7 +10,8 @@ namespace GastroLab.Domain.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public bool isSelected { get; set; } = false;
+        public string DisplayName { get; set; } = string.Empty;
+        public decimal? Price { get; set; }
         public virtual ICollection<OptionSetOption>? OptionSetOptions { get; set; }
     }
 }
