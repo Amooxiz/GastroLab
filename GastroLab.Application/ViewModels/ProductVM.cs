@@ -13,6 +13,7 @@ namespace GastroLab.Application.ViewModels
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Image { get; set; } = string.Empty;
+        public decimal Price { get; set; }
         public ProductStatus productStatus { get; set; }
         public List<CategoryVM> categories { get; set; } = new List<CategoryVM>();
         public List<IngredientVM> ingredients { get; set; } = new List<IngredientVM>();

@@ -39,6 +39,7 @@ namespace GastroLab.Infrastructure.Repositories
         public IEnumerable<Product> GetAllProducts()
         {
             return _context.Products
+                .Include(x => x.ProductPricing)
                 .Include(x => x.ProductIngredients)
                 .ThenInclude(x => x.Ingredient)
                 .Include(x => x.OrderProducts)
@@ -53,6 +54,7 @@ namespace GastroLab.Infrastructure.Repositories
         {
             var product = _context.Products
                 .Where(x => x.Id == id)
+                .Include(x => x.ProductPricing)
                 .Include(x => x.ProductIngredients)
                 .ThenInclude(x => x.Ingredient)
                 .Include(x => x.OrderProducts)
@@ -61,6 +63,8 @@ namespace GastroLab.Infrastructure.Repositories
                 .ThenInclude(x => x.Category)
                 .Include(x => x.ProductOptionSets)
                 .ThenInclude(x => x.OptionSet)
+                .ThenInclude(x => x.OptionSetOptions)
+                .ThenInclude(x => x.Option)
                 .FirstOrDefault();
             if (product == null)
             {

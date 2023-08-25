@@ -15,5 +15,7 @@ namespace GastroLab.Domain.Models
 
         public virtual ICollection<OptionSetOption>? OptionSetOptions { get; set; }
         public virtual ICollection<ProductOptionSet>? ProductOptionSets { get; set; }
+        public virtual ICollection<ProductOptionSetOption>? ProductOptionSetOptions { get; set; }
+        public virtual ICollection<OrderProductOption>? OrderProductOptions { get; set; }
     }
 }

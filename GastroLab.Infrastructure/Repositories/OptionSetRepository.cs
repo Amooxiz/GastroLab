@@ -34,10 +34,12 @@ namespace GastroLab.Infrastructure.Repositories
                 throw new Exception("Cannot find OptionSet with Id = " + optionSetId);
             }
             _context.OptionSets.Remove(optionSetToRemove);
+            _context.SaveChanges();
         }
         public void UpdateOptionSet(OptionSet optionSet)
         {
-            throw new NotImplementedException();
+            _context.OptionSets.Update(optionSet);
+            _context.SaveChanges();
         }
         public OptionSet GetOptionSet(int optionSetId)
         {
@@ -51,7 +53,9 @@ namespace GastroLab.Infrastructure.Repositories
         }
         public IEnumerable<OptionSet> GetAllOptionSets()
         {
-            return _context.OptionSets.Include(x => x.OptionSetOptions); //.ThenInclude(x => x.Option);
+            return _context.OptionSets
+                .Include(x => x.OptionSetOptions)
+                .ThenInclude(x => x.Option);
         }
         public void AddOptionToOptionSet(int optionId, int optionSetId)
         {
