@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace GastroLab.Domain.Models
 {
-    public class ProductPricing
+    public enum DeliveryMethod
     {
-        public int Id { get; set; }
-        public decimal Price { get; set; }
+        Delivery = 1,
+        Pickup = 2,
+        DineIn = 3
     }
 }

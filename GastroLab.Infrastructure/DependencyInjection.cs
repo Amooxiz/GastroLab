@@ -39,6 +39,8 @@ namespace GastroLab.Infrastructure
             services.AddTransient<IProductRepository, ProductRepository>();
             services.AddTransient<IOptionSetService, OptionSetService>();
             services.AddTransient<IOptionSetRepository, OptionSetRepository>();
+            services.AddTransient<IOrderRepository, OrderRepository>();
+            services.AddTransient<IOrderService, OrderService>();
             return services;
         }
     }

@@ -1,0 +1,36 @@
+﻿@model GastroLab.Application.ViewModels.OptionSetVM
+
+@{
+    ViewData["Title"] = "OptionSetDetails";
+}
+
+<h1>OptionSetDetails</h1>
+
+<div>
+    <h4>OptionSet</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DisplayName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DisplayName)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="EditOptionSet" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="ManageOptionSets">Back to List</a>
+</div>

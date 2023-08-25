@@ -32,6 +32,9 @@ namespace GastroLab.Application.Extensions
             if (product.OrderProducts != null && product.OrderProducts.Count > 0)
                 productVM.orders = product.OrderProducts.Select(x => x.Order).Select(x => x.ToVM()).ToList();
 
+            if (product.ProductPricing != null)
+                productVM.Price = product.ProductPricing.Price;
+
             return productVM;
         }
 
@@ -43,7 +46,8 @@ namespace GastroLab.Application.Extensions
                 Name = productVM.Name,
                 Description = productVM.Description,
                 Image = productVM.Image,
-                productStatus = productVM.productStatus
+                productStatus = productVM.productStatus,
+                ProductPricing = new ProductPricing { Price = productVM.Price }
             };
 
             if (productVM.SelectedCategoryIds.Count > 0)
@@ -107,6 +111,8 @@ namespace GastroLab.Application.Extensions
                 Description = optionSet.Description,
                 DisplayName = optionSet.DisplayName
             };
+            if (optionSet.OptionSetOptions != null && optionSet.OptionSetOptions.Count > 0)
+                optionSetVM.options = optionSet.OptionSetOptions.Select(x => x.Option).Select(x => x.ToVM()).ToList();
             return optionSetVM;
         }
 
@@ -119,6 +125,8 @@ namespace GastroLab.Application.Extensions
                 Description = optionSetVM.Description,
                 DisplayName = optionSetVM.DisplayName
             };
+            if (optionSetVM.options != null && optionSetVM.options.Count > 0)
+                optionSet.OptionSetOptions = optionSetVM.options.Select(x => new OptionSetOption { OptionId = x.Id, OptionSetId = optionSet.Id }).ToList();
             return optionSet;
         }
 
@@ -155,7 +163,9 @@ namespace GastroLab.Application.Extensions
             var optionVM = new OptionVM
             {
                 Id = option.Id,
-                Name = option.Name
+                Name = option.Name,
+                DisplayName = option.DisplayName,
+                Price = option.Price
             };
             return optionVM;
         }
@@ -165,9 +175,75 @@ namespace GastroLab.Application.Extensions
             var option = new Option
             {
                 Id = optionVM.Id,
-                Name = optionVM.Name
+                Name = optionVM.Name,
+                DisplayName = optionVM.DisplayName,
+                Price = optionVM.Price
             };
             return option;
+        }
+
+        public static OrderVM toVM(this Order order)
+        {
+            var orderVm = new OrderVM
+            {
+                Id = order.Id,
+                ClientId = order.ClientId,
+                Status = order.Status,
+                TotalPrice = order.TotalPrice,
+                CreationDate = order.CreationDate,
+                CompletionDate = order.CompletionDate,
+                Comment = order.Comment,
+                DeliveryMethod = order.DeliveryMethod,
+                TableNr = order.TableNr,
+            };
+
+            return orderVm;
+        }
+        
+        public static Order toModel(this OrderVM orderVM)
+        {
+            var order = new Order()
+            {
+                CompletionDate = orderVM.CompletionDate,
+                Id = orderVM.Id,
+                DeliveryMethod = orderVM.DeliveryMethod,
+                CreationDate = orderVM.CreationDate,
+                Comment = orderVM.Comment,
+                Status = orderVM.Status,
+                TableNr = orderVM.TableNr,
+                TotalPrice = orderVM.TotalPrice,
+                ClientId = orderVM.ClientId
+            };
+            
+            return order;
+        }
+
+        public static AddressVM ToVM(this Address address)
+        {
+            var addressVM = new AddressVM
+            {
+                Id = address.Id,
+                City = address.City,
+                FlatNumber = address.FlatNumber,
+                HouseNumber = address.HouseNumber,
+                Street = address.Street,
+                PostCode = address.PostCode
+            };
+            return addressVM;
+        }
+
+        public static Address ToModel(this AddressVM addressVM)
+        {
+            var address = new Address
+            {
+                Id = addressVM.Id,
+                City = addressVM.City,
+                FlatNumber = addressVM.FlatNumber,
+                HouseNumber = addressVM.HouseNumber,
+                Street = addressVM.Street,
+                PostCode = addressVM.PostCode
+            };
+            return address;
         }
     }
 }

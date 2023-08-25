@@ -1,0 +1,141 @@
+﻿@model GastroLab.Application.ViewModels.OrderVM
+
+@{
+    ViewData["Title"] = "AddOrder";
+}
+
+<h1>AddOrder</h1>
+
+<h4>Order</h4>
+<hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Image
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                Price
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewBag.Products)
+        {
+            <tr>
+                <td>
+                    @item.Image
+                </td>
+                <td>
+                    @item.Name
+                </td>
+                <td>
+                    @item.Price
+                </td>
+                <td>
+                    <a class="add-button" id="@item.Id">Add</a>
+                </td>
+            </tr>
+            <tr class="optionsetscontainer" id="@item.Id">
+                
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddOrder">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DeliveryMethod" class="control-label"></label>
+                <select asp-for="DeliveryMethod" class="form-control"></select>
+                <span asp-validation-for="DeliveryMethod" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TableNr" class="control-label"></label>
+                <input asp-for="TableNr" class="form-control" />
+                <span asp-validation-for="TableNr" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalPrice" class="control-label"></label>
+                <input asp-for="TotalPrice" class="form-control" />
+                <span asp-validation-for="TotalPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Comment" class="control-label"></label>
+                <input asp-for="Comment" class="form-control" />
+                <span asp-validation-for="Comment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <select asp-for="Status" class="form-control"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="ManageOrders">Back to List</a>
+</div>
+
+@section Scripts {
+    <script>
+        // Add event listeners to all "Add" buttons
+        var addButtons = document.querySelectorAll('.add-button');
+        addButtons.forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                var productId = button.getAttribute('id');
+                var optionSetsContainer = document.querySelector(`tr.optionsetscontainer[id = "${productId}"]`); // Get the option sets container for the selected product
+                
+                if (optionSetsContainer == null) {
+                    console.log('Option sets container not found');
+                }
+                
+                // Make an AJAX request to fetch the option sets and options for the selected product
+                fetch('/Product/GetOptions/' + productId)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        // Build the HTML for option sets and options
+                        var optionSetsHTML = '';
+                        data.optionSets.forEach(function (optionSet) {
+                            optionSetsHTML += `
+                                    <h5>${optionSet.displayName}</h5>
+                                    <ul class="option-list">
+                                `;
+                            optionSet.options.forEach(function (option) {
+                                optionSetsHTML += `
+                                        <li>
+                                            <label>
+                                                <input type="checkbox" class="option-checkbox" data-price="${option.price}" data-optionset-id="${optionSet.id}" data-option-id="${option.id}" />
+                                                ${option.displayName} +${option.price.toFixed(2)}
+                                            </label>
+                                        </li>
+                                    `;
+                            });
+                            optionSetsHTML += '</ul>';
+                        });
+
+                        // Update the option sets container with the generated HTML
+                        optionSetsContainer.innerHTML = optionSetsHTML;
+                    })
+                    .catch(function (error) {
+                        console.error('Error fetching options:', error);
+                    });
+            });
+        });
+    </script>
+
+    
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -29,7 +29,7 @@ namespace GastroLab.Infrastructure.Services
         }
         public void UpdateOptionSet(OptionSetVM optionSet)
         {
-            throw new NotImplementedException();
+            _optionSetRepository.UpdateOptionSet(optionSet.ToModel());
         }
         public OptionSetVM GetOptionSet(int optionSetId)
         {

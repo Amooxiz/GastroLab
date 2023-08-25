@@ -51,8 +51,9 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditProduct()
+        public IActionResult EditProduct([FromRoute] int Id)
         {
+            ViewData.Model = _productService.GetProductById(Id);
             return View();
         }
 
@@ -113,14 +114,50 @@ namespace GastroLab.Presentation.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        public IActionResult AddOptionSet(string name)
+        [HttpGet]
+        public IActionResult AddOptionSet()
         {
-            _optionSetService.AddOptionSet(new OptionSetVM()
+            ViewBag.AllOptions = _optionSetService.GetAllOptions();
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddOptionSet(OptionSetVM optionSet, int[] selectedOptions)
+        {
+            if (selectedOptions != null)
             {
-                Name = name
-            });
-            return RedirectToAction("ProductList");
+                foreach (var optionId in selectedOptions)
+                {
+                    optionSet.options.Add(new OptionVM()
+                    {
+                        Id = optionId
+                    });
+                }
+            }
+            _optionSetService.AddOptionSet(optionSet);
+            return RedirectToAction("ManageOptionSets");
+        }
+
+        [HttpGet]
+        public IActionResult EditOptionSet([FromRoute] int Id)
+        {
+            ViewData.Model = _optionSetService.GetOptionSet(Id);
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult EditOptionSet([FromRoute] int Id, OptionSetVM optionSet)
+        {
+            optionSet.Id = Id;
+            _optionSetService.UpdateOptionSet(optionSet);
+            return RedirectToAction("ManageOptionSets");
+        }
+
+        [HttpGet]
+        public IActionResult OptionSetDetails([FromRoute] int Id)
+        {
+            ViewData.Model = _optionSetService.GetOptionSet(Id);
+            return View();
         }
 
         [HttpPost]
@@ -149,6 +186,71 @@ namespace GastroLab.Presentation.Controllers
         public IActionResult GetAllOptionset()
         {
             return Ok(_optionSetService.GetAllOptionSets());
+        }
+
+        [HttpGet]
+        public IActionResult GetAllOption()
+        {
+            return Ok(_optionSetService.GetAllOptions());
+        }
+
+        [HttpGet]
+        public IActionResult ManageOptionSets()
+        {
+            ViewData.Model = _optionSetService.GetAllOptionSets();
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult MenageOptions([FromRoute] int Id)
+        {
+            ViewData.Model = _optionSetService.GetAllOptions();
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeleteOption([FromRoute] int Id)
+        {
+            _optionSetService.DeleteOption(Id);
+            return RedirectToAction("ManageOptionSets");
+        }
+
+        [HttpGet]
+        public IActionResult DeleteOptionSet([FromRoute] int Id)
+        {
+            ViewData.Model = _optionSetService.GetOptionSet(Id);
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeleteOptionSet(OptionSetVM optionSet)
+        {
+            _optionSetService.DeleteOptionSet(optionSet.Id);
+            return RedirectToAction("ManageOptionSets");
+        }
+
+        [HttpGet]
+        public IActionResult GetOptions([FromRoute] int Id)
+        {
+            var product = _productService.GetProductById(Id);
+            var optionSets = product.optionSets;
+
+            var result = new
+            {
+                optionSets = optionSets.Select(os => new
+                {
+                    os.Id,
+                    os.DisplayName,
+                    options = os.options.Select(o => new
+                    {
+                        o.Id,
+                        o.DisplayName,
+                        o.Price
+                    })
+                })
+            };
+
+            return Json(result);
         }
     }
 }

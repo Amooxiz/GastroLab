@@ -13,11 +13,15 @@ namespace GastroLab.Domain.Models
         public string Description { get; set; } = string.Empty;
         public string Image { get; set; } = string.Empty;
         public ProductStatus productStatus { get; set; }
+        public int ProductPricingId { get; set; }
+        public virtual ProductPricing? ProductPricing { get; set; }
 
         public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
         public virtual ICollection<ProductOptionSet>? ProductOptionSets { get; set; }
         public virtual ICollection<OrderProduct>? OrderProducts { get; set; }
         public virtual ICollection<ProductIngredient>? ProductIngredients { get; set; }
+        public virtual ICollection<ProductOptionSetOption>? ProductOptionSetOptions { get; set; }
+        public virtual ICollection<OrderProductOption>? OrderProductOptions { get; set; }
 
     }
 }
