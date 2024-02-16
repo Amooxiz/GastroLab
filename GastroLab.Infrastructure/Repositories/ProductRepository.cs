@@ -1,6 +1,6 @@
 ﻿using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using GastroLab.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;

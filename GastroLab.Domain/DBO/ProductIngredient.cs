@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GastroLab.Domain.Models
+namespace GastroLab.Domain.DBO
 {
-    public class ProductOptionSet
+    public class ProductIngredient
     {
         public int Id { get; set; }
         public int ProductId { get; set; }
         public virtual Product Product { get; set; }
-        public int OptionSetId { get; set; }
-        public virtual OptionSet OptionSet { get; set; }
+        public int IngredientId { get; set; }
+        public virtual Ingredient Ingredient { get; set; }
     }
 }

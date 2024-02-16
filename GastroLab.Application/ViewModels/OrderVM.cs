@@ -1,4 +1,4 @@
-﻿using GastroLab.Domain.Models;
+﻿using GastroLab.Domain.DBO;
 
 namespace GastroLab.Application.ViewModels
 {

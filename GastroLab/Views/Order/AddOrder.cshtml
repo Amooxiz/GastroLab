@@ -24,7 +24,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in ViewBag.Products)
+        @foreach (var item in ViewBag.AllProducts)
         {
             <tr>
                 <td>
@@ -37,11 +37,22 @@
                     @item.Price
                 </td>
                 <td>
-                    <a class="add-button" id="@item.Id">Add</a>
+                    <a class="add-button" id="@item.Id" price="@item.Price">Add</a>
+                    @if (ViewBag.AddedProducts != null)
+                    {
+                        @foreach(var product in ViewBag.AddedProducts.Products)
+                        {
+                            @if (product.ProductId == item.Id)
+                            {
+                                <a class="remove-button" id="@item.Id">Remove</a>
+                                <label class="quantity-label" id="@item.Id">Quantity: @product.Quantity</label>
+                                break;
+                            }
+                        }
+                    }
                 </td>
             </tr>
             <tr class="optionsetscontainer" id="@item.Id">
-                
             </tr>
         }
     </tbody>
@@ -61,20 +72,48 @@
                 <span asp-validation-for="TableNr" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TotalPrice" class="control-label"></label>
-                <input asp-for="TotalPrice" class="form-control" />
-                <span asp-validation-for="TotalPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="Comment" class="control-label"></label>
                 <input asp-for="Comment" class="form-control" />
                 <span asp-validation-for="Comment" class="text-danger"></span>
             </div>
+            <br />
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control"></select>
-                <span asp-validation-for="Status" class="text-danger"></span>
+                <label asp-for="Address.City" class="control-label"></label>
+                <input asp-for="Address.City" class="form-control" />
+                <span asp-validation-for="Address.City" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Address.Street" class="control-label"></label>
+                <input asp-for="Address.Street" class="form-control" />
+                <span asp-validation-for="Address.Street" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address.PostCode" class="control-label"></label>
+                <input asp-for="Address.PostCode" class="form-control" />
+                <span asp-validation-for="Address.PostCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address.FlatNumber" class="control-label"></label>
+                <input asp-for="Address.FlatNumber" class="form-control" />
+                <span asp-validation-for="Address.FlatNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address.HouseNumber" class="control-label"></label>
+                <input asp-for="Address.HouseNumber" class="form-control" />
+                <span asp-validation-for="Address.HouseNumber" class="text-danger"></span>
+            </div>
+            @if (ViewBag.AddedProducts == null)
+            {
+                <label>
+                    Total price: 0.00
+                </label>
+            }
+            else
+            {
+                <label>
+                    Total price: @ViewBag.AddedProducts.TotalPrice
+                </label>
+            }
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -88,50 +127,121 @@
 
 @section Scripts {
     <script>
-        // Add event listeners to all "Add" buttons
-        var addButtons = document.querySelectorAll('.add-button');
-        addButtons.forEach(function (button) {
-            button.addEventListener('click', function (event) {
-                event.preventDefault();
-                var productId = button.getAttribute('id');
-                var optionSetsContainer = document.querySelector(`tr.optionsetscontainer[id = "${productId}"]`); // Get the option sets container for the selected product
-                
-                if (optionSetsContainer == null) {
-                    console.log('Option sets container not found');
-                }
-                
-                // Make an AJAX request to fetch the option sets and options for the selected product
-                fetch('/Product/GetOptions/' + productId)
-                    .then(function (response) {
-                        return response.json();
-                    })
-                    .then(function (data) {
-                        // Build the HTML for option sets and options
-                        var optionSetsHTML = '';
-                        data.optionSets.forEach(function (optionSet) {
-                            optionSetsHTML += `
-                                    <h5>${optionSet.displayName}</h5>
-                                    <ul class="option-list">
-                                `;
-                            optionSet.options.forEach(function (option) {
+        window.addEventListener('load', function () {
+            // Add event listeners to all "Add" buttons
+            var addButtons = document.querySelectorAll('.add-button');
+            addButtons.forEach(function (button) {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    var productId = button.getAttribute('id');
+                    debugger;
+                    var price = button.getAttribute('price');
+                    console.log(price);
+                    console.log(parseFloat(price.replace(',', '.')));
+                    var optionSetsContainer = document.querySelector(`tr.optionsetscontainer[id = "${productId}"]`); // Get the option sets container for the selected product
+                    
+                    if (optionSetsContainer == null) {
+                        console.log('Option sets container not found');
+                    }
+                    
+                    // Make an AJAX request to fetch the option sets and options for the selected product
+                    fetch('/Product/GetOptions/' + productId)
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            // Build the HTML for option sets and options
+                            var optionSetsHTML = '';
+                            data.optionSets.forEach(function (optionSet) {
                                 optionSetsHTML += `
-                                        <li>
-                                            <label>
-                                                <input type="checkbox" class="option-checkbox" data-price="${option.price}" data-optionset-id="${optionSet.id}" data-option-id="${option.id}" />
-                                                ${option.displayName} +${option.price.toFixed(2)}
-                                            </label>
-                                        </li>
+                                        <h5>${optionSet.displayName}</h5>
+                                        <ul class="option-list">
                                     `;
+                                optionSet.options.forEach(function (option) {
+                                    optionSetsHTML += `
+                                            <li>
+                                                <label>
+                                                            <input type="checkbox" class="option-checkbox" data-price="${option.price}" data-optionset-id="${optionSet.id}" data-option-id="${option.id}" />
+                                                    ${option.displayName} +${option.price.toFixed(2)}
+                                                </label>
+                                            </li>
+                                        `;
+                                });
+                                optionSetsHTML += '</ul>';
                             });
-                            optionSetsHTML += '</ul>';
-                        });
+                            optionSetsHTML += '<input type="number" class="quantity-input" value="1" min="1" />';
+                            optionSetsContainer.innerHTML = optionSetsHTML;
+                            // Add event listeners to checkboxes
+                            var optionCheckboxes = optionSetsContainer.querySelectorAll('.option-checkbox');
+                            optionCheckboxes.forEach(function (checkbox) {
+                                checkbox.addEventListener('change', function () {
+                                    // Uncheck other checkboxes within the same option set
+                                    var optionSetId = checkbox.getAttribute('data-optionset-id');
+                                    var checkboxesInSameOptionSet = optionSetsContainer.querySelectorAll(`.option-checkbox[data-optionset-id="${optionSetId}"]`);
+                                    checkboxesInSameOptionSet.forEach(function (otherCheckbox) {
+                                        if (otherCheckbox !== checkbox) {
+                                            otherCheckbox.checked = false;
+                                        }
+                                    });
+                                });
+                            });
+                            // Add a "Submit" button to the option sets container
+                            var submitButton = document.createElement('button');
+                            submitButton.textContent = 'Add to Order';
+                            submitButton.addEventListener('click', function () {
+                                var selectedOptions = [];
+                                optionCheckboxes.forEach(function (checkbox) {
+                                    if (checkbox.checked) {
+                                        selectedOptions.push({
+                                            OptionSetId: parseInt(checkbox.getAttribute('data-optionset-id')),
+                                            OptionId: parseInt(checkbox.getAttribute('data-option-id')),
+                                            Price: parseFloat(checkbox.getAttribute('data-price'))
+                                        });
+                                    }
+                                });
 
-                        // Update the option sets container with the generated HTML
-                        optionSetsContainer.innerHTML = optionSetsHTML;
-                    })
-                    .catch(function (error) {
-                        console.error('Error fetching options:', error);
-                    });
+                                var quantityInput = optionSetsContainer.querySelector('.quantity-input');
+                                var quantity = parseInt(quantityInput.value) || 1; // Default to 1 if no valid input
+
+                                // Prepare the data to be sent to the server
+                                var data = {
+                                    ProductId: parseInt(productId),
+                                    Quantity: quantity,
+                                    Price: parseFloat(price.replace(',', '.')),
+                                    SelectedOptions: selectedOptions
+                                };
+
+                                // Send the data to the server using fetch
+                                fetch('/Order/StoreProduct', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(data)
+                                })
+                                    .then(response => response.json())
+                                    .then(result => {
+                                        // Handle the server response if needed
+                                        console.log('Server response:', result);
+                                    })
+                                    .catch(error => {
+                                        console.error('Error sending data:', error);
+                                    });
+                                optionSetsContainer.style.display = 'none';
+
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 100);
+                            });
+
+                            // Append the submit button to the option sets container
+                            optionSetsContainer.appendChild(submitButton);
+                            
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching options:', error);
+                        });
+                });
             });
         });
     </script>

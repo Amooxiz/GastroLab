@@ -1,6 +1,6 @@
 ﻿using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing.Printing;
 

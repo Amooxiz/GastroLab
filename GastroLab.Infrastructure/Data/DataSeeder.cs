@@ -1,4 +1,4 @@
-﻿using GastroLab.Domain.Models;
+﻿using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

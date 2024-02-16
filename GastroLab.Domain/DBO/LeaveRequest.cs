@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GastroLab.Domain.Models
+namespace GastroLab.Domain.DBO
 {
-    public class WorkingTime
+    public class LeaveRequest
     {
         public int Id { get; set; }
-        public int DayOfWeek { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
-        public TimeSpan TimeInterval { get; set; }
+        public string? Desciption { get; set; }
+        public LeaveRequestStatus Status { get; set; }
 
-        public string? UserId { get; set; }
-        public virtual User? User { get; set; }
+        public string UserId { get; set; }
+        public virtual User User { get; set; }
     }
 }

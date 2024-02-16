@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GastroLab.Domain.Models
+namespace GastroLab.Domain.DBO
 {
-    public enum DeliveryMethod
+    public enum LeaveRequestStatus
     {
-        Delivery = 1,
-        Pickup = 2,
-        DineIn = 3
+        Pending = 0,
+        Accepted = 1,
+        Rejected = 2
     }
 }

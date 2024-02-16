@@ -1,4 +1,4 @@
-﻿using GastroLab.Domain.Models;
+﻿using GastroLab.Domain.DBO;
 using System;
 using System.Collections.Generic;
 using System.Linq;

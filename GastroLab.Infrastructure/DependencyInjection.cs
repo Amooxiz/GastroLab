@@ -1,5 +1,5 @@
 ﻿using GastroLab.Application.Interfaces;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using GastroLab.Infrastructure.Data;
 using GastroLab.Infrastructure.Repositories;
 using GastroLab.Infrastructure.Services;
@@ -41,6 +41,7 @@ namespace GastroLab.Infrastructure
             services.AddTransient<IOptionSetRepository, OptionSetRepository>();
             services.AddTransient<IOrderRepository, OrderRepository>();
             services.AddTransient<IOrderService, OrderService>();
+            services.AddTransient<ICookieService, CookieService>();
             return services;
         }
     }

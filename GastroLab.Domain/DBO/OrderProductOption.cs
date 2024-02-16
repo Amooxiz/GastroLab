@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GastroLab.Domain.Models
+namespace GastroLab.Domain.DBO
 {
     public class OrderProductOption
     {

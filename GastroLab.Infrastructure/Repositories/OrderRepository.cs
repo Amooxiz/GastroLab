@@ -1,5 +1,5 @@
 ﻿using GastroLab.Application.Interfaces;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using GastroLab.Infrastructure.Data;
 using System;
 using System.Collections.Generic;

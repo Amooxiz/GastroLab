@@ -1,5 +1,5 @@
 using GastroLab.Infrastructure.Data;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GastroLab.Infrastructure;
