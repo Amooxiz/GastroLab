@@ -1,0 +1,89 @@
+﻿@using GastroLab.Application.ViewModels;
+@model GastroLab.Presentation.Controllers.CalendarController.WeeklyCalendarVM
+
+@{
+    ViewData["Title"] = "Kalendarz Tygodniowy";
+}
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        border: 1px solid black;
+        text-align: center;
+        padding: 5px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+
+
+
+<h2>Kalendarz Tygodniowy (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
+
+<button onclick="changeWeek(-1)">Poprzedni tydzień</button>
+<button onclick="changeWeek(7)">Następny tydzień</button>
+
+<table>
+    <tr>
+        <th>Godzina/Dzień</th>
+        @foreach (var day in Model.DaysOfWeek)
+        {
+            <th>@day.ToString("yyyy-MM-dd")</th>
+        }
+    </tr>
+    @for (int hour = 0; hour < 24; hour++)
+    {
+        @for (int minute = 0; minute < 60; minute += 30)
+        {
+            int totalMinutes = hour * 60 + minute;
+            <tr>
+                <td>@String.Format("{0:00}:{1:00}", hour, minute)</td>
+                @foreach (var day in Model.DaysOfWeek)
+                {
+                    bool isBreak = false;
+                    if (ViewBag.UserWorkingTimes != null && ViewBag.UserWorkingTimes.Count > 0)
+                    {
+                        List<TimeSlotVM> timeSlots = ViewBag.UserWorkingTimes;
+                        @foreach (var timeSlot in timeSlots)
+                        {
+                            if (timeSlot.Date == DateOnly.FromDateTime(day) && (timeSlot.TimeFrom.Hour * 60 + timeSlot.TimeFrom.Minute) <= totalMinutes && (timeSlot.TimeTo.Hour * 60 + timeSlot.TimeTo.Minute) > totalMinutes)
+                            {
+                                if ((timeSlot.TimeFrom.Hour * 60 + timeSlot.TimeFrom.Minute) == totalMinutes)
+                                {
+                                    <td style="background-color: lightgreen">@String.Format("{0:00}:{1:00} - {2:00}:{3:00}", timeSlot.TimeFrom.Hour, timeSlot.TimeFrom.Minute, timeSlot.TimeTo.Hour, timeSlot.TimeTo.Minute)</td>
+                                }
+                                else
+                                {
+                                    <td style="background-color: lightgreen"></td>
+                                }
+                                isBreak = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (isBreak)
+                    {
+                        continue;
+                    }
+                    <td> <!-- Tu można dodać szczegóły wydarzeń dla danego półgodzinnego bloku --> </td>
+                }
+            </tr>
+        }
+    }
+</table>
+
+<script>
+    function changeWeek(days) {
+        debugger;
+        var currentDate = new Date('@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")');
+        currentDate = new Date(currentDate.getTime() + days * 86400000); // Dodaj dni
+
+        window.location.href = '?date=' + currentDate.toISOString().split('T')[0];
+    }
+</script>

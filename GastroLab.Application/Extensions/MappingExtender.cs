@@ -245,5 +245,28 @@ namespace GastroLab.Application.Extensions
             };
             return address;
         }
+
+        public static TimeSlotVM ToVM(this WorkingTime workingTime)
+        {
+            var timeSlotVM = new TimeSlotVM
+            {
+                Date = DateOnly.FromDateTime(workingTime.DateFrom),
+                TimeFrom = TimeOnly.FromDateTime(workingTime.DateFrom),
+                TimeTo = TimeOnly.FromDateTime(workingTime.DateTo)
+            };
+            return timeSlotVM;
+        }
+
+        public static WorkingTime ToModel(this TimeSlotVM timeSlotVM)
+        {
+            var workingTime = new WorkingTime
+            {
+                DateFrom = timeSlotVM.Date.ToDateTime(timeSlotVM.TimeFrom),
+                DateTo = timeSlotVM.Date.ToDateTime(timeSlotVM.TimeTo),
+                DayOfWeek = (int)timeSlotVM.Date.DayOfWeek == 0 ? 6 : (int)timeSlotVM.Date.DayOfWeek - 1,
+                TimeInterval = timeSlotVM.TimeTo - timeSlotVM.TimeFrom
+            };
+            return workingTime;
+        }
     }
 }

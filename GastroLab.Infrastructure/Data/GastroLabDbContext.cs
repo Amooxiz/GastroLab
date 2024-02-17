@@ -34,7 +34,7 @@ namespace GastroLab.Infrastructure.Data
         public DbSet<OptionSetOption> OptionSetOptions { get; set; }
         public DbSet<ProductOptionSetOption> ProductOptionSetOptions { get; set; }
         public DbSet<OrderProductOption> OrderProductOptions { get; set; }
-
+        public DbSet<Topic> Topics { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

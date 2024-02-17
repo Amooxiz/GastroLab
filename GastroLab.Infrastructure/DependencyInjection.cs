@@ -42,6 +42,10 @@ namespace GastroLab.Infrastructure
             services.AddTransient<IOrderRepository, OrderRepository>();
             services.AddTransient<IOrderService, OrderService>();
             services.AddTransient<ICookieService, CookieService>();
+            services.AddTransient<IRegisteredTimeRepository, RegisteredTimeRepository>();
+            services.AddTransient<IRegisteredTimeService, RegisteredTimeService>();
+            services.AddTransient<ICalendarRepository, CalendarRepository>();
+            services.AddTransient<ICalendarService, CalendarService>();
             return services;
         }
     }
