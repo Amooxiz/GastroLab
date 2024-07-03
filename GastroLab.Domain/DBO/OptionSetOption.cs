@@ -13,5 +13,6 @@ namespace GastroLab.Domain.DBO
         public virtual OptionSet OptionSet { get; set; }
         public int OptionId { get; set; }
         public virtual Option Option { get; set; }
+        public decimal? Price { get; set; }
     }
 }

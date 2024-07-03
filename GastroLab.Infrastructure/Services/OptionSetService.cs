@@ -2,6 +2,7 @@
 using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
 using GastroLab.Domain.DBO;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,10 +40,6 @@ namespace GastroLab.Infrastructure.Services
         {
             return _optionSetRepository.GetAllOptionSets().Select(x => x.ToVM());
         }
-        public void AddOptionToOptionSet(int optionId, int optionSetId)
-        {
-            _optionSetRepository.AddOptionToOptionSet(optionId, optionSetId);
-        }
         public void DeleteOptionFromOptionSet(int optionId, int optionSetId)
         {
             _optionSetRepository.DeleteOptionFromOptionSet(optionId, optionSetId);
@@ -62,6 +59,26 @@ namespace GastroLab.Infrastructure.Services
         public OptionVM GetOption(int optionId)
         {
             return _optionSetRepository.GetOption(optionId).ToVM();
+        }
+
+        public void UpdateOption(OptionVM option)
+        {
+            _optionSetRepository.UpdateOption(option.ToModel());
+        }
+
+        public void AddOptionToOptionSet(int optionId, int optionSetId, decimal price)
+        {
+            var optionSetOption = new OptionSetOption
+            {
+                OptionSetId = optionSetId,
+                OptionId = optionId,
+                Price = price
+            };
+            _optionSetRepository.AddOptionToOptionSet(optionSetOption);
+        }
+        public void RemoveOption(int id, int optionSetId)
+        {
+            _optionSetRepository.RemoveOption(id, optionSetId);
         }
     }
 }

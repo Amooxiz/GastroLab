@@ -56,6 +56,10 @@ namespace GastroLab.Infrastructure.Data
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
 
+            builder.Entity<OptionSetOption>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
+
             // Option N:N OptionSet
 
             builder.Entity<OptionSetOption>()

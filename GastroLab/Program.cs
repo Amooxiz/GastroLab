@@ -3,6 +3,7 @@ using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GastroLab.Infrastructure;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +35,16 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+app.Use(async (context, next) =>
+{
+    var currentThreadCulture = (CultureInfo)Thread.CurrentThread.CurrentCulture.Clone();
+    currentThreadCulture.NumberFormat = NumberFormatInfo.InvariantInfo;
 
+    Thread.CurrentThread.CurrentCulture = currentThreadCulture;
+    Thread.CurrentThread.CurrentUICulture = currentThreadCulture;
+
+    await next();
+});
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

@@ -43,7 +43,10 @@ namespace GastroLab.Infrastructure.Repositories
         }
         public OptionSet GetOptionSet(int optionSetId)
         {
-            var optionSet = _context.OptionSets.Find(optionSetId);
+            var optionSet = _context.OptionSets.Where(x => x.Id == optionSetId)?
+                .Include(x => x.OptionSetOptions)
+                .ThenInclude(x => x.Option)
+                .FirstOrDefault();
 
             if (optionSet == null)
             {
@@ -57,28 +60,7 @@ namespace GastroLab.Infrastructure.Repositories
                 .Include(x => x.OptionSetOptions)
                 .ThenInclude(x => x.Option);
         }
-        public void AddOptionToOptionSet(int optionId, int optionSetId)
-        {
-            if (_context.OptionSetOptions.Any(x => x.OptionId == optionId && x.OptionSetId == optionSetId))
-            {
-                throw new Exception("Option already exists in OptionSet");
-            }
-
-            var option = _context.Options.Find(optionId);
-            var optionSet = _context.OptionSets.Find(optionSetId);
-
-            if (option == null || optionSet == null)
-            {
-                throw new Exception("Option or OptionSet not found");
-            }
-
-            _context.OptionSetOptions.Add(new OptionSetOption
-            {
-                Option = option,
-                OptionSet = optionSet
-            });
-            _context.SaveChanges();
-        }
+        
         public void DeleteOptionFromOptionSet(int optionId, int optionSetId)
         {
             var optionSetOption = _context.OptionSetOptions.FirstOrDefault(x => x.OptionId == optionId && x.OptionSetId == optionSetId);
@@ -120,6 +102,30 @@ namespace GastroLab.Infrastructure.Repositories
                 throw new Exception("Cannot find Option with Id = " + optionId);
             }
             return option;
+        }
+        public void UpdateOption(Option option)
+        {
+            _context.Options.Update(option);
+            _context.SaveChanges();
+        }
+
+        public void AddOptionToOptionSet(OptionSetOption optionSetOption)
+        {
+            _context.OptionSetOptions.Add(optionSetOption);
+            _context.SaveChanges();
+        }
+
+        public void RemoveOption(int id, int optionSetId)
+        {
+            var optionSetOption = _context.OptionSetOptions.FirstOrDefault(x => x.OptionId == id && x.OptionSetId == optionSetId);
+
+            if (optionSetOption == null)
+            {
+                throw new Exception("OptionSetOption not found");
+            }
+
+            _context.OptionSetOptions.Remove(optionSetOption);
+            _context.SaveChanges();
         }
     }
 }

@@ -82,6 +82,7 @@ namespace GastroLab.Presentation.Controllers
         [HttpGet]
         public IActionResult ProductDetails([FromRoute] int Id)
         {
+            var temp = _productService.GetProductById(Id);
             ViewData.Model = _productService.GetProductById(Id);
             return View();
         }
@@ -115,62 +116,6 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddOptionSet()
-        {
-            ViewBag.AllOptions = _optionSetService.GetAllOptions();
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult AddOptionSet(OptionSetVM optionSet, int[] selectedOptions)
-        {
-            if (selectedOptions != null)
-            {
-                foreach (var optionId in selectedOptions)
-                {
-                    optionSet.options.Add(new OptionVM()
-                    {
-                        Id = optionId
-                    });
-                }
-            }
-            _optionSetService.AddOptionSet(optionSet);
-            return RedirectToAction("ManageOptionSets");
-        }
-
-        [HttpGet]
-        public IActionResult EditOptionSet([FromRoute] int Id)
-        {
-            ViewData.Model = _optionSetService.GetOptionSet(Id);
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult EditOptionSet([FromRoute] int Id, OptionSetVM optionSet)
-        {
-            optionSet.Id = Id;
-            _optionSetService.UpdateOptionSet(optionSet);
-            return RedirectToAction("ManageOptionSets");
-        }
-
-        [HttpGet]
-        public IActionResult OptionSetDetails([FromRoute] int Id)
-        {
-            ViewData.Model = _optionSetService.GetOptionSet(Id);
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult AddOption(string name)
-        {
-            _optionSetService.AddOption(new OptionVM()
-            {
-                Name = name
-            });
-            return RedirectToAction("ProductList");
-        }
-
-        [HttpGet]
         public IActionResult GetAllCategory()
         {
             return Ok(_productService.GetAllCategories());
@@ -180,77 +125,6 @@ namespace GastroLab.Presentation.Controllers
         public IActionResult GetAllIngredient()
         {
             return Ok(_productService.GetAllIngredients());
-        }
-
-        [HttpGet]
-        public IActionResult GetAllOptionset()
-        {
-            return Ok(_optionSetService.GetAllOptionSets());
-        }
-
-        [HttpGet]
-        public IActionResult GetAllOption()
-        {
-            return Ok(_optionSetService.GetAllOptions());
-        }
-
-        [HttpGet]
-        public IActionResult ManageOptionSets()
-        {
-            ViewData.Model = _optionSetService.GetAllOptionSets();
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult MenageOptions([FromRoute] int Id)
-        {
-            ViewData.Model = _optionSetService.GetAllOptions();
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult DeleteOption([FromRoute] int Id)
-        {
-            _optionSetService.DeleteOption(Id);
-            return RedirectToAction("ManageOptionSets");
-        }
-
-        [HttpGet]
-        public IActionResult DeleteOptionSet([FromRoute] int Id)
-        {
-            ViewData.Model = _optionSetService.GetOptionSet(Id);
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult DeleteOptionSet(OptionSetVM optionSet)
-        {
-            _optionSetService.DeleteOptionSet(optionSet.Id);
-            return RedirectToAction("ManageOptionSets");
-        }
-
-        [HttpGet]
-        public IActionResult GetOptions([FromRoute] int Id)
-        {
-            var product = _productService.GetProductById(Id);
-            var optionSets = product.optionSets;
-
-            var result = new
-            {
-                optionSets = optionSets.Select(os => new
-                {
-                    os.Id,
-                    os.DisplayName,
-                    options = os.options.Select(o => new
-                    {
-                        o.Id,
-                        o.DisplayName,
-                        o.Price
-                    })
-                })
-            };
-
-            return Json(result);
         }
     }
 }

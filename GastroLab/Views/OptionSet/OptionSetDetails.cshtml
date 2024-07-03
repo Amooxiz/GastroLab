@@ -31,6 +31,28 @@
     </dl>
 </div>
 <div>
+    <h4>Options</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.options[0].Name)</th>
+                <th>@Html.DisplayNameFor(model => model.options[0].DisplayName)</th>
+                <th>@Html.DisplayNameFor(model => model.options[0].Price)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var option in Model.options)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => option.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => option.DisplayName)</td>
+                    <td>@Html.DisplayFor(modelItem => option.Price)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div>
     <a asp-action="EditOptionSet" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="ManageOptionSets">Back to List</a>
 </div>

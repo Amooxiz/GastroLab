@@ -29,13 +29,17 @@
             </div>
             <div class="form-group">
                 <label>Select Existing Options:</label>
-                @foreach (var option in ViewBag.AllOptions)
+                @for (int i = 0; i < Model.options.Count; i++)
                 {
                     <div class="checkbox">
+                        <input asp-for="@Model.options[i].Id" type="hidden" />
+                        <input asp-for="@Model.options[i].Name" type="hidden" />
+                        <input asp-for="@Model.options[i].DisplayName" type="hidden" />
                         <label>
-                            <input type="checkbox" name="selectedOptions" value="@option.Id" /> @option.DisplayName
+                            <input asp-for="@Model.options[i].IsSelected" />
+                            @Model.options[i].DisplayName
                         </label>
-                        <button type="button" class="btn btn-sm btn-primary select-option">Select</button>
+                        <input asp-for="@Model.options[i].SelectedPrice" class="form-control" disabled="@(Model.options[i].IsSelected ? "" : "disabled")" />
                     </div>
                 }
             </div>
@@ -47,9 +51,26 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="ManageOptionSets">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.querySelectorAll('.checkbox input[type="checkbox"]').forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                debugger;
+                var parentDiv = checkbox.closest('.checkbox');
+                var priceInput = parentDiv.getElementsByTagName('input')[4];
+                if (priceInput) {
+                    priceInput.disabled = !checkbox.checked;
+                } else {
+                    console.error('No matching price input found!');
+                }
+            });
+        });
+    </script>
+
 }

@@ -112,7 +112,7 @@ namespace GastroLab.Application.Extensions
                 DisplayName = optionSet.DisplayName
             };
             if (optionSet.OptionSetOptions != null && optionSet.OptionSetOptions.Count > 0)
-                optionSetVM.options = optionSet.OptionSetOptions.Select(x => x.Option).Select(x => x.ToVM()).ToList();
+                optionSetVM.options = optionSet.OptionSetOptions.Select(x => x.ToVM()).ToList();
             return optionSetVM;
         }
 
@@ -126,7 +126,7 @@ namespace GastroLab.Application.Extensions
                 DisplayName = optionSetVM.DisplayName
             };
             if (optionSetVM.options != null && optionSetVM.options.Count > 0)
-                optionSet.OptionSetOptions = optionSetVM.options.Select(x => new OptionSetOption { OptionId = x.Id, OptionSetId = optionSet.Id }).ToList();
+                optionSet.OptionSetOptions = optionSetVM.options.Select(x => new OptionSetOption { OptionId = x.Id, OptionSetId = optionSet.Id, Price = x.SelectedPrice ?? x.Price }).ToList();
             return optionSet;
         }
 
@@ -267,6 +267,18 @@ namespace GastroLab.Application.Extensions
                 TimeInterval = timeSlotVM.TimeTo - timeSlotVM.TimeFrom
             };
             return workingTime;
+        }
+        
+        public static OptionVM ToVM(this OptionSetOption optionSetOption)
+        {
+            var optionVM = new OptionVM
+            {
+                Id = optionSetOption.Option.Id,
+                Name = optionSetOption.Option.Name,
+                DisplayName = optionSetOption.Option.DisplayName,
+                Price = optionSetOption.Price
+            };
+            return optionVM;
         }
     }
 }

@@ -15,11 +15,14 @@ namespace GastroLab.Application.Interfaces
         public void UpdateOptionSet(OptionSet optionSet);
         public OptionSet GetOptionSet(int id);
         public IEnumerable<OptionSet> GetAllOptionSets();
-        public void AddOptionToOptionSet(int optionId, int optionSetId);
         public void DeleteOptionFromOptionSet(int optionId, int optionSetId);
         public IEnumerable<Option> GetAllOptions();
         public void AddOption(Option option);
         public void DeleteOption(int optionId);
         public Option GetOption(int optionId);
+
+        public void UpdateOption(Option option);
+        public void AddOptionToOptionSet(OptionSetOption optionSetOption);
+        public void RemoveOption(int id, int optionSetId);
     }
 }
