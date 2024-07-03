@@ -109,10 +109,17 @@ namespace GastroLab.Application.Extensions
                 Id = optionSet.Id,
                 Name = optionSet.Name,
                 Description = optionSet.Description,
-                DisplayName = optionSet.DisplayName
+                DisplayName = optionSet.DisplayName,
+                IsRequired = optionSet.IsRequired,
+                IsMultiple = optionSet.IsMultiple,
+                OptionCount = 0
             };
             if (optionSet.OptionSetOptions != null && optionSet.OptionSetOptions.Count > 0)
+            {
                 optionSetVM.options = optionSet.OptionSetOptions.Select(x => x.ToVM()).ToList();
+                optionSetVM.OptionCount = optionSet.OptionSetOptions.Count;
+
+            }
             return optionSetVM;
         }
 
@@ -123,7 +130,9 @@ namespace GastroLab.Application.Extensions
                 Id = optionSetVM.Id,
                 Name = optionSetVM.Name,
                 Description = optionSetVM.Description,
-                DisplayName = optionSetVM.DisplayName
+                DisplayName = optionSetVM.DisplayName,
+                IsRequired = optionSetVM.IsRequired,
+                IsMultiple = optionSetVM.IsMultiple,
             };
             if (optionSetVM.options != null && optionSetVM.options.Count > 0)
                 optionSet.OptionSetOptions = optionSetVM.options.Select(x => new OptionSetOption { OptionId = x.Id, OptionSetId = optionSet.Id, Price = x.SelectedPrice ?? x.Price }).ToList();

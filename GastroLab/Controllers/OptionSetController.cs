@@ -220,26 +220,12 @@ namespace GastroLab.Presentation.Controllers
             return RedirectToAction("EditOptionSet", new { id = optionSetId });
         }
         
-        [HttpPost]
-        public IActionResult EditOption(int id, int optionSetId)
-        {
-            // Implementacja aktualizacji opcji
-            // Tutaj dodasz kod, który aktualizuje opcję w bazie danych
-
-            return RedirectToAction("EditOptionSet", new { id = optionSetId });
-        }
 
         [HttpPost]
-        public IActionResult SaveOption(int id, int optionSetId, string Name, decimal Price)
+        public IActionResult SaveOptionSetOption(int optionId, int optionSetId, decimal price)
         {
             // Znajdź i zaktualizuj opcję
-            var option = _optionSetService.GetOption(id);
-            if (option != null)
-            {
-                option.Name = Name;
-                option.Price = Price;
-                _optionSetService.UpdateOption(option);
-            }
+            _optionSetService.UpdateOptionSetOption(optionId, optionSetId, price);
 
             return RedirectToAction("EditOptionSet", new { id = optionSetId });
         }

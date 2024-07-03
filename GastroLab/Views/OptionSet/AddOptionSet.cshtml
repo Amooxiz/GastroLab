@@ -28,6 +28,16 @@
                 <span asp-validation-for="DisplayName" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="IsRequired" class="control-label"></label>
+                <input asp-for="IsRequired" type="checkbox" />
+                <span asp-validation-for="IsRequired" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsMultiple" class="control-label"></label>
+                <input asp-for="IsMultiple" type="checkbox" />
+                <span asp-validation-for="IsMultiple" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label>Select Existing Options:</label>
                 @for (int i = 0; i < Model.options.Count; i++)
                 {

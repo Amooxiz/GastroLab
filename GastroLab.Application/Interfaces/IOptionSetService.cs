@@ -22,6 +22,7 @@ namespace GastroLab.Application.Interfaces
         public OptionVM GetOption(int optionId);
         public void UpdateOption(OptionVM option);
         public void AddOptionToOptionSet(int optionId, int optionSetId, decimal price);
+        public void UpdateOptionSetOption(int optionId, int optionSetId, decimal price);
         public void RemoveOption(int id, int optionSetId);
     }
 }

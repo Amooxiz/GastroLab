@@ -145,7 +145,7 @@
                     }
                     
                     // Make an AJAX request to fetch the option sets and options for the selected product
-                    fetch('/Product/GetOptions/' + productId)
+                    fetch('/OptionSet/GetOptions/' + productId)
                         .then(function (response) {
                             return response.json();
                         })
@@ -161,10 +161,9 @@
                                     optionSetsHTML += `
                                             <li>
                                                 <label>
-                                                            <input type="checkbox" class="option-checkbox" data-price="${option.price}" data-optionset-id="${optionSet.id}" data-option-id="${option.id}" />
-                                                    ${option.displayName} +${option.price.toFixed(2)}
+                                                    <input type="checkbox" class="option-checkbox" data-price="${option.price ?? 0}" data-optionset-id="${optionSet.id}" data-option-id="${option.id}" />
+                                                    ${option.displayName} +${(option.price ?? 0).toFixed(2)}
                                                 </label>
-                                            </li>
                                         `;
                                 });
                                 optionSetsHTML += '</ul>';

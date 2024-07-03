@@ -76,6 +76,10 @@ namespace GastroLab.Infrastructure.Services
             };
             _optionSetRepository.AddOptionToOptionSet(optionSetOption);
         }
+        public void UpdateOptionSetOption(int optionId, int optionSetId, decimal price)
+        {
+            _optionSetRepository.UpdateOptionSetOption(optionId, optionSetId, price);
+        }
         public void RemoveOption(int id, int optionSetId)
         {
             _optionSetRepository.RemoveOption(id, optionSetId);

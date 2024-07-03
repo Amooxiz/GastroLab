@@ -115,6 +115,19 @@ namespace GastroLab.Infrastructure.Repositories
             _context.SaveChanges();
         }
 
+        public void UpdateOptionSetOption(int optionId, int optionSetId, decimal price)
+        {
+            var optionSetOption = _context.OptionSetOptions.Find(optionId, optionSetId);
+
+            if (optionSetOption == null)
+            {
+                throw new Exception("OptionSetOption not found");
+            }
+
+            optionSetOption.Price = price;
+            _context.SaveChanges();
+        }
+
         public void RemoveOption(int id, int optionSetId)
         {
             var optionSetOption = _context.OptionSetOptions.FirstOrDefault(x => x.OptionId == id && x.OptionSetId == optionSetId);
