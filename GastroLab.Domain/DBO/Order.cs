@@ -18,6 +18,9 @@ namespace GastroLab.Domain.DBO
         public OrderStatus Status { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime? CompletionDate { get; set; }
+        public TimeSpan? WaitingTime { get; set; }
+        public bool isScheduledDelivery { get; set; }
+        public DateTime? ScheduledDeliveryDate { get; set; }
 
         public string? ClientId { get; set; }
         public virtual User? Client { get; set; }

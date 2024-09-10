@@ -1,7 +1,10 @@
-﻿using GastroLab.Application.Interfaces;
+﻿using Azure.Core;
+using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
+using GastroLab.Domain.DBO;
 using GastroLab.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 
 namespace GastroLab.Presentation.Controllers
@@ -33,6 +36,14 @@ namespace GastroLab.Presentation.Controllers
         [HttpGet]
         public IActionResult AddOrder()
         {
+            ViewBag.DeliveryMethods = Enum.GetValues(typeof(DeliveryMethod))
+                                  .Cast<DeliveryMethod>()
+                                  .Select(d => new SelectListItem
+                                  {
+                                      Value = ((int)d).ToString(),
+                                      Text = d.ToString()
+                                  }).ToList();
+
             ViewBag.AllProducts = _productService.GetAllProducts();
             if (!String.IsNullOrEmpty(_cookieService.GetCookie("products")))
             {
@@ -76,10 +87,53 @@ namespace GastroLab.Presentation.Controllers
                 productPrice += option.Price;
             }
             productRequestList.TotalPrice += productPrice * request.Quantity;
+            request.Price = productPrice;
             productRequestList.Products.Add(request);
             var result = JsonConvert.SerializeObject(productRequestList);
             _cookieService.SetCookie("products", result);
             return Json(new { success = result });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveProduct([FromBody] int productId)
+        {
+            var productRequestList = new CartProductList();
+            if (!String.IsNullOrEmpty(_cookieService.GetCookie("products")))
+            {
+                productRequestList = JsonConvert.DeserializeObject<CartProductList>(_cookieService.GetCookie("products"));
+                if (productRequestList == null)
+                    throw new Exception("Error acured while deserializing cookie");
+            }
+            var product = productRequestList.Products.FirstOrDefault(p => p.ProductId == productId);
+
+            if (product != null)
+            {
+                var productPrice = product.Price;
+                
+
+                if (product.Quantity > 1)
+                {
+                    product.Quantity--;
+                    productRequestList.TotalPrice -= productPrice;
+                }
+                else
+                {
+                    productRequestList.Products.Remove(product);
+                    productRequestList.TotalPrice -= productPrice;
+                }
+            }
+
+
+
+            var result = JsonConvert.SerializeObject(productRequestList);
+            _cookieService.SetCookie("products", result);
+            return Json(new
+            {
+                success = true,
+                productName = product?.ProductName,
+                updatedCart = result,
+                totalPrice = productRequestList.TotalPrice.ToString("F2")
+            });
         }
     }
 }

@@ -13,19 +13,14 @@
         <form asp-action="RegisterTime">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control datepicker" />
-                <span asp-validation-for="Date" class="text-danger"></span>
+                <label asp-for="DateFrom" class="control-label"></label>
+                <input asp-for="DateFrom" class="form-control datepicker" />
+                <span asp-validation-for="DateFrom" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TimeFrom" class="control-label"></label>
-                <input asp-for="TimeFrom" class="form-control timepicker" />
-                <span asp-validation-for="TimeFrom" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TimeTo" class="control-label"></label>
-                <input asp-for="TimeTo" class="form-control timepicker" />
-                <span asp-validation-for="TimeTo" class="text-danger"></span>
+                <label asp-for="DateTo" class="control-label"></label>
+                <input asp-for="DateTo" class="form-control datepicker" />
+                <span asp-validation-for="DateTo" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -38,16 +33,21 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
-<script>
-    debugger;
-    $(function () {
-        $(".datepicker").datepicker();
-        $(".timepicker").timepicker({
-            'timeFormat': 'H:i',
-            'step': 30
-        });
-    });
-</script>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            $('.datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true
+            });
+            $('.timepicker').datetimepicker({
+                format: 'HH:mm',
+                use24hours: true,
+                stepping: 1
+            });
+        });
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using GastroLab.Domain.DBO;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using JasperFx.CodeGeneration.Frames;
 
 namespace GastroLab.Presentation.Controllers
 {
@@ -34,6 +37,34 @@ namespace GastroLab.Presentation.Controllers
                 ViewBag.UserWorkingTimes = _calendarService.GetWorkingTimesByUserId(user.Id);
             }
 
+
+            return View(model);
+        }
+
+        public IActionResult ManageWorkingTimes(DateTime? date, string userId)
+        {
+            var model = new WeeklyCalendarVM
+            {
+                BeginningOfTheWeek = FindBeginningOfTheWeek(date ?? DateTime.Now),
+                DaysOfWeek = new List<DateTime>()
+            };
+            // Retrieve the list of users
+            var users = _userManager.Users.ToList();
+
+            // Set the default user if none is selected
+            if (string.IsNullOrEmpty(userId) && users.Any())
+            {
+                userId = users.First().Id;
+            }
+            if (userId != null)
+            {
+                ViewBag.UserWorkingTimes = _calendarService.GetWorkingTimesByUserId(userId);
+            }
+            ViewBag.Users = new SelectList(users, "Id", "UserName", userId);
+            for (int i = 0; i < 7; i++)
+            {
+                model.DaysOfWeek.Add(model.BeginningOfTheWeek.AddDays(i));
+            }
 
             return View(model);
         }

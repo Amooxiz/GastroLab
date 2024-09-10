@@ -20,7 +20,7 @@ namespace GastroLab.Infrastructure.Services
 
         public IEnumerable<OrderVM> GetAllOrders()
         {
-            return _orderRepository.GetAllOrders().Select(x => x.toVM());
+            return _orderRepository.GetAllOrders().Select(x => x.ToVM());
         }
 
         public void CreateOrder(OrderVM order)
