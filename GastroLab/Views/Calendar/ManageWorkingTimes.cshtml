@@ -20,11 +20,23 @@
     th {
         background-color: #f2f2f2;
     }
+
+    .selected {
+        background-color: lightblue !important;
+    }
 </style>
 
 <h2>Kalendarz Tygodniowy (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
 
-<button onclick="changeWeek(-1)">Poprzedni tydzień</button>
+<form method="get" asp-action="ManageWorkingTimes">
+    <div class="form-group">
+        <label for="userId">Select User</label>
+        @Html.DropDownList("userId", (SelectList)ViewBag.Users, "Select a user", new { @class = "form-control", @onchange = "this.form.submit();" })
+        <input type="hidden" name="date" value="@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")" />
+    </div>
+</form>
+
+<button onclick="changeWeek(-7)">Poprzedni tydzień</button>
 <button onclick="changeWeek(7)">Następny tydzień</button>
 
 <table>
@@ -44,6 +56,7 @@
                 <td>@String.Format("{0:00}:{1:00}", hour, minute)</td>
                 @foreach (var day in Model.DaysOfWeek)
                 {
+                    string tileId = day.ToString("yyyy-MM-dd") + "T" + String.Format("{0:00}:{1:00}", hour, minute);
                     bool isBreak = false;
                     if (ViewBag.UserWorkingTimes != null && ViewBag.UserWorkingTimes.Count > 0)
                     {
@@ -77,11 +90,74 @@
 </table>
 
 <script>
-    function changeWeek(days) {
-        debugger;
-        var currentDate = new Date('@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")');
-        currentDate = new Date(currentDate.getTime() + days * 86400000); // Dodaj dni
+    let firstTile = null;
+    let secondTile = null;
 
-        window.location.href = '?date=' + currentDate.toISOString().split('T')[0];
+    function selectTile(tileId) {
+        if (!firstTile) {
+            firstTile = tileId;
+            document.getElementById(tileId).classList.add('selected');
+        } else if (!secondTile) {
+            secondTile = tileId;
+            highlightRange(firstTile, secondTile);
+        } else {
+            clearSelection();
+            firstTile = tileId;
+            document.getElementById(tileId).classList.add('selected');
+        }
+    }
+
+    function highlightRange(start, end) {
+        let startDate = new Date(start);
+        let endDate = new Date(end);
+
+        if (startDate > endDate) {
+            [startDate, endDate] = [endDate, startDate];
+        }
+
+        let currentDate = new Date(startDate);
+
+        while (currentDate <= endDate) {
+            let tileId = currentDate.toISOString().substring(0, 16);
+            let tile = document.getElementById(tileId);
+            if (tile) {
+                tile.classList.add('selected');
+            }
+            currentDate.setMinutes(currentDate.getMinutes() + 30);
+        }
+
+        document.getElementById('dateFrom').value = startDate.toISOString();
+        document.getElementById('dateTo').value = endDate.toISOString();
+    }
+
+    function clearSelection() {
+        let selectedTiles = document.getElementsByClassName('selected');
+        while (selectedTiles.length > 0) {
+            selectedTiles[0].classList.remove('selected');
+        }
+        firstTile = null;
+        secondTile = null;
+    }
+
+    function submitWorkingTime() {
+        if (firstTile && secondTile) {
+            document.getElementById('workingTimeForm').submit();
+        } else {
+            alert("Please select a valid time range.");
+        }
+    }
+
+    function changeWeek(days) {
+        var currentDate = new Date('@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")');
+        currentDate.setDate(currentDate.getDate() + days); // Add days
+
+        var userId = document.getElementById('userId').value;
+        window.location.href = '?date=' + currentDate.toISOString().split('T')[0] + '&userId=' + userId;
     }
 </script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

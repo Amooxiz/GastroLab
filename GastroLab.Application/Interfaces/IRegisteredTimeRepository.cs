@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GastroLab.Domain.DBO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,6 @@ namespace GastroLab.Application.Interfaces
 {
     public interface IRegisteredTimeRepository
     {
+        public void RegisterTime(RegisteredTime registeredTime);
     }
 }

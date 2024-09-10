@@ -149,7 +149,17 @@ namespace GastroLab.Application.Extensions
                 ClientId = order.ClientId,
                 Status = order.Status,
                 TotalPrice = order.TotalPrice,
+                DeliveryMethod = order.DeliveryMethod,
+                TableNr = order.TableNr,
+                Comment = order.Comment,
+                isScheduledDelivery = order.isScheduledDelivery,
+                ScheduledDeliveryDate = order.ScheduledDeliveryDate,
+                WaitingTime = order.WaitingTime,
             };
+
+            if (order.Address != null)
+                orderVM.Address = order.Address.ToVM();
+
             return orderVM;
         }
 
@@ -163,7 +173,17 @@ namespace GastroLab.Application.Extensions
                 ClientId = orderVM.ClientId,
                 Status = orderVM.Status,
                 TotalPrice = orderVM.TotalPrice,
+                DeliveryMethod = orderVM.DeliveryMethod,
+                TableNr = orderVM.TableNr,
+                Comment = orderVM.Comment,
+                isScheduledDelivery = orderVM.isScheduledDelivery,
+                ScheduledDeliveryDate = orderVM.ScheduledDeliveryDate,
+                WaitingTime = orderVM.WaitingTime,
             };
+
+            if (orderVM.Address != null)
+                order.Address = orderVM.Address.ToModel();
+
             return order;
         }
 
@@ -189,42 +209,6 @@ namespace GastroLab.Application.Extensions
                 Price = optionVM.Price
             };
             return option;
-        }
-
-        public static OrderVM toVM(this Order order)
-        {
-            var orderVm = new OrderVM
-            {
-                Id = order.Id,
-                ClientId = order.ClientId,
-                Status = order.Status,
-                TotalPrice = order.TotalPrice,
-                CreationDate = order.CreationDate,
-                CompletionDate = order.CompletionDate,
-                Comment = order.Comment,
-                DeliveryMethod = order.DeliveryMethod,
-                TableNr = order.TableNr,
-            };
-
-            return orderVm;
-        }
-        
-        public static Order toModel(this OrderVM orderVM)
-        {
-            var order = new Order()
-            {
-                CompletionDate = orderVM.CompletionDate,
-                Id = orderVM.Id,
-                DeliveryMethod = orderVM.DeliveryMethod,
-                CreationDate = orderVM.CreationDate,
-                Comment = orderVM.Comment,
-                Status = orderVM.Status,
-                TableNr = orderVM.TableNr,
-                TotalPrice = orderVM.TotalPrice,
-                ClientId = orderVM.ClientId
-            };
-            
-            return order;
         }
 
         public static AddressVM ToVM(this Address address)
@@ -259,25 +243,50 @@ namespace GastroLab.Application.Extensions
         {
             var timeSlotVM = new TimeSlotVM
             {
-                Date = DateOnly.FromDateTime(workingTime.DateFrom),
-                TimeFrom = TimeOnly.FromDateTime(workingTime.DateFrom),
-                TimeTo = TimeOnly.FromDateTime(workingTime.DateTo)
+                DateFrom = workingTime.DateFrom,
+                DateTo = workingTime.DateTo,
+                UserId = workingTime.UserId
             };
             return timeSlotVM;
         }
 
-        public static WorkingTime ToModel(this TimeSlotVM timeSlotVM)
+        public static WorkingTime ToWorkingTimeModel(this TimeSlotVM timeSlotVM)
         {
             var workingTime = new WorkingTime
             {
-                DateFrom = timeSlotVM.Date.ToDateTime(timeSlotVM.TimeFrom),
-                DateTo = timeSlotVM.Date.ToDateTime(timeSlotVM.TimeTo),
-                DayOfWeek = (int)timeSlotVM.Date.DayOfWeek == 0 ? 6 : (int)timeSlotVM.Date.DayOfWeek - 1,
-                TimeInterval = timeSlotVM.TimeTo - timeSlotVM.TimeFrom
+                DateFrom = timeSlotVM.DateFrom,
+                DateTo = timeSlotVM.DateTo,
+                DayOfWeek = (int)timeSlotVM.DateFrom.DayOfWeek == 0 ? 6 : (int)timeSlotVM.DateFrom.DayOfWeek - 1,
+                TimeInterval = timeSlotVM.DateTo - timeSlotVM.DateFrom,
+                UserId = timeSlotVM.UserId
             };
             return workingTime;
         }
-        
+
+        public static TimeSlotVM ToVM(this RegisteredTime registeredTime)
+        {
+            var timeSlotVM = new TimeSlotVM
+            {
+                DateFrom = registeredTime.DateFrom,
+                DateTo = registeredTime.DateTo,
+                UserId = registeredTime.UserId
+            };
+            return timeSlotVM;
+        }
+
+        public static RegisteredTime ToRegisteredTimeModel(this TimeSlotVM timeSlotVM)
+        {
+            var workingTime = new RegisteredTime
+            {
+                DateFrom = timeSlotVM.DateFrom,
+                DateTo = timeSlotVM.DateTo,
+                DayOfWeek = (int)timeSlotVM.DateFrom.DayOfWeek == 0 ? 6 : (int)timeSlotVM.DateFrom.DayOfWeek - 1,
+                TimeInterval = timeSlotVM.DateTo - timeSlotVM.DateFrom,
+                UserId = timeSlotVM.UserId
+            };
+            return workingTime;
+        }
+
         public static OptionVM ToVM(this OptionSetOption optionSetOption)
         {
             var optionVM = new OptionVM

@@ -14,6 +14,9 @@ namespace GastroLab.Application.ViewModels
         public OrderStatus Status { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime? CompletionDate { get; set; }
+        public TimeSpan? WaitingTime { get; set; }
+        public bool isScheduledDelivery { get; set; }
+        public DateTime? ScheduledDeliveryDate { get; set; }
 
         public string? ClientId { get; set; }
         public List<OrderProductOptionVM> options { get; set; } = new List<OrderProductOptionVM>();
