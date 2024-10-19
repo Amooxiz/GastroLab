@@ -1,0 +1,59 @@
+﻿@model GastroLab.Application.ViewModels.EditUserVM
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post">
+    @* Hidden field to hold the user ID *@
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="UserName"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    @* Password fields are typically omitted in edit *@
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Surname"></label>
+        <input asp-for="Surname" class="form-control" />
+        <span asp-validation-for="Surname" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Roles</label>
+        @foreach (var role in Model.AllRoles)
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="SelectedRoles" value="@role.Value" @(role.Selected ? "checked" : "") />
+                <label class="form-check-label">@role.Text</label>
+            </div>
+        }
+        <span asp-validation-for="SelectedRoles" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

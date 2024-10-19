@@ -1,0 +1,699 @@
+﻿@model GastroLab.Application.ViewModels.OrderVM
+
+@{
+    ViewData["Title"] = "EditOrder";
+}
+
+<style>
+    /* Styles for the view */
+    ul.list-unstyled {
+        padding-left: 0;
+        margin-bottom: 10px;
+    }
+
+        ul.list-unstyled li {
+            margin-bottom: 5px;
+        }
+
+    h4 {
+        margin-top: 20px;
+    }
+
+    hr {
+        margin: 10px 0;
+    }
+
+    .save-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+</style>
+
+<h1>Edit Order</h1>
+
+<!-- Save Button in the Top Right Corner -->
+<div class="save-button">
+    <button type="submit" form="editOrderForm" class="btn btn-success">Save</button>
+</div>
+
+<!-- Order Form -->
+<form asp-action="EditOrder" method="post" id="editOrderForm">
+    <input type="hidden" asp-for="Id" />
+    <div class="row">
+        <!-- Left Column: Order Details -->
+        <div class="col-md-8">
+            <h4>Order Details</h4>
+            <hr />
+            <div class="form-group">
+                <label asp-for="DeliveryMethod" class="control-label"></label>
+                <select asp-for="DeliveryMethod" class="form-control" id="deliveryMethod" asp-items="ViewBag.DeliveryMethods"></select>
+                <span asp-validation-for="DeliveryMethod" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="isScheduledDelivery" class="control-label"></label>
+                <input asp-for="isScheduledDelivery" type="checkbox" id="isScheduled" />
+                <span asp-validation-for="isScheduledDelivery" class="text-danger"></span>
+            </div>
+            <div class="form-group" id="scheduledDate">
+                <label asp-for="ScheduledDeliveryDate" class="control-label"></label>
+                <input asp-for="ScheduledDeliveryDate" class="form-control" />
+                <span asp-validation-for="ScheduledDeliveryDate" class="text-danger"></span>
+            </div>
+            <div class="form-group" id="waitingTime">
+                <label asp-for="WaitingTime" class="control-label"></label>
+                <input asp-for="WaitingTime" class="form-control" />
+                <span asp-validation-for="WaitingTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Comment" class="control-label"></label>
+                <input asp-for="Comment" class="form-control" />
+                <span asp-validation-for="Comment" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group" id="tableNrGroup">
+                <label asp-for="TableNr" class="control-label"></label>
+                <input asp-for="TableNr" class="form-control" />
+                <span asp-validation-for="TableNr" class="text-danger"></span>
+            </div>
+
+            <div class="form-group address-group" id="addressCityGroup">
+                <label asp-for="Address.City" class="control-label"></label>
+                <input asp-for="Address.City" class="form-control" />
+                <span asp-validation-for="Address.City" class="text-danger"></span>
+            </div>
+
+            <div class="form-group address-group" id="addressStreetGroup">
+                <label asp-for="Address.Street" class="control-label"></label>
+                <input asp-for="Address.Street" class="form-control" />
+                <span asp-validation-for="Address.Street" class="text-danger"></span>
+            </div>
+
+            <div class="form-group address-group" id="addressPostCodeGroup">
+                <label asp-for="Address.PostCode" class="control-label"></label>
+                <input asp-for="Address.PostCode" class="form-control" />
+                <span asp-validation-for="Address.PostCode" class="text-danger"></span>
+            </div>
+
+            <div class="form-group address-group" id="addressHouseNumberGroup">
+                <label asp-for="Address.HouseNumber" class="control-label"></label>
+                <input asp-for="Address.HouseNumber" class="form-control" />
+                <span asp-validation-for="Address.HouseNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group address-group" id="addressFlatNumberGroup">
+                <label asp-for="Address.FlatNumber" class="control-label"></label>
+                <input asp-for="Address.FlatNumber" class="form-control" />
+                <span asp-validation-for="Address.FlatNumber" class="text-danger"></span>
+            </div>
+
+            <h4>Your Order</h4>
+            <hr />
+            <ul class="list-unstyled" id="orderSummary">
+                @if (Model.products != null && Model.products.Count > 0)
+                {
+                        @for (int i = 0; i < Model.products.Count; i++)
+                        {
+                            var product = Model.products[i];
+                            <li id="product-@product.Id-@i">
+                                <input type="hidden" name="products[@i].Id" value="@product.Id" />
+                                <input type="hidden" name="products[@i].OrderProductId" value="@product.OrderProductId" />
+                                <input type="hidden" name="products[@i].Name" value="@product.Name" />
+                                <input type="hidden" name="products[@i].Price" value="@product.Price" />
+                                <input type="hidden" name="products[@i].UnitPrice" value="@(product.Price / product.Quantity)" />
+                                <input type="hidden" name="products[@i].Quantity" value="@product.Quantity" class="quantity-input" />
+
+                                <strong>
+                                    @product.Quantity x @product.Name
+                                </strong>
+                                <span style="float:right">@product.Price.ToString("F2") zł</span>
+                                <ul class="list-unstyled">
+                                    @for (int j = 0; j < product.OrderOptions.Count; j++)
+                                    {
+                                        var optionSet = product.OrderOptions[j];
+                                        <li>@optionSet.OptionSet.DisplayName:</li>
+                                        <ul class="list-unstyled">
+                                            <li>- @optionSet.Option.DisplayName (@(optionSet.Option.Price.HasValue ? "+" + optionSet.Option.Price.Value.ToString("F2") + " zł" : ""))</li>
+                                        </ul>
+                                    }
+                                </ul>
+                                <button type="button" class="edit-product-button btn btn-warning btn-sm" data-index="@i">Edit</button>
+                                <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="@i">Remove</button>
+                                <hr />
+                            </li>
+                        }
+                }
+            </ul>
+
+            <p id="noItemsMessage" @(Model.products != null && Model.products.Count > 0 ? "style='display:none;'" : "")>No items in your order.</p>
+
+            <div class="form-group">
+                <label id="totalPrice">
+                    Total price: @Model.TotalPrice.ToString("F2") zł
+                </label>
+            </div>
+
+
+            @* <h4>Your Order</h4>
+            <hr />
+            @if (Model.products != null && Model.products.Count > 0)
+            {
+                <ul class="list-unstyled" id="orderSummary">
+                    @for (int i = 0; i < Model.products.Count; i++)
+                    {
+                        var product = Model.products[i];
+                        <li id="product-@product.Id-@i">
+                            <input type="hidden" asp-for="products[@i].Id" />
+                            <strong>
+                                @product.Quantity x @product.Name
+                            </strong>
+                            <span style="float:right">@product.Price.ToString("F2") zł</span>
+                            <ul class="list-unstyled">
+                                @for (int j = 0; j < product.OrderOptions.Count; j++)
+                                {
+                                    var optionSet = product.OrderOptions[j];
+                                    <li>@optionSet.OptionSet.Name:</li>
+                                    <ul class="list-unstyled">
+                                        <li>- @optionSet.Option.Name</li>
+                                    </ul>
+                                }
+                            </ul>
+                            <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="@i">Remove</button>
+                            <hr />
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No items in your order.</p>
+            }
+
+            <div class="form-group">
+                <label id="totalPrice">
+                    Total price: @Model.TotalPrice.ToString("F2") zł
+                </label>
+            </div> *@
+        </div>
+
+        <!-- Right Column: Available Products -->
+        <div class="col-md-4">
+            <h4>Add Products</h4>
+            <hr />
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            Price
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ViewBag.AllProducts)
+                    {
+                        <tr>
+                            <td>
+                                @item.Name
+                            </td>
+                            <td>
+                                @item.Price.ToString("F2") zł
+                            </td>
+                            <td>
+                                <button type="button" class="add-product-button btn btn-primary btn-sm" data-product-id="@item.Id">Add</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="ManageOrders">Back to List</a>
+</div>
+
+<div class="modal fade" id="productOptionsModal" tabindex="-1" role="dialog" aria-labelledby="productOptionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Wybierz opcje produktu</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Zamknij">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Opcje zostaną tutaj załadowane przez JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                <button type="button" class="confirm-add-product btn btn-primary">Dodaj do zamówienia</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            var selectedProduct = null; // Global variable to store the selected product
+
+            // Toggle form elements based on delivery method and scheduled delivery
+            function toggleFormElements() {
+                var selectedMethod = $('#deliveryMethod').val();
+                var isScheduledChecked = $('#isScheduled').prop('checked');
+
+                if (selectedMethod == '3') { // DineIn
+                    $('#tableNrGroup').show();
+                    $('.address-group').hide();
+                } else if (selectedMethod == '1') { // Delivery
+                    $('#tableNrGroup').hide();
+                    $('.address-group').show();
+                } else if (selectedMethod == '2') { // Pickup
+                    $('#tableNrGroup').hide();
+                    $('.address-group').hide();
+                }
+
+                if (isScheduledChecked) {
+                    $('#scheduledDate').show();
+                    $('#waitingTime').hide();
+                } else {
+                    $('#scheduledDate').hide();
+                    $('#waitingTime').show();
+                }
+            }
+
+            // Run on page load
+            toggleFormElements();
+
+            // Run whenever the selection changes
+            $('#deliveryMethod').change(function () {
+                toggleFormElements();
+            });
+
+            $('#isScheduled').change(function () {
+                toggleFormElements();
+            });
+
+            $(document).on('click', '.edit-product-button', function () {
+                var index = $(this).data('index');
+                var $li = $('#orderSummary').children('li').eq(index);
+                var productId = $li.find('input[name$=".Id"]').val();
+
+                // Retrieve the product data from the list item
+                var product = {
+                    id: parseInt($li.find('input[name$=".Id"]').val()),
+                    name: $li.find('input[name$=".Name"]').val(),
+                    price: parseFloat($li.find('input[name$=".UnitPrice"]').val()),
+                    quantity: parseInt($li.find('input[name$=".Quantity"]').val()),
+                    orderOptions: []
+                };
+
+                // Collect the existing options
+                $li.find('input[name^="products[' + index + '].OrderOptions"]').each(function () {
+                    var name = $(this).attr('name');
+                    var value = $(this).val();
+                    var optionIndexMatch = name.match(/OrderOptions\[(\d+)\]/);
+                    if (optionIndexMatch) {
+                        var optionIndex = optionIndexMatch[1];
+
+                        if (!product.orderOptions[optionIndex]) {
+                            product.orderOptions[optionIndex] = {};
+                        }
+
+                        if (name.endsWith('.OptionSet.Id')) {
+                            product.orderOptions[optionIndex].OptionSetId = parseInt(value);
+                        } else if (name.endsWith('.OptionSet.DisplayName')) {
+                            product.orderOptions[optionIndex].OptionSetName = value;
+                        } else if (name.endsWith('.Option.Id')) {
+                            product.orderOptions[optionIndex].OptionId = parseInt(value);
+                        } else if (name.endsWith('.Option.DisplayName')) {
+                            product.orderOptions[optionIndex].OptionName = value;
+                        } else if (name.endsWith('.Option.Price')) {
+                            product.orderOptions[optionIndex].Price = parseFloat(value);
+                        }
+                    }
+                });
+
+                // Fetch the product details and options via AJAX
+                $.ajax({
+                    url: '/Order/GetProductDetailsWithOptions',
+                    type: 'GET',
+                    data: { id: productId },
+                    success: function (productDetails) {
+                        // Pre-select options based on the existing product data
+                        selectedProduct = productDetails;
+
+                        // Build the options selection UI with pre-selected options
+                        var optionSetsHTML = '';
+                        productDetails.optionSets.forEach(function (optionSet) {
+                            var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
+                            var requiredIndicator = optionSet.isRequired ? ' *' : '';
+                            optionSetsHTML += `
+                            <h5>${optionSet.displayName}${requiredIndicator}</h5>
+                            <ul class="option-list">
+                        `;
+                            optionSet.options.forEach(function (option) {
+                                // Check if this option is selected in the existing product
+                                var isChecked = product.orderOptions.some(function (selectedOption) {
+                                    return selectedOption.OptionSetId === optionSet.id && selectedOption.OptionId === option.id;
+                                });
+
+                                optionSetsHTML += `
+                                <li>
+                                    <label>
+                                        <input type="${inputType}" class="option-input"
+                                            data-price="${option.price ?? 0}"
+                                            data-optionset-id="${optionSet.id}"
+                                            data-optionset-name="${optionSet.displayName}"
+                                            data-option-id="${option.id}"
+                                            data-option-name="${option.displayName}"
+                                            name="optionset-${optionSet.id}"
+                                            ${isChecked ? 'checked' : ''}
+                                        />
+                                        ${option.displayName} +${(option.price ?? 0).toFixed(2)} zł
+                                    </label>
+                                </li>
+                            `;
+                            });
+                            optionSetsHTML += '</ul>';
+                        });
+
+                        // Add the quantity input with the existing quantity
+                        optionSetsHTML += `
+                        <div class="form-group">
+                            <label for="product-quantity">Ilość:</label>
+                            <input type="number" id="product-quantity" class="form-control" value="${product.quantity}" min="1" />
+                        </div>
+                    `;
+
+                        // Update the modal footer buttons
+                        $('#productOptionsModal .modal-footer .confirm-add-product')
+                            .text('Update Product')
+                            .addClass('confirm-update-product')
+                            .removeClass('confirm-add-product')
+                            .data('index', index); // Store the index of the product being edited
+
+                        // Display options and quantity in the modal
+                        $('#productOptionsModal .modal-body').html(optionSetsHTML);
+                        $('#productOptionsModal').modal('show');
+                    },
+                    error: function () {
+                        alert('Error retrieving product details.');
+                    }
+                });
+            });
+
+
+            // Add product to order
+            $('.add-product-button').click(function () {
+                var productId = $(this).data('product-id');
+
+                // Send AJAX request to get product details and options
+                $.ajax({
+                    url: '/Order/GetProductDetailsWithOptions',
+                    type: 'GET',
+                    data: { id: productId },
+                    success: function (product) {
+                        // Store the fetched product
+                        selectedProduct = product;
+
+                        // Build the options selection UI
+                        var optionSetsHTML = '';
+                        product.optionSets.forEach(function (optionSet) {
+                            var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
+                            var requiredIndicator = optionSet.isRequired ? ' *' : '';
+                            optionSetsHTML += `
+                                <h5>${optionSet.displayName}${requiredIndicator}</h5>
+                                <ul class="option-list">
+                            `;
+                            optionSet.options.forEach(function (option) {
+                                optionSetsHTML += `
+                                    <li>
+                                        <label>
+                                            <input type="${inputType}" class="option-input"
+                                                data-price="${option.price ?? 0}"
+                                                data-optionset-id="${optionSet.id}"
+                                                data-optionset-name="${optionSet.displayName}"
+                                                data-option-id="${option.id}"
+                                                data-option-name="${option.displayName}"
+                                                name="optionset-${optionSet.id}"
+                                                />
+                                            ${option.displayName} +${(option.price ?? 0).toFixed(2)} zł
+                                        </label>
+                                    </li>
+                                `;
+                            });
+                            optionSetsHTML += '</ul>';
+                        });
+
+                        optionSetsHTML += `
+                            <div class="form-group">
+                                <label for="product-quantity">Quantity:</label>
+                                <input type="number" id="product-quantity" class="form-control" value="1" min="1" />
+                            </div>
+                        `;
+
+                        // Display options in the modal
+                        $('#productOptionsModal .modal-body').html(optionSetsHTML);
+                        $('#productOptionsModal').modal('show');
+                    },
+                    error: function () {
+                        alert('Error retrieving product details.');
+                    }
+                });
+            });
+
+            function updateNoItemsMessage() {
+                var productCount = $('#orderSummary li').length;
+                if (productCount === 0) {
+                    $('#noItemsMessage').show();
+                } else {
+                    $('#noItemsMessage').hide();
+                }
+            }
+
+            updateNoItemsMessage();
+
+            // Handle "Add to Order" or "Update Product" button click
+            $(document).on('click', '.confirm-add-product, .confirm-update-product', function () {
+                if (!selectedProduct) {
+                    alert('No product selected.');
+                    return;
+                }
+
+                // Get the quantity
+                var quantity = parseInt($('#productOptionsModal #product-quantity').val()) || 1;
+
+                // Validate quantity
+                if (quantity < 1) {
+                    alert('Quantity must be at least 1.');
+                    return;
+                }
+
+                // Collect selected options and validate required ones
+                var selectedOptions = [];
+                var validationErrors = [];
+
+                selectedProduct.optionSets.forEach(function (optionSet) {
+                    var optionsSelected = [];
+                    var $options = $('#productOptionsModal input[name="optionset-' + optionSet.id + '"]:checked');
+
+                    $options.each(function () {
+                        optionsSelected.push({
+                            OptionSetId: parseInt($(this).data('optionset-id')),
+                            OptionSetName: $(this).data('optionset-name'),
+                            OptionId: parseInt($(this).data('option-id')),
+                            OptionName: $(this).data('option-name'),
+                            Price: parseFloat($(this).data('price'))
+                        });
+                    });
+
+                    if (optionSet.isRequired && optionsSelected.length === 0) {
+                        validationErrors.push('You must select at least one option from "' + optionSet.displayName + '".');
+                    }
+
+                    selectedOptions = selectedOptions.concat(optionsSelected);
+                });
+
+                if (validationErrors.length > 0) {
+                    alert(validationErrors.join('\n'));
+                    return;
+                }
+
+                // Calculate unit price
+                var unitPrice = parseFloat(selectedProduct.price);
+                selectedOptions.forEach(function (option) {
+                    unitPrice += option.Price;
+                });
+
+                // Calculate total product price
+                var productPrice = unitPrice * quantity;
+
+                // Determine if we're adding a new product or updating an existing one
+                var isUpdating = $(this).hasClass('confirm-update-product');
+                var index = isUpdating ? $(this).data('index') : $('#orderSummary li').length;
+
+                // Build the HTML for the product
+                var html = `
+                <li id="product-${selectedProduct.id}-${index}">
+                    <input type="hidden" name="products[${index}].Id" value="${selectedProduct.id}" />
+                    <input type="hidden" name="products[${index}].Name" value="${selectedProduct.name}" />
+                    <input type="hidden" name="products[${index}].Price" value="${productPrice.toFixed(2)}" />
+                    <input type="hidden" name="products[${index}].UnitPrice" value="${unitPrice.toFixed(2)}" />
+                    <input type="hidden" name="products[${index}].Quantity" value="${quantity}" class="quantity-input" />
+                    <strong>
+                        ${quantity} x ${selectedProduct.name}
+                    </strong>
+                    <span style="float:right">${productPrice.toFixed(2)} zł</span>
+                    <ul class="list-unstyled">
+            `;
+
+                // Add selected options to the product
+                selectedOptions.forEach(function (option, optionIndex) {
+                    html += `
+                    <li class="option-item">
+                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].OptionSet.Id" value="${option.OptionSetId}" />
+                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].OptionSet.DisplayName" value="${option.OptionSetName}" />
+                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].Option.Id" value="${option.OptionId}" />
+                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].Option.DisplayName" value="${option.OptionName}" />
+                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].Option.Price" value="${option.Price.toFixed(2)}" />
+                        ${option.OptionSetName}: ${option.OptionName} (+${option.Price.toFixed(2)} zł)
+                    </li>
+                `;
+                });
+
+                html += `
+                    </ul>
+                    <button type="button" class="edit-product-button btn btn-warning btn-sm" data-index="${index}">Edit</button>
+                    <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="${index}">Remove</button>
+                    <hr />
+                </li>
+            `;
+
+                if (isUpdating) {
+                    // Replace the existing product in the order summary
+                    $('#orderSummary li').eq(index).replaceWith(html);
+                } else {
+                    // Append the new product to the order summary
+                    $('#orderSummary').append(html);
+                }
+
+                reindexProducts(); // Re-index products
+                updateTotalPrice();
+                updateNoItemsMessage();
+
+                // Clear the selected product
+                selectedProduct = null;
+
+                // Close the modal
+                $('#productOptionsModal').modal('hide');
+
+                // Reset the confirm button
+                $(this).text('Add to Order').addClass('confirm-add-product').removeClass('confirm-update-product').removeData('index');
+            });
+
+
+
+            $(document).on('click', '.btn-secondary[data-dismiss="modal"]', function () {
+                $('#productOptionsModal').modal('hide');
+            });
+
+            $('#orderSummary').on('click', '.remove-product-button', function () {
+                var $li = $(this).closest('li');
+                var quantityInput = $li.find('input[name$=".Quantity"]');
+                var quantity = parseInt(quantityInput.val()) || 1;
+                var unitPrice = parseFloat($li.find('input[name$=".UnitPrice"]').val()) || 0;
+
+                if (quantity > 1) {
+                    quantity--;
+                    quantityInput.val(quantity);
+                    // Update product price
+                    var newProductPrice = unitPrice * quantity;
+                    $li.find('input[name$=".Price"]').val(newProductPrice.toFixed(2));
+                    $li.find('strong').text(quantity + ' x ' + $li.find('input[name$=".Name"]').val());
+                    $li.find('span[style="float:right"]').text(newProductPrice.toFixed(2) + ' zł');
+                } else {
+                    $li.remove();
+                    reindexProducts(); // Re-index after removal
+                    updateNoItemsMessage();
+                }
+                // Update total price
+                updateTotalPrice();
+            });
+
+
+            function updateTotalPrice() {
+                var totalPrice = 0;
+                $('#orderSummary li').each(function () {
+                    var quantity = parseInt($(this).find('.quantity-input').val()) || 1;
+                    var price = parseFloat($(this).find('input[name$=".UnitPrice"]').val()) || 0;
+                    totalPrice += quantity * price;
+                    $(this).find('span[style="float:right"]').text((quantity * price).toFixed(2) + ' zł');
+                });
+                $('#totalPrice').text('Total price: ' + totalPrice.toFixed(2) + ' zł');
+            }
+
+            function reindexProducts() {
+                $('#orderSummary li[id^="product-"]').each(function (productIndex) {
+                    var $productLi = $(this);
+                    $productLi.attr('id', 'product-' + $productLi.find('input[name$=".Id"]').val() + '-' + productIndex);
+
+                    // Aktualizuj nazwy pól dla produktu
+                    $productLi.find('input, select').each(function () {
+                        var name = $(this).attr('name');
+                        if (name) {
+                            // Aktualizuj indeks produktu
+                            var newName = name.replace(/products\[\d+\]/, 'products[' + productIndex + ']');
+
+                            // Jeśli pole należy do OrderOptions, zaktualizuj również indeks opcji
+                            if (newName.includes('OrderOptions')) {
+                                var $optionLi = $(this).closest('.option-item');
+                                var optionIndex = $optionLi.index();
+
+                                // Aktualizuj indeks opcji
+                                newName = newName.replace(/OrderOptions\[\d+\]/, 'OrderOptions[' + optionIndex + ']');
+                            }
+
+                            $(this).attr('name', newName);
+                        }
+                    });
+
+                    // Użyj .attr() do aktualizacji data-index
+                    $productLi.find('.edit-product-button, .remove-product-button').attr('data-index', productIndex);
+                });
+            }
+
+
+
+            // Function to reindex products
+            // function reindexProducts() {
+            //     $('#orderSummary li').each(function (index) {
+            //         $(this).attr('id', 'product-' + $(this).find('input[name$=".Id"]').val() + '-' + index);
+            //         $(this).find('input, select').each(function () {
+            //             var name = $(this).attr('name');
+            //             if (name) {
+            //                 var newName = name.replace(/products\[\d+\]/, 'products[' + index + ']');
+            //                 $(this).attr('name', newName);
+            //             }
+            //         });
+            //         $(this).find('.edit-product-button, .remove-product-button').data('index', index);
+            //     });
+            // }
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

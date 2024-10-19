@@ -1,4 +1,5 @@
 ﻿using GastroLab.Application.ViewModels;
+using GastroLab.Domain.DBO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,10 @@ namespace GastroLab.Application.Interfaces
         public void AddProductToOrder(int orderId, int productId);
         public void RemoveProductFromOrder(int orderId, int productId);
         public void AddOptionToOrderProduct(int orderId, int productId, int optionSetId, int optionId);
+        public IEnumerable<OrderVM> GetNewAndInProgressOrders();
+        public void ChangeStatusOfOrder(int orderId, OrderStatus orderStatus);
+        public IEnumerable<OrderVM> GetDeliveryOrders();
+        public IEnumerable<OrderVM> GetAllActiveOrders();
+        public OrderVM GetOrderById(int id);
     }
 }

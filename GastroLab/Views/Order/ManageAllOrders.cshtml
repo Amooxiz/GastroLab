@@ -1,0 +1,106 @@
+﻿@model IEnumerable<GastroLab.Application.ViewModels.OrderVM>
+
+@{
+    ViewData["Title"] = "ManageAllOrders";
+}
+
+<h1>Manage Orders</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Order Details</th>
+            <th>Delivery Info</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <!-- First Column: Status -->
+                <td>
+                    @order.Status
+                </td>
+
+                <!-- Second Column: Order Details -->
+                <td>
+                    @foreach (var product in order.products)
+                    {
+                        <div>
+                            <strong>@product.Quantity x @product.Name</strong>
+                            <span>(@string.Join(", ", product.ingredients.Select(i => i.Name)))</span>
+                            <ul>
+                                @foreach (var optionSet in product.OrderOptions)
+                                {
+                                    <li>- @optionSet.Option.Name</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(order.Comment))
+                    {
+                        <p><strong>Note:</strong> @order.Comment</p>
+                    }
+                </td>
+
+                <!-- Third Column: Delivery Info -->
+                <td>
+                    <div>
+                        <strong>Created on:</strong> @order.CreationDate.ToString("dd.MM.yyyy HH:mm")<br />
+                        @if (order.WaitingTime.HasValue)
+                        {
+                            var elapsedTime = DateTime.Now - order.CreationDate;
+                            var remainingTime = order.WaitingTime.Value - elapsedTime;
+                            var remainingMinutes = (int)remainingTime.TotalMinutes;
+
+                            // Ensure remaining minutes are not negative
+                            if (remainingMinutes < 0)
+                            {
+                                remainingMinutes = 0;
+                            }
+                            <strong>Remaining time: @remainingMinutes min</strong>
+
+                            <br />
+                        }
+                        <strong>@order.DeliveryMethod</strong><br />
+                        @if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.Delivery && order.Address != null)
+                        {
+                            <p>@order.Address.City @order.Address.Street @order.Address.HouseNumber</p>
+                                @if (order.Address.FlatNumber != null)
+                                {
+                                    <p>/@order.Address.FlatNumber</p>
+                                }
+                        }
+                        else if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.DineIn)
+                        {
+                            <p>Table: @order.TableNr</p>
+                        }
+                        else // Pickup
+                        {
+                            <p>
+                                Pickup time: @(
+                        order.ScheduledDeliveryDate.HasValue
+                        ? order.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
+                        : (order.CreationDate + (order.WaitingTime ?? TimeSpan.Zero)).ToString("dd.MM.yyyy HH:mm")
+                        )
+                            </p>
+                        }
+                    </div>
+                </td>
+
+                <!-- Fourth Column: Total Price and Edit/Delete buttons -->
+                <td>
+                    <div>
+                        <strong>Total Price:</strong> @order.TotalPrice.ToString("F2") zł
+                    </div>
+                    <div>
+                        <a href="@Url.Action("EditOrder", "Order", new { id = order.Id })" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="@Url.Action("DeleteOrder", "Order", new { id = order.Id })" class="btn btn-sm btn-danger">Delete</a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

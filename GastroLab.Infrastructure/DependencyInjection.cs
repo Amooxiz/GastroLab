@@ -46,6 +46,9 @@ namespace GastroLab.Infrastructure
             services.AddTransient<IRegisteredTimeService, RegisteredTimeService>();
             services.AddTransient<ICalendarRepository, CalendarRepository>();
             services.AddTransient<ICalendarService, CalendarService>();
+            services.AddTransient<IGlobalSettingsRepository, GlobalSettingsRepository>();
+            services.AddTransient<IGlobalSettingsService, GlobalSettingsService>();
+            services.AddTransient<IUserService, UserService>();
             return services;
         }
     }

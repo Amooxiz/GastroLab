@@ -13,7 +13,7 @@ namespace GastroLab.Domain.DBO
         public string? TableNr { get; set; }
         public decimal TotalPrice { get; set; }
         public string? Comment { get; set; }
-        public int AddressId { get; set; }
+        public int? AddressId { get; set; }
         public Address? Address { get; set; }
         public OrderStatus Status { get; set; }
         public DateTime CreationDate { get; set; }
@@ -25,6 +25,5 @@ namespace GastroLab.Domain.DBO
         public string? ClientId { get; set; }
         public virtual User? Client { get; set; }
         public virtual ICollection<OrderProduct>? OrderProducts { get; set; }
-        public virtual ICollection<OrderProductOption>? OrderProductOptions { get; set; }
     }
 }
