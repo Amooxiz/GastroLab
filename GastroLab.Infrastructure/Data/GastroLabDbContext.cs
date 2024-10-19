@@ -15,7 +15,6 @@ namespace GastroLab.Infrastructure.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Address> Addresses { get; set; }
-        public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<RegisteredTime> RegisteredTimes { get; set; }
         public DbSet<WorkingTime> WorkingTimes { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -34,7 +33,7 @@ namespace GastroLab.Infrastructure.Data
         public DbSet<OptionSetOption> OptionSetOptions { get; set; }
         public DbSet<ProductOptionSetOption> ProductOptionSetOptions { get; set; }
         public DbSet<OrderProductOption> OrderProductOptions { get; set; }
-        public DbSet<Topic> Topics { get; set; }
+        public DbSet<GlobalSettings> GlobalSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -123,7 +122,7 @@ namespace GastroLab.Infrastructure.Data
             // Order N:N Product
 
             builder.Entity<OrderProduct>()
-                .HasKey(pg => new { pg.OrderId, pg.ProductId });
+                .HasKey(pg => pg.Id);
 
             builder.Entity<OrderProduct>()
                 .HasOne<Order>(pg => pg.Order)
@@ -158,27 +157,23 @@ namespace GastroLab.Infrastructure.Data
             // Order N:N Product N:N OptionSet N:N Option
 
             builder.Entity<OrderProductOption>()
-                .HasKey(pg => new { pg.OrderId, pg.ProductId, pg.OptionSetId, pg.OptionId });
+                .HasKey(pg => new { pg.OrderProductId, pg.OptionSetId, pg.OptionId });
 
             builder.Entity<OrderProductOption>()
-                .HasOne<Order>(pg => pg.Order)
-                .WithMany(g => g.OrderProductOptions)
-                .HasForeignKey(g => g.OrderId);
-
-            builder.Entity<OrderProductOption>()
-                .HasOne<Product>(pg => pg.Product)
-                .WithMany(g => g.OrderProductOptions)
-                .HasForeignKey(g => g.ProductId);
-
-            builder.Entity<OrderProductOption>()
-                .HasOne<OptionSet>(pg => pg.OptionSet)
+                .HasOne(pg => pg.OrderProduct)
                 .WithMany(p => p.OrderProductOptions)
-                .HasForeignKey(p => p.OptionSetId);
+                .HasForeignKey(pg => pg.OrderProductId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<OrderProductOption>()
-                .HasOne<Option>(pg => pg.Option)
-                .WithMany(g => g.OrderProductOptions)
-                .HasForeignKey(g => g.OptionId);
+                .HasOne(pg => pg.OptionSet)
+                .WithMany(p => p.OrderProductOptions)
+                .HasForeignKey(pg => pg.OptionSetId);
+
+            builder.Entity<OrderProductOption>()
+                .HasOne(pg => pg.Option)
+                .WithMany(p => p.OrderProductOptions)
+                .HasForeignKey(pg => pg.OptionId);
         }
     }
 }

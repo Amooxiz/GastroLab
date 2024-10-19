@@ -71,6 +71,7 @@ using (var scope = app.Services.CreateScope())
     var configuration = services.GetRequiredService<IConfiguration>();
 
     DataSeeder.SeedUsersAndRoles(context, configuration, userManager, roleManager);
+    DataSeeder.SeedGlobalSettings(context);
 }
 
 app.Run();

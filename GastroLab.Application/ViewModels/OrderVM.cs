@@ -19,7 +19,6 @@ namespace GastroLab.Application.ViewModels
         public DateTime? ScheduledDeliveryDate { get; set; }
 
         public string? ClientId { get; set; }
-        public List<OrderProductOptionVM> options { get; set; } = new List<OrderProductOptionVM>();
         public List<ProductVM> products { get; set; } = new List<ProductVM>();
     }
 }

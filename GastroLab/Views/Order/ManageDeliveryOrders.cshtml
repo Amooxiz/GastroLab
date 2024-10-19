@@ -1,8 +1,9 @@
 ﻿@model IEnumerable<GastroLab.Application.ViewModels.OrderVM>
 
 @{
-    ViewData["Title"] = "Manage Orders";
+    ViewData["Title"] = "ManageDeliveryOrders";
 }
+
 
 <style>
     .btn-disabled {
@@ -13,7 +14,7 @@
     }
 </style>
 
-<h1>Manage Orders</h1>
+<h1>ManageDeliveryOrders</h1>
 
 <table class="table table-striped">
     <thead>
@@ -30,19 +31,19 @@
                 <!-- First Column: Status Buttons -->
                 <td>
                     <div class="btn-group-vertical">
-                        <button class="btn btn-sm btn-primary change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.New ? "btn-disabled" : "")"
-                                data-order-id="@order.Id" data-status="New">
-                            New
-                        </button>
-
-                        <button class="btn btn-sm btn-warning change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.InProgress ? "btn-disabled" : "")"
-                                data-order-id="@order.Id" data-status="InProgress">
-                            In Progress
-                        </button>
-
-                        <button class="btn btn-sm btn-success change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.Done ? "btn-disabled" : "")"
+                        <button class="btn btn-sm btn-primary change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.Done ? "btn-disabled" : "")"
                                 data-order-id="@order.Id" data-status="Done">
                             Done
+                        </button>
+
+                        <button class="btn btn-sm btn-warning change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.OnTheWay ? "btn-disabled" : "")"
+                                data-order-id="@order.Id" data-status="OnTheWay">
+                            On The Way
+                        </button>
+
+                        <button class="btn btn-sm btn-success change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.Finished ? "btn-disabled" : "")"
+                                data-order-id="@order.Id" data-status="Finished">
+                            Finished
                         </button>
                     </div>
                 </td>
@@ -85,24 +86,17 @@
                             {
                                 remainingMinutes = 0;
                             }
-                            <strong>Remaining time: @remainingMinutes min</strong><br />
+                            <strong>Remaining time: @remainingMinutes min</strong>
+
+                            <br />
                         }
-                        <strong>@order.DeliveryMethod</strong><br />
-                        @if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.Delivery && order.Address != null)
+                        @if (order.Address != null)
                         {
                             <p>@order.Address.City @order.Address.Street @order.Address.HouseNumber</p>
                             @if (order.Address.FlatNumber != null)
                             {
                                 <p>/@order.Address.FlatNumber</p>
                             }
-                        }
-                        else if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.DineIn)
-                        {
-                            <p>Table: @order.TableNr</p>
-                        }
-                        else // Pickup
-                        {
-                            <p>Pickup time: @(order.ScheduledDeliveryDate != null ? @order.ScheduledDeliveryDate : (order.CreationDate + order.WaitingTime))</p>
                         }
                     </div>
                 </td>
@@ -127,7 +121,6 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                        //'X-Requested-With': 'XMLHttpRequest' // Informacja, że to AJAX
                     },
                     body: JSON.stringify({
                         OrderId: parseInt(orderId),

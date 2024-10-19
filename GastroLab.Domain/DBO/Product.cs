@@ -21,7 +21,5 @@ namespace GastroLab.Domain.DBO
         public virtual ICollection<OrderProduct>? OrderProducts { get; set; }
         public virtual ICollection<ProductIngredient>? ProductIngredients { get; set; }
         public virtual ICollection<ProductOptionSetOption>? ProductOptionSetOptions { get; set; }
-        public virtual ICollection<OrderProductOption>? OrderProductOptions { get; set; }
-
     }
 }

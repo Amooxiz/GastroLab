@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GastroLab.Infrastructure.Migrations
 {
     [DbContext(typeof(GastroLabDbContext))]
-    [Migration("20240502021048_productcontroller")]
-    partial class productcontroller
+    [Migration("20240914234512_orderProductStructureFix")]
+    partial class orderProductStructureFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -194,6 +194,12 @@ namespace GastroLab.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsMultiple")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -250,6 +256,9 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<int>("DeliveryMethod")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("ScheduledDeliveryDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -258,6 +267,12 @@ namespace GastroLab.Infrastructure.Migrations
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<TimeSpan?>("WaitingTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("isScheduledDelivery")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -270,13 +285,16 @@ namespace GastroLab.Infrastructure.Migrations
 
             modelBuilder.Entity("GastroLab.Domain.DBO.OrderProduct", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -285,7 +303,9 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("OrderId", "ProductId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -294,29 +314,22 @@ namespace GastroLab.Infrastructure.Migrations
 
             modelBuilder.Entity("GastroLab.Domain.DBO.OrderProductOption", b =>
                 {
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(1);
+                    b.Property<int>("OrderProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("OptionSetId")
                         .HasColumnType("int")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(1);
 
                     b.Property<int>("OptionId")
                         .HasColumnType("int")
-                        .HasColumnOrder(3);
+                        .HasColumnOrder(2);
 
-                    b.HasKey("OrderId", "ProductId", "OptionSetId", "OptionId");
+                    b.HasKey("OrderProductId", "OptionSetId", "OptionId");
 
                     b.HasIndex("OptionId");
 
                     b.HasIndex("OptionSetId");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderProductOptions");
                 });
@@ -859,15 +872,9 @@ namespace GastroLab.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.DBO.Order", "Order")
+                    b.HasOne("GastroLab.Domain.DBO.OrderProduct", "OrderProduct")
                         .WithMany("OrderProductOptions")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GastroLab.Domain.DBO.Product", "Product")
-                        .WithMany("OrderProductOptions")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("OrderProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -875,9 +882,7 @@ namespace GastroLab.Infrastructure.Migrations
 
                     b.Navigation("OptionSet");
 
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
+                    b.Navigation("OrderProduct");
                 });
 
             modelBuilder.Entity("GastroLab.Domain.DBO.Product", b =>
@@ -1076,15 +1081,16 @@ namespace GastroLab.Infrastructure.Migrations
 
             modelBuilder.Entity("GastroLab.Domain.DBO.Order", b =>
                 {
-                    b.Navigation("OrderProductOptions");
-
                     b.Navigation("OrderProducts");
+                });
+
+            modelBuilder.Entity("GastroLab.Domain.DBO.OrderProduct", b =>
+                {
+                    b.Navigation("OrderProductOptions");
                 });
 
             modelBuilder.Entity("GastroLab.Domain.DBO.Product", b =>
                 {
-                    b.Navigation("OrderProductOptions");
-
                     b.Navigation("OrderProducts");
 
                     b.Navigation("ProductCategories");

@@ -174,9 +174,9 @@
             <ul class="list-unstyled" id="orderSummary">
                 @foreach (var product in ViewBag.AddedProducts.Products)
                 {
-                    <li id ="product-@product.ProductId">
+                    <li id="product-@product.ProductId-@product.ItemId">
                         <strong>@product.Quantity x @product.ProductName</strong>
-                        <span style="float:right">@product.Price.ToString("F2") zł</span>
+                        <span style="float:right">@((product.Price * product.Quantity).ToString("F2")) zł</span>
                         <ul class="list-unstyled">
                             @foreach (var optionSet in product.SelectedOptions)
                             {
@@ -186,7 +186,7 @@
                                 </ul>
                             }
                         </ul>
-                        <button class="remove-product-button btn btn-danger btn-sm" data-product-id="@product.ProductId">Remove</button>
+                        <button class="remove-product-button btn btn-danger btn-sm" data-product-id="@product.ProductId" data-item-id="@product.ItemId">Remove</button>
                         <hr />
                     </li>
                 }
@@ -217,6 +217,7 @@
                     var productName = button.getAttribute('name');
                     console.log(price);
                     console.log(parseFloat(price.replace(',', '.')));
+                    var itemId = crypto.randomUUID();
                     var optionSetsContainer = document.querySelector(`tr.optionsetscontainer[id = "${productId}"]`); // Get the option sets container for the selected product
                     
                     if (optionSetsContainer == null) {
@@ -289,7 +290,7 @@
                                     ProductName: productName,
                                     Quantity: quantity,
                                     Price: parseFloat(price.replace(',', '.')),
-                                    SelectedOptions: selectedOptions
+                                    SelectedOptions: selectedOptions,
                                 };
 
                                 // Send the data to the server using fetch
@@ -398,27 +399,31 @@
 
             orderSummary.addEventListener('click', function (event) {
                 if (event.target && event.target.matches('.remove-product-button')) {
+                    debugger;
                     var productId = event.target.getAttribute('data-product-id');
+                    var itemId = event.target.getAttribute('data-item-id');
 
                     // Send the remove request to the server
-                    fetch('/Order/RemoveProduct', {
+                    fetch('/Order/RemoveProduct?productId=' + productId + '&itemId=' + itemId, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(parseInt(productId))
+                        body: JSON.stringify({ ProductId: parseInt(productId), ItemId: itemId })
                     })
                     .then(response => response.json())
                     .then(result => {
                         if (result.success) {
-                            var productElement = document.getElementById('product-' + productId);
+                            var productElement = document.getElementById('product-' + productId + '-' + itemId);
                             var quantityLabel = productElement.querySelector('strong');
+                            var priceLabel = productElement.querySelector('span');
                             var quantity = parseInt(quantityLabel.textContent.split('x')[0].trim());
 
                             if (quantity > 1) {
                                 // Decrease the quantity
                                 quantity--;
                                 quantityLabel.textContent = `${quantity} x ${result.productName}`;
+                                priceLabel.textContent = `${(result.productPrice * quantity).toFixed(2)} zł`;
                             } else {
                                 // Remove the product element from the DOM
                                 productElement.remove();

@@ -12,7 +12,7 @@ namespace GastroLab.Domain.DBO
         OnHold = 1,
         InProgress = 2,
         Done = 3,
-        Delivered = 4,
+        OnTheWay = 4,
         Finished = 5,
         Canceled = 6
     }

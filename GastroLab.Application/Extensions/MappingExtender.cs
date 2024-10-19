@@ -1,5 +1,6 @@
 ﻿using GastroLab.Application.ViewModels;
 using GastroLab.Domain.DBO;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,129 @@ namespace GastroLab.Application.Extensions
 {
     public static class MappingExtender
     {
+
+        public static User ToModel(this CreateUserVM vm)
+        {
+            if (vm == null)
+                return null;
+
+            var user = new User
+            {
+                UserName = vm.UserName,
+                Email = vm.Email,
+                Name = vm.Name,
+                Surname = vm.Surname,
+            };
+
+            return user;
+        }
+
+        public static EditUserVM ToEditUserVM(this User user)
+        {
+            if (user == null)
+                return null;
+
+            var editVm = new EditUserVM()
+            {
+                Name = user.Name,
+                Surname = user.Surname,
+                Email = user.Email,
+                UserName = user.UserName,
+            };
+            return editVm;
+        }
+
+        public static EditUserVM ToEditUserVM(this UserVM vm)
+        {
+            if (vm == null)
+                return null;
+
+            var editVm = new EditUserVM()
+            {
+                Name = vm.Name,
+                Surname = vm.Surname,
+                Email = vm.Email,
+                UserName = vm.UserName,
+            };
+            return editVm;
+        }
+
+        public static User ToModel(this EditUserVM vm)
+        {
+            if (vm == null)
+                return null;
+
+            var user = new User
+            {
+                UserName = vm.UserName,
+                Email = vm.Email,
+                Name = vm.Name,
+                Surname = vm.Surname,
+            };
+
+            return user;
+        }
+
+        public static User ToModel(this UserVM userVM)
+        {
+            if (userVM == null)
+                return null;
+
+            var user = new User
+            {
+                Id = userVM.Id,
+                UserName = userVM.UserName,
+                Email = userVM.Email,
+                Name = userVM.Name,
+                Surname = userVM.Surname,
+            };
+
+            return user;
+        }
+
+        public static UserVM ToVM(this User user)
+        {
+            if (user == null)
+                return null;
+
+            var userVM = new UserVM
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Name = user.Name,
+                Surname = user.Surname,
+            };
+
+            return userVM;
+        }
+
+        public static GlobalSettings ToModel(this GlobalSettingsVM globalSettingsVM)
+        {
+            var globalSettings = new GlobalSettings()
+            {
+                Id = globalSettingsVM.Id,
+                RestaurantName = globalSettingsVM.RestaurantName,
+                AddressId = globalSettingsVM.AddressVM.Id,
+                DefaultDineInWaitingTime = TimeSpan.FromMinutes(globalSettingsVM.DefaultDineInWaitingTimeInMinutes),
+                DefaultDeliveryWaitingTime = TimeSpan.FromMinutes(globalSettingsVM.DefaultDeliveryWaitingTimeInMinutes),
+                Address = globalSettingsVM.AddressVM.ToModel()
+            };
+            return globalSettings;
+        }
+
+        public static GlobalSettingsVM ToVM(this GlobalSettings globalSettings)
+        {
+            var globalSettingsVM = new GlobalSettingsVM()
+            {
+                Id = globalSettings.Id,
+                RestaurantName = globalSettings.RestaurantName,
+                DefaultDineInWaitingTimeInMinutes = (int)globalSettings.DefaultDineInWaitingTime.TotalMinutes,
+                DefaultDeliveryWaitingTimeInMinutes = (int)globalSettings.DefaultDeliveryWaitingTime.TotalMinutes,
+                AddressVM = globalSettings.Address.ToVM()
+            };
+            return globalSettingsVM;
+        }
         public static ProductVM ToVM(this Product product)
         {
             var productVM = new ProductVM
@@ -160,6 +284,9 @@ namespace GastroLab.Application.Extensions
             if (order.Address != null)
                 orderVM.Address = order.Address.ToVM();
 
+            if (order.OrderProducts != null)
+                orderVM.products = order.OrderProducts.Select(x => x.toProductVM()).ToList();
+
             return orderVM;
         }
 
@@ -169,7 +296,7 @@ namespace GastroLab.Application.Extensions
             {
                 Id = orderVM.Id,
                 CompletionDate = orderVM.CompletionDate,
-                CreationDate = orderVM.CreationDate,
+                CreationDate = DateTime.Now,
                 ClientId = orderVM.ClientId,
                 Status = orderVM.Status,
                 TotalPrice = orderVM.TotalPrice,
@@ -181,10 +308,85 @@ namespace GastroLab.Application.Extensions
                 WaitingTime = orderVM.WaitingTime,
             };
 
-            if (orderVM.Address != null)
+            if (orderVM.DeliveryMethod == DeliveryMethod.Delivery && orderVM.Address != null)
                 order.Address = orderVM.Address.ToModel();
 
+            if (orderVM.products != null)
+                order.OrderProducts = orderVM.products.Select(x => x.ToOrderProduct()).ToList();
+
             return order;
+        }
+
+        public static OrderProductOption ToModel(this OrderProductOptionVM orderProductOptionVM)
+        {
+            var model = new OrderProductOption()
+            {
+                OptionSetId = orderProductOptionVM.OptionSet.Id,
+                OptionId = orderProductOptionVM.Option.Id,
+            };
+            return model;
+        }
+
+        public static OrderProductOptionVM ToVM(this OrderProductOption orderProductOption)
+        {
+            var orderProductOptionVM = new OrderProductOptionVM()
+            {
+                Option = orderProductOption.Option.ToVM(),
+                OptionSet = orderProductOption.OptionSet.ToVM()
+            };
+            return orderProductOptionVM;
+        }
+
+        public static OrderProduct ToOrderProduct(this ProductVM productVM)
+        {
+            var orderProduct = new OrderProduct()
+            {
+                Quantity = productVM.Quantity,
+                ProductId = productVM.Id,
+                TotalPrice = productVM.Price,
+            };
+
+            if (productVM.OrderOptions != null)
+                orderProduct.OrderProductOptions = productVM.OrderOptions.Select(x => x.ToModel()).ToList();
+
+            return orderProduct;
+        }
+
+        public static ProductVM toProductVM(this OrderProduct orderProduct)
+        {
+            var productVM = new ProductVM()
+            {
+                Id = orderProduct.ProductId,
+                OrderProductId = orderProduct.Id,
+                Quantity = orderProduct.Quantity,
+                Price = orderProduct.TotalPrice,
+                Name = orderProduct.Product.Name,
+                Description = orderProduct.Product.Description,
+                Image = orderProduct.Product.Image,
+                productStatus = orderProduct.Product.productStatus,
+            };
+
+            if (orderProduct.OrderProductOptions != null)
+            {
+                productVM.OrderOptions = orderProduct.OrderProductOptions.Select(x => x.ToVM()).ToList();
+            }
+
+            if (orderProduct.Product.ProductCategories != null)
+            {
+                productVM.categories = orderProduct.Product.ProductCategories.Select(x => x.Category).Select(x => x.ToVM()).ToList();
+            }
+
+            if (orderProduct.Product.ProductIngredients != null)
+            {
+                productVM.ingredients = orderProduct.Product.ProductIngredients.Select(x => x.Ingredient).Select(x => x.ToVM()).ToList();
+            }
+
+            if (orderProduct.Product.ProductOptionSets != null)
+            {
+                productVM.optionSets = orderProduct.Product.ProductOptionSets.Select(x => x.OptionSet).Select(x => x.ToVM()).ToList();
+            }
+
+            return productVM;
         }
 
         public static OptionVM ToVM(this Option option)

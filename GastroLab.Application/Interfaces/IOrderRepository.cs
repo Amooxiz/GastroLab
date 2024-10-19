@@ -16,6 +16,14 @@ namespace GastroLab.Application.Interfaces
         public void AddProductToOrder(OrderProduct orderProduct);
         public void RemoveProductFromOrder(OrderProduct orderProduct);
         public void AddOptionToOrderProduct(OrderProductOption orderProductOption);
-        IEnumerable<Order> GetAllOrders();
+        public IEnumerable<Order> GetAllOrders();
+        public IEnumerable<Order> GetNewAndInProgressOrders();
+        public void ChangeStatusOfOrder(int orderId, OrderStatus orderStatus);
+        public IEnumerable<Order> GetDeliveryOrders();
+        public IEnumerable<Order> GetAllActiveOrders();
+        public Order GetOrderById(int id);
+        public void DeleteOrderProduct(OrderProduct existingProduct);
+        public void DeleteOrderProductOption(OrderProductOption existingOption);
+        public void SaveChanges();
     }
 }
