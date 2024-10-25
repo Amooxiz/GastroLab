@@ -1,11 +1,13 @@
 ﻿using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
 using GastroLab.Domain.DBO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing.Printing;
 
 namespace GastroLab.Presentation.Controllers
 {
+    [Authorize(Roles = "Admin,Director")]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
