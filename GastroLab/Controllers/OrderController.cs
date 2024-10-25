@@ -4,6 +4,7 @@ using GastroLab.Application.ViewModels;
 using GastroLab.Domain.DBO;
 using GastroLab.Domain.Models;
 using GastroLab.Presentation.RequestModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -28,6 +29,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Waiter,Director")]
         public IActionResult EditOrder(int id)
         {
             var order = _orderService.GetOrderById(id);
@@ -51,6 +53,7 @@ namespace GastroLab.Presentation.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Waiter,Director")]
         public IActionResult EditOrder(OrderVM order)
         {
             // Recalculate the total price based on the products
@@ -81,6 +84,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Waiter,Director")]
         public IActionResult GetProductDetailsWithOptions(int id)
         {
             var product = _productService.GetProductById(id);
@@ -115,6 +119,7 @@ namespace GastroLab.Presentation.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Director")]
         public IActionResult DeleteOrder(int id)
         {
             var order = _orderService.GetOrderById(id);
@@ -139,6 +144,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Director")]
         public IActionResult ManageAllOrders()
         {
             ViewData.Model = _orderService.GetAllActiveOrders();
@@ -146,6 +152,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Director,Delivery")]
         public IActionResult ManageDeliveryOrders()
         {
             ViewData.Model = _orderService.GetDeliveryOrders();
@@ -153,6 +160,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Director,Delivery,Cook")]
         public IActionResult ChangeStatusOfOrder([FromBody] OrderStatusChangeRequest statusChangeRequest)
         {
             if (statusChangeRequest == null || statusChangeRequest.OrderId == 0)
@@ -172,6 +180,7 @@ namespace GastroLab.Presentation.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Director,Cook")]
         public IActionResult ManageOrders()
         {
             ViewData.Model = _orderService.GetNewAndInProgressOrders();
@@ -179,6 +188,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult AddOrder()
         {
             ViewBag.DeliveryMethods = Enum.GetValues(typeof(DeliveryMethod))
@@ -202,6 +212,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult AddOrder(OrderVM order)
         {
             if (String.IsNullOrEmpty(_cookieService.GetCookie("products")))
@@ -252,6 +263,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult StoreProduct([FromBody] CartProduct request)
         {
             // Here you can process the request and add the product with options to the order
@@ -284,6 +296,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult RemoveProduct(int productId, string itemId)
         {
             var productRequestList = new CartProductList();

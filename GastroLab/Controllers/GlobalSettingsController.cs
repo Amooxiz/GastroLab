@@ -1,5 +1,6 @@
 ﻿using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GastroLab.Presentation.Controllers
@@ -13,6 +14,7 @@ namespace GastroLab.Presentation.Controllers
             _globalSettingsService = globalSettingsService;
         }
 
+        [Authorize(Roles = "Admin,Director")]
         public IActionResult Index()
         {
             var settings = _globalSettingsService.GetSettings();
@@ -21,6 +23,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Director")]
         public IActionResult Index(GlobalSettingsVM model)
         {
             if (ModelState.IsValid)

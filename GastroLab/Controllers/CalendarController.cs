@@ -5,6 +5,7 @@ using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using JasperFx.CodeGeneration.Frames;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GastroLab.Presentation.Controllers
 {
@@ -18,6 +19,7 @@ namespace GastroLab.Presentation.Controllers
             _calendarService = calendarService;
             _userManager = userManager;
         }
+        [Authorize]
         public IActionResult GetCalendar(DateTime? date)
         {
             var model = new WeeklyCalendarVM
@@ -41,6 +43,7 @@ namespace GastroLab.Presentation.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin,Director,Manager")]
         public IActionResult ManageWorkingTimes(DateTime? date, string userId)
         {
             var model = new WeeklyCalendarVM
@@ -74,10 +77,6 @@ namespace GastroLab.Presentation.Controllers
             int dayOfWeek = (int)date.DayOfWeek;
             int substractDays = dayOfWeek == 0 ? 6 : dayOfWeek - 1;
             return date.AddDays(-substractDays);
-        }
-        public IActionResult Index()
-        {
-            return View();
         }
 
         public class WeeklyCalendarVM

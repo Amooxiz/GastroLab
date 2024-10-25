@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="~/GastroLab.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
 
 </head>
 <body>
@@ -22,55 +23,51 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="ProductList">Product List</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="OptionSet" asp-action="ManageOptionSets">Manage option sets</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="OptionSet" asp-action="OptionList">Manage options</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="ManageAllOrders">Manage orders (waiter)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="ManageOrders">Manage orders (cook)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="ManageDeliveryOrders">Manage orders (delivery)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="AddOrder">Add Order</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="RegisteredTime" asp-action="RegisterTime">Register Time</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Calendar" asp-action="GetCalendar">Get Calendar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Calendar" asp-action="ManageWorkingTimes">Manage working times</a>
-                        </li>
-                    </ul>
-                    <!-- Advanced Settings Dropdown -->
-                    <div class="dropdown ml-auto">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="advancedSettingsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Advanced Settings
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="advancedSettingsDropdown">
-                            <a class="dropdown-item" asp-area="" asp-controller="User" asp-action="Index">Manage Users</a>
-                            <a class="dropdown-item" asp-area="" asp-controller="Product" asp-action="ProductList">Manage Products</a>
-                            <a class="dropdown-item" asp-area="" asp-controller="GlobalSettings" asp-action="Index">Global Settings</a>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            @if (User.IsInRole("Admin") || User.IsInRole("Director") || User.IsInRole("Waiter"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="ManageAllOrders">Manage orders (waiter)</a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Admin") || User.IsInRole("Director") || User.IsInRole("Cook"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="ManageOrders">Manage orders (cook)</a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Admin") || User.IsInRole("Director") || User.IsInRole("Delivery"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="ManageDeliveryOrders">Manage orders (delivery)</a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="RegisteredTime" asp-action="RegisterTime">Register Time</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Calendar" asp-action="GetCalendar">Get Calendar</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Calendar" asp-action="ManageWorkingTimes">Manage working times</a>
+                            </li>
+                        </ul>
+
+                        <!-- Advanced Settings Dropdown -->
+                        <div class="dropdown ml-auto">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="advancedSettingsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Advanced Settings
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="advancedSettingsDropdown">
+                                <a class="dropdown-item" asp-area="" asp-controller="User" asp-action="Index">Manage Users</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Product" asp-action="ProductList">Manage Products</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="GlobalSettings" asp-action="Index">Global Settings</a>
+                            </div>
                         </div>
-                    </div>
+                    }
                     <partial name="_LoginPartial" />
                 </div>
             </div>

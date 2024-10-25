@@ -4,6 +4,7 @@ using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GastroLab.Presentation.Controllers
 {
@@ -21,12 +22,14 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult RegisterTime()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult RegisterTime(TimeSlotVM registeredTimeVM)
         {
             // Get the user id from the claims
