@@ -8,6 +8,7 @@
         public string DisplayName { get; set; } = string.Empty;
         public bool IsRequired { get; set; } = false;
         public bool IsMultiple { get; set; } = false;
+        public bool IsGlobal { get; set; } = false;
         public int OptionCount { get; set; }
         public List<OptionVM> options { get; set; } = new List<OptionVM>();
     }

@@ -13,7 +13,7 @@
     }
 </style>
 
-<h1>Manage Orders</h1>
+<h1>Manage active orders</h1>
 
 <table class="table table-striped">
     <thead>
@@ -74,11 +74,9 @@
                 <td>
                     <div>
                         <strong>Created on:</strong> @order.CreationDate.ToString("dd.MM.yyyy HH:mm")<br />
-                        @if (order.WaitingTime.HasValue)
-                        {
+                        @{
                             var elapsedTime = DateTime.Now - order.CreationDate;
-                            var remainingTime = order.WaitingTime.Value - elapsedTime;
-                            var remainingMinutes = (int)remainingTime.TotalMinutes;
+                            var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
 
                             // Ensure remaining minutes are not negative
                             if (remainingMinutes < 0)
@@ -90,11 +88,9 @@
                         <strong>@order.DeliveryMethod</strong><br />
                         @if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.Delivery && order.Address != null)
                         {
-                            <p>@order.Address.City @order.Address.Street @order.Address.HouseNumber</p>
-                            @if (order.Address.FlatNumber != null)
-                            {
-                                <p>/@order.Address.FlatNumber</p>
-                            }
+                            var FlatNumber = order.Address.FlatNumber != null ? "/" + order.Address.FlatNumber : "";
+                            <p>@order.Address.City @order.Address.Street @order.Address.HouseNumber@FlatNumber</p>
+                            
                         }
                         else if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.DineIn)
                         {
@@ -102,7 +98,7 @@
                         }
                         else // Pickup
                         {
-                            <p>Pickup time: @(order.ScheduledDeliveryDate != null ? @order.ScheduledDeliveryDate : (order.CreationDate + order.WaitingTime))</p>
+                            <p>Pickup time: @(order.ScheduledDeliveryDate != null ? @order.ScheduledDeliveryDate : (order.CreationDate + TimeSpan.FromMinutes(order.WaitingTime)))</p>
                         }
                     </div>
                 </td>

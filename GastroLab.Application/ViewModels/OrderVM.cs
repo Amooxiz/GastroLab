@@ -1,11 +1,14 @@
 ﻿using GastroLab.Domain.DBO;
+using System.ComponentModel;
 
 namespace GastroLab.Application.ViewModels
 {
     public class OrderVM
     {
         public int Id { get; set; }
+        [DisplayName("Delivery method")]
         public DeliveryMethod DeliveryMethod { get; set; }
+        [DisplayName("Table number")]
         public string? TableNr { get; set; }
         public decimal TotalPrice { get; set; }
         public string? Comment { get; set; }
@@ -14,8 +17,11 @@ namespace GastroLab.Application.ViewModels
         public OrderStatus Status { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime? CompletionDate { get; set; }
-        public TimeSpan? WaitingTime { get; set; }
+        [DisplayName("Waiting time (minutes)")]
+        public int WaitingTime { get; set; }
+        [DisplayName("Scheduled delivery")]
         public bool isScheduledDelivery { get; set; }
+        [DisplayName("Scheduled delivery date")]
         public DateTime? ScheduledDeliveryDate { get; set; }
 
         public string? ClientId { get; set; }

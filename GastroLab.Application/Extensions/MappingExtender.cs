@@ -1,6 +1,7 @@
 ﻿using GastroLab.Application.ViewModels;
 using GastroLab.Domain.DBO;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,40 @@ namespace GastroLab.Application.Extensions
 {
     public static class MappingExtender
     {
+        public static LeaveRequest ToModel(this LeaveRequestVM leaveRequestVM)
+        {
+            var leaveRequest = new LeaveRequest
+            {
+                Id = leaveRequestVM.Id,
+                DateFrom = leaveRequestVM.DateFrom,
+                DateTo = leaveRequestVM.DateTo,
+                Desciption = leaveRequestVM.Desciption,
+                Feedback = leaveRequestVM.Feedback,
+                CreatedOn = leaveRequestVM.CreatedOn,
+                ResolvedOn = leaveRequestVM.ResolvedOn,
+                Status = leaveRequestVM.Status,
+                UserId = leaveRequestVM.UserId
+            };
+            return leaveRequest;
+        }
+
+        public static LeaveRequestVM ToVM(this LeaveRequest leaveRequest)
+        {
+            var leaveRequestVM = new LeaveRequestVM
+            {
+                Id = leaveRequest.Id,
+                DateFrom = leaveRequest.DateFrom,
+                DateTo = leaveRequest.DateTo,
+                Desciption = leaveRequest.Desciption,
+                Feedback = leaveRequest.Feedback,
+                CreatedOn = leaveRequest.CreatedOn,
+                ResolvedOn = leaveRequest.ResolvedOn,
+                Status = leaveRequest.Status,
+                UserId = leaveRequest.UserId,
+                UserVM = leaveRequest.User.ToVM()
+            };
+            return leaveRequestVM;
+        }
 
         public static User ToModel(this CreateUserVM vm)
         {
@@ -171,7 +206,8 @@ namespace GastroLab.Application.Extensions
                 Description = productVM.Description,
                 Image = productVM.Image,
                 productStatus = productVM.productStatus,
-                ProductPricing = new ProductPricing { Price = productVM.Price }
+                ProductPricing = new ProductPricing { Price = productVM.Price },
+                ProductOptionSets = new List<ProductOptionSet>()
             };
 
             if (productVM.SelectedCategoryIds.Count > 0)
@@ -180,9 +216,25 @@ namespace GastroLab.Application.Extensions
             if (productVM.SelectedIngredientIds.Count > 0)
                 product.ProductIngredients = productVM.SelectedIngredientIds.Select(x => new ProductIngredient { IngredientId = x, ProductId = product.Id }).ToList();
 
-            if (productVM.SelectedOptionSetIds.Count > 0)
-                product.ProductOptionSets = productVM.SelectedOptionSetIds.Select(x => new ProductOptionSet { OptionSetId = x, ProductId = product.Id }).ToList();
+            if (productVM.GlobalOptionSetIds != null)
+            {
+                var optionSetIdsToCreate = productVM.GlobalOptionSetIds.Split(",").Select(x => int.Parse(x)).ToList();
+                optionSetIdsToCreate
+                    .Select(x => new ProductOptionSet { OptionSetId = x, ProductId = product.Id })
+                    .ToList()
+                    .ForEach(x => product.ProductOptionSets.Add(x));
+            }
 
+            if (productVM.SerializedOptionSets != null)
+            {
+                var optionSetsToCreate = JsonConvert.DeserializeObject<List<OptionSetVM>>(productVM.SerializedOptionSets)
+                    ?? new List<OptionSetVM>();
+
+                optionSetsToCreate
+                    .Select(x => new ProductOptionSet { OptionSetId = x.Id, OptionSet = x.ToModel(), Product = product, ProductId = product.Id})
+                    .ToList()
+                    .ForEach (x => product.ProductOptionSets.Add(x));
+            }
             return product;
         }
 
@@ -236,6 +288,7 @@ namespace GastroLab.Application.Extensions
                 DisplayName = optionSet.DisplayName,
                 IsRequired = optionSet.IsRequired,
                 IsMultiple = optionSet.IsMultiple,
+                IsGlobal = optionSet.IsGlobal,
                 OptionCount = 0
             };
             if (optionSet.OptionSetOptions != null && optionSet.OptionSetOptions.Count > 0)
@@ -257,9 +310,14 @@ namespace GastroLab.Application.Extensions
                 DisplayName = optionSetVM.DisplayName,
                 IsRequired = optionSetVM.IsRequired,
                 IsMultiple = optionSetVM.IsMultiple,
+                IsGlobal = optionSetVM.IsGlobal
             };
             if (optionSetVM.options != null && optionSetVM.options.Count > 0)
-                optionSet.OptionSetOptions = optionSetVM.options.Select(x => new OptionSetOption { OptionId = x.Id, OptionSetId = optionSet.Id, Price = x.SelectedPrice ?? x.Price }).ToList();
+            {
+                optionSet.OptionSetOptions = optionSetVM.options
+                    .Select(x => new OptionSetOption { OptionId = x.Id, Option = x.ToModel(), OptionSetId = optionSet.Id, OptionSet = optionSet, Price = x.SelectedPrice ?? x.Price }).ToList();
+
+            }
             return optionSet;
         }
 
@@ -278,8 +336,11 @@ namespace GastroLab.Application.Extensions
                 Comment = order.Comment,
                 isScheduledDelivery = order.isScheduledDelivery,
                 ScheduledDeliveryDate = order.ScheduledDeliveryDate,
-                WaitingTime = order.WaitingTime,
+                //WaitingTime = (int)((TimeSpan)order.WaitingTime).TotalMinutes,
             };
+            
+            if (order.WaitingTime != null)
+                orderVM.WaitingTime = (int)((TimeSpan)order.WaitingTime).TotalMinutes;
 
             if (order.Address != null)
                 orderVM.Address = order.Address.ToVM();
@@ -305,7 +366,7 @@ namespace GastroLab.Application.Extensions
                 Comment = orderVM.Comment,
                 isScheduledDelivery = orderVM.isScheduledDelivery,
                 ScheduledDeliveryDate = orderVM.ScheduledDeliveryDate,
-                WaitingTime = orderVM.WaitingTime,
+                WaitingTime = TimeSpan.FromMinutes(orderVM.WaitingTime),
             };
 
             if (orderVM.DeliveryMethod == DeliveryMethod.Delivery && orderVM.Address != null)
@@ -445,6 +506,7 @@ namespace GastroLab.Application.Extensions
         {
             var timeSlotVM = new TimeSlotVM
             {
+                Id = workingTime.Id,
                 DateFrom = workingTime.DateFrom,
                 DateTo = workingTime.DateTo,
                 UserId = workingTime.UserId
@@ -456,6 +518,7 @@ namespace GastroLab.Application.Extensions
         {
             var workingTime = new WorkingTime
             {
+                Id = timeSlotVM.Id,
                 DateFrom = timeSlotVM.DateFrom,
                 DateTo = timeSlotVM.DateTo,
                 DayOfWeek = (int)timeSlotVM.DateFrom.DayOfWeek == 0 ? 6 : (int)timeSlotVM.DateFrom.DayOfWeek - 1,
@@ -469,9 +532,11 @@ namespace GastroLab.Application.Extensions
         {
             var timeSlotVM = new TimeSlotVM
             {
+                Id = registeredTime.Id,
                 DateFrom = registeredTime.DateFrom,
                 DateTo = registeredTime.DateTo,
-                UserId = registeredTime.UserId
+                UserId = registeredTime.UserId,
+                Description = registeredTime.Description
             };
             return timeSlotVM;
         }
@@ -480,10 +545,12 @@ namespace GastroLab.Application.Extensions
         {
             var workingTime = new RegisteredTime
             {
+                Id = timeSlotVM.Id,
                 DateFrom = timeSlotVM.DateFrom,
                 DateTo = timeSlotVM.DateTo,
                 DayOfWeek = (int)timeSlotVM.DateFrom.DayOfWeek == 0 ? 6 : (int)timeSlotVM.DateFrom.DayOfWeek - 1,
                 TimeInterval = timeSlotVM.DateTo - timeSlotVM.DateFrom,
+                Description = timeSlotVM.Description,
                 UserId = timeSlotVM.UserId
             };
             return workingTime;

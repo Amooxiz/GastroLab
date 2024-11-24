@@ -1,150 +1,458 @@
 ﻿@using GastroLab.Application.ViewModels;
+@using System.Globalization
 @model GastroLab.Presentation.Controllers.CalendarController.WeeklyCalendarVM
 
 @{
-    ViewData["Title"] = "Kalendarz Tygodniowy";
+    ViewData["Title"] = "Weekly Calendar";
 }
 
 <style>
+    /* Existing styles */
     table {
         border-collapse: collapse;
         width: 100%;
+        table-layout: fixed;
     }
 
     th, td {
         border: 1px solid black;
         text-align: center;
         padding: 5px;
-    }
-
-    th {
-        background-color: #f2f2f2;
+        height: 40px;
     }
 
     .selected {
-        background-color: lightblue !important;
+        background-color: #defcf9 !important;
     }
+
+    .sticky-top {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+    }
+
+    body {
+        overflow: hidden;
+        /* Prevent text selection during drag */
+        -webkit-user-select: none; /* Chrome/Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+ */
+        user-select: none; /* Standard */
+    }
+
+    /* Apply partly transparent background to all header cells */
+    thead th {
+        background-color: rgba(232, 247, 154, 0.8) !important;
+        /* background-color: rgba(217, 242, 255, 0.8) !important; */
+    }
+
+    /* Style for the date label (larger font size) */
+    .date-label {
+        font-size: 1.4em;
+        font-weight: bold;
+    }
+
+    /* Style for the day label (smaller font size) */
+    .day-label {
+        font-size: 0.8em;
+        color: #555;
+    }
+
+    /* Additional styles for the hour column */
+    .hour-column {
+        text-align: right;
+        padding: 3px 15px !important;
+        border: none;
+    }
+
+    .hour-column,
+    .empty-cell {
+        background-color: transparent !important;
+    }
+
+
+    /* Hover effect for selectable cells */
+    .calendar-cell:hover {
+        background-color: #e6e6e6; /* Light gray color */
+        cursor: pointer;
+    }
+
+    /* Disable hover effect on registered cells */
+    .registered-cell:hover {
+        background-color: #cadefc; /* Maintain the registered cell color */
+        cursor: default;
+    }
+
+    /* New styles for the calendar container */
+    .calendar-container {
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        background: #e4f5e5;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .button-container form {
+        margin: 0;
+    }
+
+    .button-container .form-group {
+        margin: 0;
+    }
+
+    .button-container .form-control {
+        min-width: 200px;
+    }
+
 </style>
 
-<h2>Kalendarz Tygodniowy (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
+<h2>Weekly calendar (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
 
-<form method="get" asp-action="ManageWorkingTimes">
-    <div class="form-group">
-        <label for="userId">Select User</label>
-        @Html.DropDownList("userId", (SelectList)ViewBag.Users, "Select a user", new { @class = "form-control", @onchange = "this.form.submit();" })
-        <input type="hidden" name="date" value="@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")" />
+<div class="calendar-container">
+    
+    <div class="button-container">
+        <button type="button" class="btn btn-outline-primary" onclick="changeWeek(-7)">
+            <i class="bi bi-arrow-left-circle-fill"></i> Previous week
+        </button>
+        <form method="get" asp-action="ManageWorkingTimes">
+            <div class="form-group">
+                <!-- Removed label to save space -->
+                @Html.DropDownList("userId", (SelectList)ViewBag.Users, "Select a user", new { @class = "form-control", @id = "userId", @onchange = "this.form.submit();" })
+                <input type="hidden" name="date" value="@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")" />
+            </div>
+        </form>
+        <button type="button" class="btn btn-outline-primary" onclick="changeWeek(7)">
+            Next week <i class="bi bi-arrow-right-circle-fill"></i>
+        </button>
     </div>
-</form>
 
-<button onclick="changeWeek(-7)">Poprzedni tydzień</button>
-<button onclick="changeWeek(7)">Następny tydzień</button>
 
-<table>
-    <tr>
-        <th>Godzina/Dzień</th>
-        @foreach (var day in Model.DaysOfWeek)
-        {
-            <th>@day.ToString("yyyy-MM-dd")</th>
-        }
-    </tr>
-    @for (int hour = 0; hour < 24; hour++)
-    {
-        @for (int minute = 0; minute < 60; minute += 30)
-        {
-            int totalMinutes = hour * 60 + minute;
-            <tr>
-                <td>@String.Format("{0:00}:{1:00}", hour, minute)</td>
+    
+    <div class="table-responsive" style="overflow-y: auto; max-height: calc(100vh - 300px);">
+        <table class="table">
+            <colgroup>
+                <col style="width: 55px;"> <!-- Narrow first column -->
                 @foreach (var day in Model.DaysOfWeek)
                 {
-                    string tileId = day.ToString("yyyy-MM-dd") + "T" + String.Format("{0:00}:{1:00}", hour, minute);
-                    bool isBreak = false;
-                    if (ViewBag.UserWorkingTimes != null && ViewBag.UserWorkingTimes.Count > 0)
-                    {
-                        List<TimeSlotVM> timeSlots = ViewBag.UserWorkingTimes;
-                        @foreach (var timeSlot in timeSlots)
-                        {
-                            @if (timeSlot.DateFrom.Date == day.Date && (timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) <= totalMinutes && (timeSlot.DateTo.Hour * 60 + timeSlot.DateTo.Minute) > totalMinutes)
-                            {
-                                if ((timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) == totalMinutes)
-                                {
-                                    <td style="background-color: lightgreen">@String.Format("{0:00}:{1:00} - {2:00}:{3:00}", timeSlot.DateFrom.Hour, timeSlot.DateFrom.Minute, timeSlot.DateTo.Hour, timeSlot.DateTo.Minute)</td>
-                                }
-                                else
-                                {
-                                    <td style="background-color: lightgreen"></td>
-                                }
-                                isBreak = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (isBreak)
-                    {
-                        continue;
-                    }
-                    <td> <!-- Tu można dodać szczegóły wydarzeń dla danego półgodzinnego bloku --> </td>
+                    <col style="width: auto;"> <!-- Equal widths for other columns -->
                 }
-            </tr>
-        }
-    }
-</table>
+            </colgroup>
+            <thead class="sticky-top">
+                <tr>
+                    <th style="border: none; opacity: 0;">
+                        <!-- Empty header cell -->
+                    </th>
+    
+                    @foreach (var day in Model.DaysOfWeek)
+                    {
+                        <th style="border: none;">
+                            <span class="date-label">
+                                @(day.Day < 10 ? "0" + day.Day : day.Day)
+                            </span>
+                            <br />
+                            <span class="day-label">
+                                @day.ToString("dddd", new CultureInfo("en-US"))
+                            </span>
+                        </th>
+                    }
+    
+                </tr>
+            </thead>
+            <tbody>
+                @for (int hour = 0; hour < 24; hour++)
+                {
+                    @for (int minute = 0; minute < 60; minute += 30)
+                    {
+                        int totalMinutes = hour * 60 + minute;
+                        string tableCellStyle = "";
+                        @if (minute == 0)
+                        {
+                            tableCellStyle = "border-top: 2px solid black; border-bottom: 2px dashed black;";
+                        }
+                        else
+                        {
+                            tableCellStyle = "border-top: 2px dashed black; border-bottom: 2px solid black;";
+                        }
+                        <tr>
+                            @if (minute == 0)
+                            {
+                                <td class="hour-column"><span>@hour</span></td>
+                            }
+                            else
+                            {
+                                <td class="empty-cell" style="border: none;"></td>
+                            }
+                            @foreach (var day in Model.DaysOfWeek)
+                            {
+                                string tileId = day.ToString("yyyy-MM-dd") + "T" + String.Format("{0:00}:{1:00}", hour, minute);
+                                bool isBreak = false;
+                                if (ViewBag.UserWorkingTimes != null && ViewBag.UserWorkingTimes.Count > 0)
+                                {
+                                    List<TimeSlotVM> timeSlots = ViewBag.UserWorkingTimes;
+                                    @foreach (var timeSlot in timeSlots)
+                                    {
+                                        @if (timeSlot.DateFrom.Date == day.Date && (timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) <= totalMinutes && (timeSlot.DateTo.Hour * 60 + timeSlot.DateTo.Minute) > totalMinutes)
+                                        {
+                                            if ((timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) == totalMinutes)
+                                            {
+                                                <td class="calendar-cell registered-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="background-color: #cadefc; @tableCellStyle">@String.Format("{0:00}:{1:00} - {2:00}:{3:00}", timeSlot.DateFrom.Hour, timeSlot.DateFrom.Minute, timeSlot.DateTo.Hour, timeSlot.DateTo.Minute)</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="calendar-cell registered-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="background-color: #cadefc; @tableCellStyle"></td>
+                                            }
+                                            isBreak = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (isBreak)
+                                {
+                                    continue;
+                                }
+                                <!-- Added class and data attributes to cells -->
+                                <td class="calendar-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="@tableCellStyle"></td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="workingHoursModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="workingHoursModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="workingHoursModalLabel">Add Working Hours</h1>
+                <button type="button" class="btn-close cancel-modal-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Start Date Row -->
+                <div class="mb-3">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <div class="d-flex">
+                        <input type="date" class="form-control me-2" id="startDate" readonly>
+                        <select class="form-select" id="startTime">
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                <!-- Finish Date Row -->
+                <div class="mb-3">
+                    <label for="finishDate" class="form-label">Finish Date</label>
+                    <div class="d-flex">
+                        <input type="date" class="form-control me-2" id="finishDate" readonly>
+                        <select class="form-select" id="finishTime">
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                <!-- User Row -->
+                <div class="mb-3">
+                    <label for="userName" class="form-label">User</label>
+                    <input type="text" class="form-control" id="userName" readonly>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary cancel-modal-btn" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="addWorkingHoursBtn">Add Working Hours</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-    let firstTile = null;
-    let secondTile = null;
+    let isMouseDown = false;
+    let selectedDay = null;
+    let selectedCells = [];
+    let startCell = null;
+    let startCellTime = null;
+    let columnCells = [];
+    let selectionValid = true;
 
-    function selectTile(tileId) {
-        if (!firstTile) {
-            firstTile = tileId;
-            document.getElementById(tileId).classList.add('selected');
-        } else if (!secondTile) {
-            secondTile = tileId;
-            highlightRange(firstTile, secondTile);
-        } else {
-            clearSelection();
-            firstTile = tileId;
-            document.getElementById(tileId).classList.add('selected');
-        }
-    }
-
-    function highlightRange(start, end) {
-        let startDate = new Date(start);
-        let endDate = new Date(end);
-
-        if (startDate > endDate) {
-            [startDate, endDate] = [endDate, startDate];
-        }
-
-        let currentDate = new Date(startDate);
-
-        while (currentDate <= endDate) {
-            let tileId = currentDate.toISOString().substring(0, 16);
-            let tile = document.getElementById(tileId);
-            if (tile) {
-                tile.classList.add('selected');
+    document.addEventListener('mousedown', function (e) {
+        if (e.button !== 0) return; // Only respond to left-click
+        let cell = e.target.closest('.calendar-cell');
+        if (cell) {
+            if (cell.classList.contains('registered-cell')) {
+                // Do nothing if the cell is a registered cell
+                return;
             }
-            currentDate.setMinutes(currentDate.getMinutes() + 30);
+            e.preventDefault(); // Prevent text selection
+            clearSelection();
+            isMouseDown = true;
+            startCell = cell;
+            selectedDay = cell.getAttribute('data-day');
+            startCellTime = parseInt(cell.getAttribute('data-hour')) * 60 + parseInt(cell.getAttribute('data-minute'));
+            columnCells = Array.from(document.querySelectorAll('.calendar-cell[data-day="' + selectedDay + '"]'));
+            updateSelection(cell);
+        }
+    });
+
+    document.addEventListener('mouseover', function (e) {
+        if (isMouseDown) {
+            let cell = e.target.closest('.calendar-cell');
+            if (cell && cell.getAttribute('data-day') === selectedDay) {
+                updateSelection(cell);
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', function (e) {
+        if (e.button !== 0) return; // Only respond to left-click
+        if (isMouseDown) {
+            isMouseDown = false;
+            if (selectedCells.length > 0 && selectionValid) {
+                showModal();
+            } else {
+                alert("You can only register working time on free time slots");
+                clearSelection();
+            }
+            selectedDay = null;
+        }
+    });
+
+    function updateSelection(currentCell) {
+        let currentCellTime = parseInt(currentCell.getAttribute('data-hour')) * 60 +
+            parseInt(currentCell.getAttribute('data-minute'));
+        let startTime = startCellTime;
+        let endTime = currentCellTime;
+
+        selectedCells = []; // Reset selectedCells array
+
+        selectionValid = true;
+
+        // Get indices of startCell and currentCell in columnCells
+        let startIndex = columnCells.findIndex(cell => cell === startCell);
+        let endIndex = columnCells.findIndex(cell => cell === currentCell);
+
+        if (startIndex === -1 || endIndex === -1) {
+            selectionValid = false;
+            return;
         }
 
-        document.getElementById('dateFrom').value = startDate.toISOString();
-        document.getElementById('dateTo').value = endDate.toISOString();
+        let increment = startIndex <= endIndex ? 1 : -1;
+
+        let i = startIndex;
+        while (true) {
+            let cell = columnCells[i];
+
+            if (cell.classList.contains('registered-cell')) {
+                // Stop selection at the registered cell
+                selectionValid = false;
+                break;
+            }
+
+            if (!cell.classList.contains('selected')) {
+                cell.classList.add('selected');
+            }
+            selectedCells.push(cell);
+
+            if (i === endIndex) break;
+            i += increment;
+        }
+
+        // Remove 'selected' class from cells not in selectedCells
+        columnCells.forEach(cell => {
+            if (!selectedCells.includes(cell) && cell.classList.contains('selected')) {
+                cell.classList.remove('selected');
+            }
+        });
     }
+
+
 
     function clearSelection() {
-        let selectedTiles = document.getElementsByClassName('selected');
-        while (selectedTiles.length > 0) {
-            selectedTiles[0].classList.remove('selected');
-        }
-        firstTile = null;
-        secondTile = null;
+        selectedCells.forEach(cell => {
+            cell.classList.remove('selected');
+        });
+        selectedCells = [];
     }
 
-    function submitWorkingTime() {
-        if (firstTile && secondTile) {
-            document.getElementById('workingTimeForm').submit();
-        } else {
-            alert("Please select a valid time range.");
+    function showModal() {
+        // Get the selected user name
+        const userSelect = document.getElementById('userId');
+        const userName = userSelect.options[userSelect.selectedIndex].text;
+
+        // Get start and finish times
+        let times = selectedCells.map(cell => {
+            return {
+                hour: parseInt(cell.getAttribute('data-hour')),
+                minute: parseInt(cell.getAttribute('data-minute'))
+            };
+        });
+
+        // Sort times to find earliest and latest
+        times.sort((a, b) => {
+            if (a.hour === b.hour) {
+                return a.minute - b.minute;
+            }
+            return a.hour - b.hour;
+        });
+
+        const earliestTime = times[0];
+        const latestTime = times[times.length - 1];
+
+        // Prepare time options
+        const timeOptions = [];
+        for (let h = 0; h < 24; h++) {
+            for (let m = 0; m < 60; m += 30) {
+                const timeString = ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2);
+                timeOptions.push(timeString);
+            }
         }
+
+        // Populate time selects
+        const startTimeSelect = document.getElementById('startTime');
+        const finishTimeSelect = document.getElementById('finishTime');
+
+        startTimeSelect.innerHTML = '';
+        finishTimeSelect.innerHTML = '';
+
+        timeOptions.forEach(time => {
+            const option1 = document.createElement('option');
+            option1.value = time;
+            option1.text = time;
+            if (parseTime(time) === (earliestTime.hour * 60 + earliestTime.minute)) {
+                option1.selected = true;
+            }
+            startTimeSelect.add(option1);
+
+            const option2 = document.createElement('option');
+            option2.value = time;
+            option2.text = time;
+            if (parseTime(time) === (latestTime.hour * 60 + latestTime.minute + 30)) {
+                option2.selected = true;
+            }
+            finishTimeSelect.add(option2);
+        });
+
+        // Set date fields
+        document.getElementById('startDate').value = selectedDay;
+        document.getElementById('finishDate').value = selectedDay;
+
+        // Set user name
+        document.getElementById('userName').value = userName;
+
+        // Show the modal
+        var workingHoursModal = new bootstrap.Modal(document.getElementById('workingHoursModal'));
+        workingHoursModal.show();
+    }
+
+    function parseTime(timeStr) {
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return hours * 60 + minutes;
     }
 
     function changeWeek(days) {
@@ -154,6 +462,73 @@
         var userId = document.getElementById('userId').value;
         window.location.href = '?date=' + currentDate.toISOString().split('T')[0] + '&userId=' + userId;
     }
+
+    document.getElementById('addWorkingHoursBtn').addEventListener('click', function () {
+        // Collect data from modal fields
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const finishDate = document.getElementById('finishDate').value;
+        const finishTime = document.getElementById('finishTime').value;
+        const userId = document.getElementById('userId').value;
+
+        // Prepare data to send
+        const data = {
+            startDate: startDate,
+            startTime: startTime,
+            finishDate: finishDate,
+            finishTime: finishTime,
+            userId: userId
+        };
+
+        // Get the anti-forgery token
+        const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        // Send AJAX POST request
+        fetch('@Url.Action("RegisterWorkingTime", "Calendar")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': antiForgeryToken
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Request was successful
+                    return response.json();
+                } else {
+                    // Handle errors
+                    throw new Error('Error registering working time');
+                }
+            })
+            .then(result => {
+                // Handle success (e.g., update the calendar)
+                // Close the modal
+                var workingHoursModal = bootstrap.Modal.getInstance(document.getElementById('workingHoursModal'));
+                workingHoursModal.hide();
+
+                // Clear the selection
+                clearSelection();
+
+                // Optionally, refresh the page or update the calendar dynamically
+                // For now, let's refresh the page to show the updated working times
+                location.reload();
+            })
+            .catch(error => {
+                // Handle errors (e.g., display an error message)
+                alert(error.message);
+            });
+
+    });
+
+    // Event listeners for "Cancel" buttons (both Cancel and Close)
+    document.querySelectorAll('.cancel-modal-btn').forEach(function (element) {
+        element.addEventListener('click', function () {
+            // Clear the selection when any "Cancel" button is clicked
+            clearSelection();
+        });
+    });
+
 </script>
 
 @section Scripts {

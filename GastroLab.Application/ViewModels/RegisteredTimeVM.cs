@@ -9,8 +9,10 @@ namespace GastroLab.Application.ViewModels
 {
     public class TimeSlotVM
     {
+        public int Id { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
+        public string? Description { get; set; }
         public string? UserId { get; set; }
     }
 }

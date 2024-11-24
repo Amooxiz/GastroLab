@@ -13,7 +13,7 @@ namespace GastroLab.Domain.DBO
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
         public TimeSpan TimeInterval { get; set; }
-
+        public string? Description { get; set; }
         public string? UserId { get; set; }
         public virtual User? User { get; set; }
     }

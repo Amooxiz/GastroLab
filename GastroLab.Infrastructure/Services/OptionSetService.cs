@@ -20,6 +20,16 @@ namespace GastroLab.Infrastructure.Services
             _optionSetRepository = optionSetRepository;
         }
 
+        public List<OptionSetVM> GetGlobalOptionSets()
+        {
+            return _optionSetRepository.GetGlobalOptionSets().Select(opt => opt.ToVM()).ToList();
+        }
+
+        public OptionSetVM CreateGlobalOptionSet(OptionSetVM optionSetVm)
+        {
+            return _optionSetRepository.CreateGlobalOptionSet(optionSetVm.ToModel()).ToVM();
+        }
+
         public void AddOptionSet(OptionSetVM optionSetVm)
         {
             _optionSetRepository.AddOptionSet(optionSetVm.ToModel());

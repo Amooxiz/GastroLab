@@ -10,6 +10,8 @@ namespace GastroLab.Application.Interfaces
 {
     public interface IOptionSetService
     {
+        public List<OptionSetVM> GetGlobalOptionSets();
+        public OptionSetVM CreateGlobalOptionSet(OptionSetVM optionSetVm);
         public void AddOptionSet(OptionSetVM optionSet);
         public void DeleteOptionSet(int optionSetId);
         public void UpdateOptionSet(OptionSetVM optionSet);

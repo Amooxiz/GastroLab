@@ -3,6 +3,9 @@ using GastroLab.Application.ViewModels;
 using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Drawing.Printing;
 
 namespace GastroLab.Presentation.Controllers
@@ -22,6 +25,7 @@ namespace GastroLab.Presentation.Controllers
         {
             return View();
         }
+
 
         [HttpGet]
         public IActionResult AddProduct()
@@ -46,15 +50,18 @@ namespace GastroLab.Presentation.Controllers
         //}
 
         [HttpPost]
-        public IActionResult AddProduct(ProductVM product)
+        public IActionResult AddProduct(ProductVM model)
         {
-            _productService.AddProduct(product);
+
+            _productService.AddProduct(model);
             return RedirectToAction("ProductList");
         }
 
         [HttpGet]
         public IActionResult EditProduct([FromRoute] int Id)
         {
+            ViewBag.AllCategories = _productService.GetAllCategories();
+            ViewBag.AllIngredients = _productService.GetAllIngredients();
             ViewData.Model = _productService.GetProductById(Id);
             return View();
         }
@@ -90,9 +97,21 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult ProductList()
+        public IActionResult ProductList(string searchString, int? categoryId)
         {
-            ViewData.Model = _productService.GetAllProducts();
+            var productList = new ProductListVM()
+            {
+                Products = _productService.GetProducts(searchString, categoryId),
+                CategoryId = categoryId,
+                SearchString = searchString,
+                Categories = _productService.GetAllCategories()
+                                .Select(c => new SelectListItem
+                                {
+                                    Value = c.Id.ToString(),
+                                    Text = c.Name
+                                }).ToList()
+            };
+            ViewData.Model = productList;
             return View();
         }
 

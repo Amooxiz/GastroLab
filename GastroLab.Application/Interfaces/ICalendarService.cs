@@ -11,5 +11,12 @@ namespace GastroLab.Application.Interfaces
     public interface ICalendarService
     {
         public List<TimeSlotVM> GetWorkingTimesByUserId(string userId);
+        public void AddWorkingTime(TimeSlotVM timeSlotVM);
+        public List<TimeSlotVM> GetRegisteredTimesByUserId(string currentUserId);
+        public void AddRegisteredTime(TimeSlotVM timeSlot);
+        public TimeSlotVM GetRegisteredTimeById(int timeslotId);
+        public void UpdateRegisteredTime(TimeSlotVM timeSlot);
+        public void DeleteRegisteredTime(int timeslotId);
+        public bool CheckForOverlappingTimes(string userId, TimeSlotVM timeToCheck);
     }
 }
