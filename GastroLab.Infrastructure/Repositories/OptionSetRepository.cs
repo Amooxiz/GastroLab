@@ -20,6 +20,26 @@ namespace GastroLab.Infrastructure.Repositories
             _context = context;
         }
 
+        public OptionSet CreateGlobalOptionSet(OptionSet optionSet)
+        {
+            foreach (var optionSetOption in optionSet.OptionSetOptions)
+            {
+                _context.Options.Add(optionSetOption.Option);
+            }
+
+            _context.OptionSets.Add(optionSet);
+            _context.SaveChanges();
+            return optionSet;
+        }
+
+        public List<OptionSet> GetGlobalOptionSets()
+        {
+            return _context.OptionSets.Where(opt => opt.IsGlobal == true)
+                .Include(x => x.OptionSetOptions)
+                .ThenInclude(x => x.Option)
+                .ToList();
+        }
+
         public void AddOptionSet(OptionSet optionSet)
         {
             _context.OptionSets.Add(optionSet);

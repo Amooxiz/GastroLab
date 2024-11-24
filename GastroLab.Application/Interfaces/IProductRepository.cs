@@ -10,6 +10,10 @@ namespace GastroLab.Application.Interfaces
 {
     public interface IProductRepository
     {
+        public void DeleteProductOptionSet(ProductOptionSet existingOptionSet);
+        public void DeleteProductCategory(ProductCategory existingCategory);
+        public void DeleteProductIngredient(ProductIngredient productIngredient);
+        public IEnumerable<Product> GetProducts(string searchName, int? categoryId);
         public void UpdateProductStatus(int id, bool status);
         public void UpdateProduct(Product product);
         public Product GetProductById(int id);

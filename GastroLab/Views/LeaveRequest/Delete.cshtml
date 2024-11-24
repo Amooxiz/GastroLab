@@ -1,0 +1,74 @@
+﻿@model GastroLab.Application.ViewModels.LeaveRequestVM
+@using GastroLab.Domain.DBO;
+
+@{
+    ViewData["Title"] = "Delete leave request";
+}
+
+<h1>Delete Leave Request</h1>
+
+<hr />
+
+<div class="alert alert-danger">
+    <strong>Warning:</strong> You are about to delete the following leave request. This action cannot be undone.
+</div>
+
+<div class="card mb-3 bg-light">
+    <div class="card-body">
+        <dl class="row">
+            <!-- Status -->
+            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Status)</dt>
+            <dd class="col-sm-8">
+                @{
+                    string badgeClass = "";
+                    string statusText = Model.Status.ToString();
+
+                    switch (Model.Status)
+                    {
+                        case LeaveRequestStatus.Pending:
+                            badgeClass = "badge rounded-pill text-bg-warning";
+                            break;
+                        case LeaveRequestStatus.Accepted:
+                            badgeClass = "badge rounded-pill text-bg-success";
+                            break;
+                        case LeaveRequestStatus.Rejected:
+                            badgeClass = "badge rounded-pill text-bg-danger";
+                            break;
+                        default:
+                            badgeClass = "badge rounded-pill text-bg-secondary";
+                            break;
+                    }
+                }
+                <span class="@badgeClass">@statusText</span>
+            </dd>
+
+            <!-- Period of Absence -->
+            <dt class="col-sm-4">Period of Absence</dt>
+            <dd class="col-sm-8">
+                @Model.DateFrom.ToShortDateString() - @Model.DateTo.ToShortDateString()
+            </dd>
+
+            <!-- Description -->
+            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Desciption)</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Desciption)</dd>
+
+            <!-- Applicant -->
+            <dt class="col-sm-4">Applicant</dt>
+            <dd class="col-sm-8">@Model.UserVM?.UserName</dd>
+
+            <dt class="col-sm-4">Creation date</dt>
+            <dd class="col-sm-8">@Model.CreatedOn.ToShortDateString() @Model.CreatedOn.ToShortTimeString()</dd>
+        </dl>
+    </div>
+</div>
+
+<!-- Delete Confirmation Form -->
+@using (Html.BeginForm("Delete", "LeaveRequest", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+    <div class="form-group">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="MyLeaveRequests" class="btn btn-secondary">Back to List</a>
+    </div>
+}

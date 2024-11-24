@@ -17,6 +17,30 @@ namespace GastroLab.Presentation.Controllers
             _optionSetService = optionSetService;
         }
 
+        [HttpPost]
+        public IActionResult CreateGlobalOptionSet([FromBody] OptionSetVM optionSetVM)
+        {
+            if (ModelState.IsValid)
+            {
+                var createdOptionSet = _optionSetService.CreateGlobalOptionSet(optionSetVM);
+
+                return Json(createdOptionSet);
+            }
+            else
+            {
+                Response.StatusCode = 400;
+                return Json(new { message = "Invalid data" });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetGlobalOptionSets()
+        {
+            var optionSets = _optionSetService.GetGlobalOptionSets();
+
+            return Json(optionSets);
+        }
+
         [HttpGet]
         public IActionResult OptionList()
         {
@@ -199,11 +223,13 @@ namespace GastroLab.Presentation.Controllers
                 optionSets = optionSets.Select(os => new
                 {
                     os.Id,
-                    os.DisplayName,
+                    os.Name,
+                    os.IsRequired,
+                    os.IsMultiple,
                     options = os.options.Select(o => new
                     {
                         o.Id,
-                        o.DisplayName,
+                        o.Name,
                         o.Price
                     })
                 })

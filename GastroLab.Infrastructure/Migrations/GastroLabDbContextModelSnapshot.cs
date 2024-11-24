@@ -126,6 +126,9 @@ namespace GastroLab.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("DateFrom")
                         .HasColumnType("datetime2");
 
@@ -134,6 +137,12 @@ namespace GastroLab.Infrastructure.Migrations
 
                     b.Property<string>("Desciption")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ResolvedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -188,6 +197,9 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsGlobal")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsMultiple")
                         .HasColumnType("bit");
@@ -474,6 +486,9 @@ namespace GastroLab.Infrastructure.Migrations
 
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeSpan>("TimeInterval")
                         .HasColumnType("time");

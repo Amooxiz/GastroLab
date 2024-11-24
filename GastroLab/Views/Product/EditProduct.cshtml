@@ -1,49 +1,796 @@
 ﻿@model GastroLab.Application.ViewModels.ProductVM
 
 @{
-    ViewData["Title"] = "EditProduct";
+    ViewData["Title"] = "Edit Product";
 }
 
-<h1>EditProduct</h1>
+<style>
+    table tbody tr td.options-panel {
+        background-color: #e6f7ff;
+    }
 
-<h4>Product</h4>
+    .option-item {
+        /* Example styles */
+        padding: 5px 0;
+        font-size: 14px;
+    }
+</style>
+
+<h1>Edit Product</h1>
+
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="EditProduct">
+    <!-- Left Column -->
+    <div class="col-md-5">
+        <form id="editProductForm" asp-action="EditProduct">
+            <!-- Validation Summary -->
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+            <input type="hidden" name="Id" asp-for="Id" />
+            <input type="hidden" name="GlobalOptionSetIds" id="GlobalOptionSetIds" />
+            <input type="hidden" name="SerializedOptionSets" id="SerializedOptionSets" />
+            <!-- Flat Fields Section -->
+            <div class="card mb-3 bg-light">
+                <div class="card-body">
+                    <!-- First Row: Name and Price -->
+                    <div class="row">
+                        <!-- Name Field (2/3 width) -->
+                        <div class="col-md-8">
+                            <div class="form-group mb-3">
+                                <label asp-for="Name" class="form-label"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <!-- Price Field (1/3 width) -->
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label asp-for="Price" class="form-label"></label>
+                                <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Second Row: Description -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+
+            <!-- Categories Section -->
+            <div class="card mb-3 bg-light">
+                <div class="card-body">
+                    <label class="form-label">Categories</label>
+                    <div id="categoryContainer" class="mb-3">
+                        @foreach (var category in ViewBag.AllCategories)
+                        {
+                            var isChecked = false;
+                            if (Model.categories != null)
+                            {
+                                isChecked = Model.categories.Any(cat => cat.Id == category.Id);
+                            }
+                            
+                            <div class="d-inline-block me-1 mb-1">
+                                <input type="checkbox" class="btn-check" id="category-@category.Id" name="SelectedCategoryIds" value="@category.Id" autocomplete="off" @(isChecked ? "checked" : "")>
+                                <label class="btn btn-outline-secondary" for="category-@category.Id">@category.Name</label>
+                            </div>
+                        }
+                    </div>
+                    <!-- Removed New Category Button -->
+                    <span asp-validation-for="SelectedCategoryIds" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Image" class="control-label"></label>
-                <input asp-for="Image" class="form-control" />
-                <span asp-validation-for="Image" class="text-danger"></span>
+
+            <!-- Ingredients Section -->
+            <div class="card mb-3 bg-light">
+                <div class="card-body">
+                    <label class="form-label">Ingredients</label>
+                    <div id="ingredientContainer" class="mb-3">
+                        @foreach (var ingredient in ViewBag.AllIngredients)
+                        {
+                            var isChecked = false;
+                            if (Model.ingredients != null)
+                            {
+                                isChecked = Model.ingredients.Any(cat => cat.Id == ingredient.Id);
+                            }
+                            <div class="d-inline-block me-1 mb-1">
+                                <input type="checkbox" class="btn-check" id="ingredient-@ingredient.Id" name="SelectedIngredientIds" value="@ingredient.Id" autocomplete="off" @(isChecked ? "checked" : "")>
+                                <label class="btn btn-outline-secondary" for="ingredient-@ingredient.Id">@ingredient.Name</label>
+                            </div>
+                        }
+                    </div>
+                    <!-- Removed New Ingredient Button -->
+                    <span asp-validation-for="SelectedIngredientIds" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
+
+            <!-- Submit Button -->
+            <div class="form-group mt-3">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+        </form>
+    </div>
+    <!-- Right Column -->
+    <div class="col-md-7">
+        <!-- Option Sets Section -->
+        <div class="card mb-3 bg-light">
+            <div class="card-body">
+                <!-- Header with "Browse global option sets" and "New option set" links -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="form-label mb-0">Option Sets</label>
+
+                    <!-- "Browse global option sets" button -->
+                    <a href="#" class="btn btn-link text-decoration-none me-2" data-bs-toggle="modal" data-bs-target="#globalOptionSetsModal">
+                        <i class="bi bi-book"></i> Browse global option sets
+                    </a>
+
+                    <a href="#" class="btn btn-link text-decoration-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasOptionSet" aria-controls="offcanvasOptionSet">
+                        <i class="bi bi-plus-circle"></i> New option set
+                    </a>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Multiple Choice</th>
+                            <th>Required</th>
+                            <th>Remove</th>
+                            <th></th> <!-- Column for chevron icon -->
+                        </tr>
+                    </thead>
+                    <tbody id="optionSetsTableBody">
+                        @* Populate with existing Option Sets *@
+                        @if (Model.optionSets != null && Model.optionSets.Any())
+                        {
+                            for (int i = 0; i < Model.optionSets.Count; i++)
+                            {
+                                var optionSet = Model.optionSets[i];
+                                <tr data-optionset-id="@i">
+                                    <td>@optionSet.Name 
+                                        @if(optionSet.IsGlobal)
+                                        {
+                                            <span class="badge bg-info">Global</span>
+                                        }
+                                    </td>
+                                    <td>@optionSet.Description</td>
+                                    <td>@(optionSet.IsMultiple ? "Yes" : "No")</td>
+                                    <td>
+                                        @if (optionSet.IsRequired)
+                                        {
+                                            <span class="badge bg-danger">Required</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Optional</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOptionSet(@i)">
+                                            <i class="bi bi-trash3-fill"></i> Remove
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <a href="javascript:void(0);" onclick="toggleOptions(@i)">
+                                            <i id="chevron-icon-@i" class="bi bi-chevron-down"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <!-- Options Row -->
+                                <tr id="options-row-@i" style="display: none;">
+                                    <td colspan="6" class="options-panel">
+                                        <div class="container">
+                                            @{
+                                                int columnCount = 3;
+                                                var options = optionSet.options.ToList();
+                                                int totalOptions = options.Count;
+                                                int optionsPerColumn = (int)Math.Ceiling(totalOptions / (double)columnCount);
+                                            }
+                                            @for (int row = 0; row < optionsPerColumn; row++)
+                                            {
+                                                <div class="row">
+                                                    @for (int col = 0; col < columnCount; col++)
+                                                    {
+                                                        int index = row + col * optionsPerColumn;
+                                                        if (index < totalOptions)
+                                                        {
+                                                            var option = options[index];
+                                                            <div class="col-md-4">
+                                                                <div class="option-item">
+                                                                    &bull; @option.Name @(option.Price > 0 ? $" - {option.Price:F2}zł" : "")
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+
+                <span asp-validation-for="SelectedOptionSetIds" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Global Option Sets Modal -->
+<div class="modal fade" id="globalOptionSetsModal" tabindex="-1" aria-labelledby="globalOptionSetsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Global Option Sets</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Table of Global Option Sets -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Select</th> <!-- Column for the checkbox -->
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Multiple Choice</th>
+                            <th>Required</th>
+                            <th></th> <!-- Column for chevron icon -->
+                        </tr>
+                    </thead>
+                    <tbody id="globalOptionSetsTableBody">
+                        <!-- Global Option Sets will be dynamically loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <!-- Close and Confirm buttons -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="confirmGlobalOptionSets()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas Modal for New Option Set -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasOptionSet" aria-labelledby="offcanvasOptionSetLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasOptionSetLabel">New Option Set</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <!-- Option Set Creation Form -->
+        <form id="newOptionSetForm">
+            <div class="mb-3">
+                <label for="optionSetName" class="form-label">Name</label>
+                <input type="text" class="form-control" id="optionSetName" name="Name" required>
+            </div>
+            <div class="mb-3">
+                <label for="optionSetDisplayName" class="form-label">Display Name</label>
+                <input type="text" class="form-control" id="optionSetDisplayName" name="DisplayName">
+            </div>
+            <div class="mb-3">
+                <label for="optionSetDescription" class="form-label">Description</label>
+                <textarea class="form-control" id="optionSetDescription" name="Description" rows="3"></textarea>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="optionSetIsRequired" name="IsRequired">
+                <label class="form-check-label" for="optionSetIsRequired">Required</label>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="optionSetIsMultiple" name="IsMultiple">
+                <label class="form-check-label" for="optionSetIsMultiple">Multiple choice</label>
+            </div>
+            <!-- Checkbox "Save as global option set" -->
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="optionSetIsGlobal" name="IsGlobal">
+                <label class="form-check-label" for="optionSetIsGlobal">Save as global option set</label>
+            </div>
+            <!-- Options Section -->
+            <div class="mb-3 bg-light rounded p-3">
+                <!-- List of Added Options -->
+                <div id="optionsList" class="mb-3">
+                    <!-- Dynamically added options will appear here -->
+                </div>
+                <!-- New Option Button -->
+                <div id="newOptionContainer" class="mb-3">
+                    <a href="javascript:void(0);" class="btn btn-link text-decoration-none" onclick="showNewOptionInput()">
+                        <i class="bi bi-plus-circle"></i> New option
+                    </a>
+                </div>
+            </div>
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="offcanvas">Cancel</button>
+                <button type="button" class="btn btn-primary" id="createOptionSetButton" onclick="createOptionSet()">Create</button>
             </div>
         </form>
     </div>
 </div>
+
 
 <div>
     <a asp-action="ProductList">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Initialize existing Option Sets
+        window.productOptionSets = @Html.Raw(Json.Serialize(Model.optionSets));
+
+        // List of options for new Option Set
+        var options = [];
+        var isAddingOption = false;
+
+        $(document).ready(function () {
+            $('#globalOptionSetsModal').on('show.bs.modal', function (e) {
+                // Clear previous content
+                $('#globalOptionSetsTableBody').empty();
+
+                // Fetch global option sets via AJAX
+                $.ajax({
+                    url: '/OptionSet/GetGlobalOptionSets',
+                    type: 'GET',
+                    success: function (data) {
+                        populateGlobalOptionSetsTable(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+        });
+
+        function confirmGlobalOptionSets() {
+            // Get all selected checkboxes
+            var selectedCheckboxes = $('.select-option-set-checkbox:checked');
+
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one Option Set.');
+                return;
+            }
+
+            selectedCheckboxes.each(function () {
+                var optionSetId = $(this).data('optionset-id');
+
+                // Find the option set data
+                var optionSetRow = $('#globalOptionSetsTableBody').find(`tr[data-optionset-id="${optionSetId}"]`);
+                var optionSet = optionSetRow.data('optionSetData');
+
+                if (!optionSet) {
+                    console.error('Option Set data not found');
+                    return;
+                }
+
+                // Check if the option set is already added
+                var exists = window.productOptionSets.some(os => os.Id === optionSet.id && os.IsGlobal);
+
+                if (exists) {
+                    // Optionally, inform the user that this option set is already added
+                    return; // Skip adding this option set
+                }
+
+                // Add the option set to the product's option sets
+                var optionSetToAdd = {
+                    Id: optionSet.id,
+                    Name: optionSet.name,
+                    Description: optionSet.description,
+                    IsRequired: optionSet.isRequired,
+                    IsMultiple: optionSet.isMultiple,
+                    IsGlobal: true,
+                    Options: optionSet.options
+                };
+
+                addOptionSetToTable(optionSetToAdd);
+            });
+
+            // Close the modal
+            $('#globalOptionSetsModal').modal('hide');
+
+            // Optionally, clear the selections
+            $('.select-option-set-checkbox').prop('checked', false);
+        }
+
+        // Function to populate the global option sets table
+        function populateGlobalOptionSetsTable(optionSets) {
+            var tbody = $('#globalOptionSetsTableBody');
+            tbody.empty();
+
+            optionSets.forEach(function (optionSet, index) {
+                var requiredBadge = optionSet.isRequired
+                    ? '<span class="badge bg-danger">Required</span>'
+                    : '<span class="badge bg-secondary">Optional</span>';
+
+                var row = `
+                            <tr data-optionset-id="${optionSet.id}">
+                                <td>
+                                    <input type="checkbox" class="form-check-input select-option-set-checkbox" id="select-optionset-${optionSet.id}" data-optionset-id="${optionSet.id}">
+                                </td>
+                                <td>${optionSet.name}</td>
+                                <td>${optionSet.description}</td>
+                                <td>${optionSet.isMultiple ? 'Yes' : 'No'}</td>
+                                <td>${requiredBadge}</td>
+                                <td>
+                                    <a href="javascript:void(0);" onclick="toggleGlobalOptions(${optionSet.id})">
+                                        <i id="global-chevron-icon-${optionSet.id}" class="bi bi-chevron-down"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <!-- Hidden row for options -->
+                            <tr id="global-options-row-${optionSet.id}" style="display: none;">
+                                <td colspan="6" class="options-panel">
+                                    <div class="container">
+                                        ${generateOptionsHtml(optionSet.options)}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+
+                var rowElement = $(row);
+                rowElement.data('optionSetData', optionSet);
+
+                tbody.append(rowElement);
+            });
+        }
+
+        // Function to toggle options in the modal
+        function toggleGlobalOptions(optionSetId) {
+            var optionsRow = $('#global-options-row-' + optionSetId);
+            var chevronIcon = $('#global-chevron-icon-' + optionSetId);
+
+            if (optionsRow.is(':visible')) {
+                optionsRow.hide();
+                chevronIcon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+            } else {
+                optionsRow.show();
+                chevronIcon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+            }
+        }
+
+        document.getElementById('editProductForm').addEventListener('submit', function (e) {
+            // Update the hidden fields
+            var globalOptionSetIds = [];
+            var localOptionSets = [];
+
+            window.productOptionSets.forEach(function (optionSet) {
+                if (optionSet.IsGlobal && optionSet.Id > 0) {
+                    globalOptionSetIds.push(optionSet.Id);
+                } else {
+                    localOptionSets.push(optionSet);
+                }
+            });
+
+            document.getElementById("GlobalOptionSetIds").value = globalOptionSetIds.join(',');
+
+            document.getElementById("SerializedOptionSets").value = JSON.stringify(localOptionSets);
+        });
+
+        function showNewOptionInput() {
+            isAddingOption = true;
+            updateCreateOptionSetButtonState();
+            var container = document.getElementById("newOptionContainer");
+            container.innerHTML = `
+                        <div class="input-group mb-2">
+                            <input type="text" id="newOptionName" class="form-control" placeholder="Option Name">
+                            <input type="number" step="0.01" id="newOptionPrice" class="form-control" placeholder="Price" style="max-width: 100px;">
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-link text-decoration-none" onclick="confirmAddOption()">
+                                <i class="bi bi-check-circle"></i>
+                            </button>
+                            <button type="button" class="btn btn-link text-decoration-none" onclick="cancelAddOption()">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </div>
+                    `;
+        }
+
+        // Function to confirm adding a new option
+        function confirmAddOption() {
+            var name = document.getElementById("newOptionName").value.trim();
+            var price = parseFloat(document.getElementById("newOptionPrice").value);
+
+            if (name === "") {
+                alert("Please enter an option name.");
+                return;
+            }
+
+            if (isNaN(price)) {
+                price = 0;
+            }
+
+            // Add new option to the list
+            var option = {
+                Id: 0, // 0 indicates the option is not yet saved in the database
+                Name: name,
+                Price: price
+            };
+            options.push(option);
+
+            // Update the options list in the UI
+            renderOptionsList();
+
+            // Restore the "New option" link
+            cancelAddOption();
+        }
+
+        function cancelAddOption() {
+            isAddingOption = false;
+            updateCreateOptionSetButtonState();
+            var container = document.getElementById("newOptionContainer");
+            container.innerHTML = `
+                        <a href="javascript:void(0);" class="btn btn-link text-decoration-none" onclick="showNewOptionInput()">
+                            <i class="bi bi-plus-circle"></i> New option
+                        </a>
+                    `;
+        }
+
+        function updateCreateOptionSetButtonState() {
+            var createButton = document.getElementById("createOptionSetButton");
+            createButton.disabled = isAddingOption;
+        }
+
+        // Function to render the list of added options
+        function renderOptionsList() {
+            var optionsList = document.getElementById("optionsList");
+            optionsList.innerHTML = '';
+
+            options.forEach(function (option, index) {
+                var optionDiv = document.createElement('div');
+                optionDiv.className = 'd-flex justify-content-between align-items-center mb-2';
+
+                var optionPrice = option.Price || 0;
+                var optionText = optionPrice == 0
+                    ? `<strong>${option.Name}</strong>`
+                    : `<strong>${option.Name}</strong> - ${option.Price.toFixed(2)}zł`;
+
+                optionDiv.innerHTML = `
+                            <div>
+                                ${optionText}
+                            </div>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOption(${index})">
+                                <i class="bi bi-trash3-fill"></i> Remove
+                            </button>
+                        `;
+
+                optionsList.appendChild(optionDiv);
+            });
+        }
+
+        // Function to remove an option from the list
+        function removeOption(index) {
+            options.splice(index, 1);
+            renderOptionsList();
+        }
+
+        function createOptionSet() {
+            // Get data from the form
+            var optionSetName = document.getElementById("optionSetName").value.trim();
+            var optionSetDisplayName = document.getElementById("optionSetDisplayName").value.trim();
+            var optionSetDescription = document.getElementById("optionSetDescription").value.trim();
+            var optionSetIsRequired = document.getElementById("optionSetIsRequired").checked;
+            var optionSetIsMultiple = document.getElementById("optionSetIsMultiple").checked;
+            var optionSetIsGlobal = document.getElementById("optionSetIsGlobal").checked;
+
+            if (optionSetName === "") {
+                alert("Please enter a name for the Option Set.");
+                return;
+            }
+
+            if (options.length === 0) {
+                alert("Please add at least one option.");
+                return;
+            }
+
+            // Create OptionSet object
+            var optionSet = {
+                Id: 0, // Will be updated if saved globally
+                Name: optionSetName,
+                DisplayName: optionSetDisplayName,
+                Description: optionSetDescription,
+                IsRequired: optionSetIsRequired,
+                IsMultiple: optionSetIsMultiple,
+                IsGlobal: optionSetIsGlobal,
+                Options: options.slice() // Copy of the options array
+            };
+
+            if (optionSetIsGlobal) {
+                // Save OptionSet globally via AJAX
+                saveOptionSetGlobally(optionSet);
+            } else {
+                // Add OptionSet locally
+                addOptionSetToTable(optionSet);
+                resetOptionSetModal();
+            }
+        }
+
+        function saveOptionSetGlobally(optionSet) {
+            $.ajax({
+                url: '/OptionSet/CreateGlobalOptionSet',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(optionSet),
+                success: function (response) {
+                    // The server should return the created OptionSet with its ID and options with their IDs
+                    optionSet.Id = response.Id;
+                    optionSet.Options = response.Options;
+                    addOptionSetToTable(optionSet);
+                    resetOptionSetModal();
+                },
+                error: function (xhr, status, error) {
+                    alert("An error occurred while saving the Option Set.");
+                    console.error(error);
+                }
+            });
+        }
+
+        function resetOptionSetModal() {
+            isAddingOption = false;
+            updateCreateOptionSetButtonState();
+
+            // Close the offcanvas
+            var offcanvasElement = document.getElementById('offcanvasOptionSet');
+            var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+            offcanvas.hide();
+
+            // Reset the form and options
+            document.getElementById("newOptionSetForm").reset();
+            options = [];
+            renderOptionsList();
+            cancelAddOption();
+        }
+
+        function addOptionSetToTable(optionSet) {
+            // Add OptionSet to the list
+            if (!window.productOptionSets) {
+                window.productOptionSets = [];
+            }
+            window.productOptionSets.push(optionSet);
+
+            // Update the table
+            var tbody = document.querySelector('#optionSetsTableBody');
+            var optionSetId = window.productOptionSets.length - 1; // Index in the array
+
+            var row = document.createElement('tr');
+            row.setAttribute('data-optionset-id', optionSetId);
+
+            var requiredBadge = optionSet.IsRequired
+                ? '<span class="badge bg-danger">Required</span>'
+                : '<span class="badge bg-secondary">Optional</span>';
+
+            var globalBadge = optionSet.IsGlobal
+                ? '<span class="badge bg-info">Global</span>'
+                : '';
+
+            row.innerHTML = `
+                        <td>${optionSet.Name} ${globalBadge}</td>
+                        <td>${optionSet.Description}</td>
+                        <td>${optionSet.IsMultiple ? 'Yes' : 'No'}</td>
+                        <td>${requiredBadge}</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOptionSet(${optionSetId})">
+                                <i class="bi bi-trash3-fill"></i> Remove
+                            </button>
+                        </td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="toggleOptions(${optionSetId})">
+                                <i id="chevron-icon-${optionSetId}" class="bi bi-chevron-down"></i>
+                            </a>
+                        </td>
+                    `;
+
+            tbody.appendChild(row);
+
+            // Add the options row
+            var optionsRow = document.createElement('tr');
+            optionsRow.id = 'options-row-' + optionSetId;
+            optionsRow.style.display = 'none';
+
+            optionsRow.innerHTML = `
+                        <td colspan="6" class="options-panel">
+                            <div class="container">
+                                ${generateOptionsHtml(optionSet.Options)}
+                            </div>
+                        </td>
+                    `;
+
+            tbody.appendChild(optionsRow);
+        }
+
+        // Function to generate options HTML
+        function generateOptionsHtml(optionsList) {
+            var totalOptions = optionsList.length;
+            var columnCount = 3;
+            var optionsPerColumn = Math.ceil(totalOptions / columnCount);
+            var htmlContent = '';
+
+            for (var i = 0; i < optionsPerColumn; i++) {
+                htmlContent += '<div class="row">';
+                for (var col = 0; col < columnCount; col++) {
+                    var index = i + col * optionsPerColumn;
+                    if (index < totalOptions) {
+                        var option = optionsList[index];
+                        var optionPrice = option.price || 0;
+
+                        var optionText = optionPrice == 0
+                            ? `<span>&bull; ${option.name}</span>`
+                            : `<span>&bull; ${option.name} - ${option.price.toFixed(2)}zł</span>`;
+
+                        htmlContent += `
+                                        <div class="col-md-4">
+                                            <div class="option-item">
+                                                ${optionText}
+                                            </div>
+                                        </div>
+                                    `;
+                    }
+                }
+                htmlContent += '</div>';
+            }
+
+            return htmlContent;
+        }
+
+        function toggleOptions(optionSetId) {
+            var optionsRow = document.getElementById('options-row-' + optionSetId);
+            var chevronIcon = document.getElementById('chevron-icon-' + optionSetId);
+
+            if (optionsRow.style.display === 'none') {
+                optionsRow.style.display = 'table-row';
+                chevronIcon.classList.remove('bi-chevron-down');
+                chevronIcon.classList.add('bi-chevron-up');
+            } else {
+                optionsRow.style.display = 'none';
+                chevronIcon.classList.remove('bi-chevron-up');
+                chevronIcon.classList.add('bi-chevron-down');
+            }
+        }
+
+        function removeOptionSet(optionSetId) {
+            // Remove OptionSet from the list
+            window.productOptionSets.splice(optionSetId, 1);
+
+            // Remove the OptionSet row and the options row
+            var optionSetRow = document.querySelector('tr[data-optionset-id="' + optionSetId + '"]');
+            var optionsRow = document.getElementById('options-row-' + optionSetId);
+            optionSetRow.parentNode.removeChild(optionSetRow);
+            optionsRow.parentNode.removeChild(optionsRow);
+
+            // Update the identifiers of the remaining OptionSets
+            updateOptionSetIds();
+        }
+
+        // Function to update the OptionSet IDs after removal
+        function updateOptionSetIds() {
+            var rows = document.querySelectorAll('#optionSetsTableBody tr[data-optionset-id]');
+            rows.forEach(function (row, index) {
+                row.setAttribute('data-optionset-id', index);
+                var chevronIcon = row.querySelector('i[id^="chevron-icon-"]');
+                chevronIcon.id = 'chevron-icon-' + index;
+                var removeButton = row.querySelector('button[onclick^="removeOptionSet"]');
+                removeButton.setAttribute('onclick', 'removeOptionSet(' + index + ')');
+                var toggleLink = row.querySelector('a[onclick^="toggleOptions"]');
+                toggleLink.setAttribute('onclick', 'toggleOptions(' + index + ')');
+
+                var optionsRow = document.getElementById('options-row-' + (index + 1));
+                if (optionsRow) {
+                    optionsRow.id = 'options-row-' + index;
+                }
+            });
+        }
+
+        // Functions for handling categories are removed as per requirement
+
+        // Functions for handling ingredients are removed as per requirement
+
+        // If you have any JavaScript related to categories or ingredients, ensure they are removed or adjusted accordingly.
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -68,7 +68,7 @@ namespace GastroLab.Infrastructure.Services
             existingOrder.Status = updatedOrder.Status;
             existingOrder.TableNr = updatedOrder.TableNr;
             existingOrder.TotalPrice = updatedOrder.TotalPrice;
-            existingOrder.WaitingTime = updatedOrder.WaitingTime;
+            existingOrder.WaitingTime = TimeSpan.FromMinutes(updatedOrder.WaitingTime);
             existingOrder.isScheduledDelivery = updatedOrder.isScheduledDelivery;
             existingOrder.ScheduledDeliveryDate = updatedOrder.ScheduledDeliveryDate;
             if (updatedOrder.DeliveryMethod == DeliveryMethod.Delivery && updatedOrder.Address != null)

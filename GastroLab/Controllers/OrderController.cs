@@ -16,12 +16,14 @@ namespace GastroLab.Presentation.Controllers
         private readonly IOrderService _orderService;
         private readonly IProductService _productService;
         private readonly ICookieService _cookieService;
+        private readonly IGlobalSettingsService _globalSettingsService;
 
-        public OrderController(IOrderService orderService, IProductService productService, ICookieService cookieService)
+        public OrderController(IOrderService orderService, IProductService productService, ICookieService cookieService, IGlobalSettingsService globalSettingsService)
         {
             _orderService = orderService;
             _productService = productService;
             _cookieService = cookieService;
+            _globalSettingsService = globalSettingsService;
         }
         public IActionResult Index()
         {
@@ -29,7 +31,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Waiter,Director")]
+        [Authorize(Roles = "Waiter,Director,Admin")]
         public IActionResult EditOrder(int id)
         {
             var order = _orderService.GetOrderById(id);
@@ -53,7 +55,7 @@ namespace GastroLab.Presentation.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Waiter,Director")]
+        [Authorize(Roles = "Waiter,Director,Admin")]
         public IActionResult EditOrder(OrderVM order)
         {
             // Recalculate the total price based on the products
@@ -84,7 +86,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Waiter,Director")]
+        [Authorize(Roles = "Waiter,Director,Admin")]
         public IActionResult GetProductDetailsWithOptions(int id)
         {
             var product = _productService.GetProductById(id);
@@ -102,13 +104,13 @@ namespace GastroLab.Presentation.Controllers
                 optionSets = product.optionSets.Select(os => new
                 {
                     id = os.Id,
-                    displayName = os.DisplayName,
+                    name = os.Name,
                     isMultiple = os.IsMultiple,
                     isRequired = os.IsRequired,
                     options = os.options.Select(o => new
                     {
                         id = o.Id,
-                        displayName = o.DisplayName,
+                        name = o.Name,
                         price = o.Price
                     }).ToList()
                 }).ToList()
@@ -144,10 +146,10 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Director")]
+        [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult ManageAllOrders()
         {
-            ViewData.Model = _orderService.GetAllActiveOrders();
+            ViewData.Model = _orderService.GetAllActiveOrders().OrderByDescending(x => x.CreationDate);
             return View();
         }
 
@@ -155,7 +157,7 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Admin,Director,Delivery")]
         public IActionResult ManageDeliveryOrders()
         {
-            ViewData.Model = _orderService.GetDeliveryOrders();
+            ViewData.Model = _orderService.GetDeliveryOrders().OrderByDescending(x => x.CreationDate);
             return View();
         }
 
@@ -183,7 +185,7 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Admin,Director,Cook")]
         public IActionResult ManageOrders()
         {
-            ViewData.Model = _orderService.GetNewAndInProgressOrders();
+            ViewData.Model = _orderService.GetNewAndInProgressOrders().OrderByDescending(x => x.CreationDate);
             return View();
         }
 
@@ -207,6 +209,8 @@ namespace GastroLab.Presentation.Controllers
             }
             else
                 ViewBag.AddedProducts = null;
+
+            ViewBag.GlobalSettings = _globalSettingsService.GetSettings();
             
             return View();
         }
@@ -259,7 +263,7 @@ namespace GastroLab.Presentation.Controllers
             }
 
             _orderService.CreateOrder(order);
-            return RedirectToAction("ManageOrders");
+            return RedirectToAction("ManageAllOrders");
         }
 
         [HttpPost]

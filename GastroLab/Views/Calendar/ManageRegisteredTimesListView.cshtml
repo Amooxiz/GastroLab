@@ -1,0 +1,190 @@
+﻿@using GastroLab.Application.ViewModels;
+@using System.Globalization;
+@model GastroLab.Application.ViewModels.ManageRegisteredTimesListVM
+
+@{
+    ViewData["Title"] = "Manage Registered Times";
+}
+
+<style>
+    /* Existing styles */
+
+    /* Style for the header and radio buttons */
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    /* New styles for the filter section */
+    .filter-section {
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        background: #f0f0f0; /* Slightly grey background */
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+        /* Styles for dropdowns */
+        .filter-section .form-group {
+            margin-bottom: 15px;
+        }
+
+    /* Style for the year select to enable scrollbar */
+    #yearSelect {
+        max-height: 200px; /* Adjust as needed */
+        overflow-y: auto;
+    }
+</style>
+
+<div class="header-container">
+    <h2>Manage Registered Times</h2>
+    <!-- Radio buttons for Calendar view and List view -->
+    <div class="btn-group view-options" role="group" aria-label="View Options">
+        <input type="radio" class="btn-check" name="viewOption" id="calendarView" autocomplete="off">
+        <label class="btn btn-outline-primary" for="calendarView">Calendar View</label>
+
+        <input type="radio" class="btn-check" name="viewOption" id="listView" autocomplete="off" checked>
+        <label class="btn btn-outline-primary" for="listView">List View</label>
+    </div>
+</div>
+
+<div class="filter-section">
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Year dropdown -->
+            <div class="form-group">
+                <label for="yearSelect">Year</label>
+                <select id="yearSelect" class="form-control">
+                    <!-- Years will be populated here -->
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Month dropdown -->
+            <div class="form-group">
+                <label for="monthSelect">Month</label>
+                <select id="monthSelect" class="form-control">
+                    <!-- Months will be populated here -->
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>E-mail</th>
+                <th>Sum of Registered Hours</th>
+            </tr>
+        </thead>
+        <tbody id="usersTableBody">
+            <!-- Table rows will be populated here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // JavaScript to populate the dropdowns and handle change events
+
+    // Populate year dropdown
+    var currentYear = new Date().getFullYear();
+    var startYear = 1950;
+    var yearSelect = document.getElementById('yearSelect');
+
+    // Create a document fragment to improve performance
+    var fragment = document.createDocumentFragment();
+    for (var y = currentYear; y >= startYear; y--) {
+        var option = document.createElement('option');
+        option.value = y;
+        option.text = y;
+        if (y === currentYear) {
+            option.selected = true;
+        }
+        fragment.appendChild(option);
+    }
+    yearSelect.appendChild(fragment);
+
+    // Ensure dropdown behavior
+    yearSelect.size = 1;
+
+    // Populate month dropdown
+    var monthSelect = document.getElementById('monthSelect');
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+    var currentMonth = new Date().getMonth();
+    for (var m = 0; m < 12; m++) {
+        var option = document.createElement('option');
+        option.value = m + 1; // months are 1-based
+        option.text = monthNames[m];
+        if (m === currentMonth) {
+            option.selected = true;
+        }
+        monthSelect.add(option);
+    }
+
+    // Function to format the sum of registered hours
+    function formatRegisteredHours(hours) {
+        var wholeHours = Math.floor(hours);
+        var decimalPart = hours - wholeHours;
+
+        // Round the decimal part to the nearest 0.5
+        decimalPart = Math.round(decimalPart * 2) / 2;
+
+        if (decimalPart === 0) {
+            return wholeHours.toString();
+        } else if (decimalPart === 0.5) {
+            return wholeHours + ".5";
+        } else {
+            // For unexpected values, format to two decimal places
+            return (wholeHours + decimalPart).toFixed(2);
+        }
+    }
+
+    // Function to load data
+    function loadData() {
+        var year = yearSelect.value;
+        var month = monthSelect.value;
+
+        // Fetch data from server
+        fetch('@Url.Action("GetRegisteredTimesSummary", "Calendar")?year=' + year + '&month=' + month)
+            .then(response => response.json())
+            .then(data => {
+                var tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                data.forEach(user => {
+                    var formattedHours = formatRegisteredHours(user.sumOfRegisteredHours);
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td>' + user.name + '</td>' +
+                        '<td>' + user.surname + '</td>' +
+                        '<td>' + user.email + '</td>' +
+                        '<td>' + formattedHours + '</td>';
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+
+    // Load data on page load
+    loadData();
+
+    // Add event listeners to dropdowns
+    yearSelect.addEventListener('change', loadData);
+    monthSelect.addEventListener('change', loadData);
+
+    // Event listener for view option radio buttons
+    document.getElementById('calendarView').addEventListener('change', function () {
+        if (this.checked) {
+            // Redirect to calendar view
+            window.location.href = '@Url.Action("ManageRegisteredTimes", "Calendar")';
+        }
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

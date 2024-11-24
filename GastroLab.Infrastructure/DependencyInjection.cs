@@ -49,6 +49,8 @@ namespace GastroLab.Infrastructure
             services.AddTransient<IGlobalSettingsRepository, GlobalSettingsRepository>();
             services.AddTransient<IGlobalSettingsService, GlobalSettingsService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ILeaveRequestRepository, LeaveRequestRepository>();
+            services.AddTransient<ILeaveRequestService, LeaveRequestService>();
             return services;
         }
     }

@@ -10,6 +10,7 @@ namespace GastroLab.Application.Interfaces
 {
     public interface IProductService
     {
+        public IEnumerable<ProductVM> GetProducts(string searchName, int? categoryId);
         public void UpdateProductStatus(int id, bool status);
         public void UpdateProduct(ProductVM product);
         public ProductVM GetProductById(int id);
