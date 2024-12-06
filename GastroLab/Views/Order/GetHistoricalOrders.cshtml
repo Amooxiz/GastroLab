@@ -1,0 +1,1158 @@
+﻿@using GastroLab.Application.ViewModels
+@model GastroLab.Application.ViewModels.OrderFilterVM
+
+@{
+    ViewBag.Title = "Historical Orders";
+}
+
+<h2>Historical Orders</h2>
+
+<div class="filter-panel">
+    <form id="filterForm" method="get" action="@Url.Action("GetHistoricalOrders")" class="form-inline">
+
+        <input type="hidden" name="SortColumn" value="@Model.SortColumn" />
+        <input type="hidden" name="SortDirection" value="@Model.SortDirection" />
+        <input type="hidden" name="PageNumber" value="1" />
+        <input type="hidden" name="PageSize" value="@Model.PageSize" />
+
+        <!-- First Row -->
+        <div class="row">
+            <!-- Delivery Method -->
+            <div class="col">
+                <div class="form-group">
+                    <label for="DeliveryMethod">Delivery Method:</label>
+                    @Html.DropDownListFor(m => m.DeliveryMethod,
+                             new SelectList(Enum.GetValues(typeof(DeliveryMethod)).Cast<DeliveryMethod>().Select(dm => new { Value = (int)dm, Text = dm.ToString() }), "Value", "Text", Model.DeliveryMethod),
+                             "All",
+                             new { @class = "form-control", id = "DeliveryMethod" })
+                </div>
+            </div>
+
+            <!-- Creation Date -->
+            <div class="col">
+                <div class="form-group">
+                    <label>Creation Date:</label>
+                    <div class="dropdown">
+                        <button type="button" id="creationDateDropdownBtn" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                            dd.mm.rrrr - dd.mm.rrrr
+                        </button>
+                        <div class="dropdown-menu p-4">
+                            <div class="mb-3">
+                                <label for="CreationDateFrom" class="form-label">From:</label>
+                                @Html.TextBoxFor(m => m.CreationDateFrom, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "CreationDateFrom" })
+                            </div>
+                            <div class="mb-3">
+                                <label for="CreationDateTo" class="form-label">To:</label>
+                                @Html.TextBoxFor(m => m.CreationDateTo, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "CreationDateTo" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion Date -->
+            <div class="col">
+                <div class="form-group">
+                    <label>Completion Date:</label>
+                    <div class="dropdown">
+                        <button type="button" id="completionDateDropdownBtn" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                            dd.mm.rrrr - dd.mm.rrrr
+                        </button>
+                        <div class="dropdown-menu p-4">
+                            <div class="mb-3">
+                                <label for="CompletionDateFrom" class="form-label">From:</label>
+                                @Html.TextBoxFor(m => m.CompletionDateFrom, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "CompletionDateFrom" })
+                            </div>
+                            <div class="mb-3">
+                                <label for="CompletionDateTo" class="form-label">To:</label>
+                                @Html.TextBoxFor(m => m.CompletionDateTo, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "CompletionDateTo" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduled Delivery Date -->
+            <div class="col">
+                <div class="form-group">
+                    <label>Scheduled Delivery Date:</label>
+                    <div class="dropdown">
+                        <button type="button" id="scheduledDateDropdownBtn" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" @(Model.IsScheduledDelivery ? "" : "disabled")>
+                            dd.mm.rrrr - dd.mm.rrrr
+                        </button>
+                        <div class="dropdown-menu p-4">
+                            <div class="mb-3">
+                                <label for="ScheduledDeliveryDateFrom" class="form-label">From:</label>
+                                @Html.TextBoxFor(m => m.ScheduledDeliveryDateFrom, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "ScheduledDeliveryDateFrom" })
+                            </div>
+                            <div class="mb-3">
+                                <label for="ScheduledDeliveryDateTo" class="form-label">To:</label>
+                                @Html.TextBoxFor(m => m.ScheduledDeliveryDateTo, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "ScheduledDeliveryDateTo" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check" style="margin-top: 5px;">
+                        @Html.CheckBoxFor(m => m.IsScheduledDelivery, new { id = "IsScheduledDelivery", @class = "form-check-input" })
+                        <label class="form-check-label" for="IsScheduledDelivery">Scheduled Delivery</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waiting Time -->
+            <div class="col">
+                <div class="form-group">
+                    <label for="WaitingTimeOption">Waiting Time:</label>
+                    @Html.DropDownListFor(m => m.WaitingTimeOption,
+                             new SelectList(ViewBag.WaitingTimeOptions as List<SelectListItem>, "Value", "Text", Model.WaitingTimeOption),
+                             new { @class = "form-control", id = "WaitingTimeOption" })
+                </div>
+                
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <div id="waitingTimeCustom" style="display:@(Model.WaitingTimeOption == "custom" ? "block" : "none");">
+                        <label>From:</label>
+                        @Html.TextBoxFor(m => m.WaitingTimeFrom, new { @class = "form-control", type = "number", min = "0" })
+                        <label>To:</label>
+                        @Html.TextBoxFor(m => m.WaitingTimeTo, new { @class = "form-control", type = "number", min = "0" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Second Row -->
+        <div class="row" style="margin-top: 5px;">
+            <div class="col-md-12">
+                <!-- Products Field -->
+                <div class="form-group">
+                    <label>Products:</label>
+                    <div id="selectedProductsArea" @* style="border: 1px solid #ccc; padding: 10px; min-height: 50px;" *@>
+                        <!-- Selected products will appear here -->
+                        @if (Model.SelectedProductIds != null && Model.SelectedProductIds.Any())
+                        {
+                            foreach (var productId in Model.SelectedProductIds)
+                            {
+                                var product = ((List<ProductVM>)ViewBag.AllProducts).FirstOrDefault(p => p.Id == productId);
+                                if (product != null)
+                                {
+                                    <span class="selected-product" data-product-id="@product.Id">
+                                        @product.Name <button type="button" class="remove-product-btn">X</button>
+                                    </span>
+                                }
+                            }
+                        }
+                    </div>
+                    <div class="d-flex align-items-center" style="margin-top: 10px;">
+                        <button type="button" id="openProductOffcanvasBtn" class="btn btn-secondary">Select Products</button>
+                        <div class="ms-auto">
+                            <button type="button" id="resetFiltersBtn" class="btn btn-remove-filters btn-lg me-2">
+                                <i class="bi bi-eraser"></i> Remove filters
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg ms-auto">
+                                <i class="bi bi-funnel"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<hr />
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>
+                <div class="header-cell">
+                <a href="#" class="sort-header" data-column="Id">
+                    Id
+                    @if (Model.SortColumn == "Id")
+                    {
+                        <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                    }
+                </a>
+                </div>
+            </th>
+            <th>
+                <div class="header-cell">
+                    Products
+                </div>
+            </th>
+            <th>
+                <div class="header-cell">
+                <a href="#" class="sort-header" data-column="DeliveryMethod">
+                    Delivery Method
+                    @if (Model.SortColumn == "DeliveryMethod")
+                    {
+                        <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                    }
+                </a>
+                </div>
+            </th>
+            <th>
+                <div class="header-cell">
+                <a href="#" class="sort-header" data-column="WaitingTime">
+                    Expected Waiting Time
+                    @if (Model.SortColumn == "WaitingTime")
+                    {
+                        <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                    }
+                </a>
+                </div>
+            </th>
+            <th>
+                <div class="header-cell">
+                <a href="#" class="sort-header" data-column="ActualWaitingTime">
+                    Actual Waiting Time
+                    @if (Model.SortColumn == "ActualWaitingTime")
+                    {
+                        <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                    }
+                </a>
+            </th>
+            <th>
+                <div class="header-cell">
+                <a href="#" class="sort-header" data-column="CreationDate">
+                    Creation Date
+                    @if (Model.SortColumn == "CreationDate")
+                    {
+                        <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                    }
+                </a>
+                </div>
+            </th>
+            <th>
+                <div class="header-cell">
+                <a href="#" class="sort-header" data-column="CompletionDate">
+                    Completion Date
+                    @if (Model.SortColumn == "CompletionDate")
+                    {
+                        <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                    }
+                </a>
+                </div>
+            </th>
+            <th>
+                <div class="header-cell">
+                <a href="#" class="sort-header" data-column="ScheduledDeliveryDate">
+                    Scheduled Delivery Date
+                    @if (Model.SortColumn == "ScheduledDeliveryDate")
+                    {
+                        <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                    }
+                </a>
+                </div>
+            </th>
+            <th>
+                <div class="header-cell">
+                <a href="#" class="sort-header" data-column="TotalPrice">
+                    Total Price
+                    @if (Model.SortColumn == "TotalPrice")
+                    {
+                        <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                    }
+                </a>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Orders != null && Model.Orders.Any())
+        {
+            foreach (var order in Model.Orders)
+            {
+                <tr class="order-row" data-order-id="@order.Id">
+                    <td class="center-content">@order.Id</td>
+                    <td>
+                        @foreach (var product in order.products)
+                        {
+                            <div><strong>@product.Quantity</strong>x @product.Name @String.Format("{0:0.00}", product.Price * product.Quantity) PLN</div>
+                        }
+                    </td>
+                    <td class="center-content">@order.DeliveryMethod</td>
+                    <td class="center-content">@order.WaitingTime min</td>
+                    <td class="center-content">
+                        @{
+                            if (order.CompletionDate.HasValue)
+                            {
+                                var actualWaitingTime = (int)Math.Floor((order.CompletionDate.Value - order.CreationDate).TotalMinutes);
+                                var color = actualWaitingTime > order.WaitingTime ? "red" : "green";
+                                    <span style="color:@color">@actualWaitingTime min</span>
+                            }
+                            else
+                            {
+                                    <span>—</span>
+                            }
+                        }
+                    </td>
+                    <td class="center-content">@order.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="center-content">@(order.CompletionDate.HasValue ? order.CompletionDate.Value.ToString("yyyy-MM-dd HH:mm") : "—")</td>
+                    <td class="center-content">@(order.ScheduledDeliveryDate.HasValue ? order.ScheduledDeliveryDate.Value.ToString("yyyy-MM-dd HH:mm") : "—")</td>
+                    <td class="center-content">@String.Format("{0:0.00}", order.TotalPrice) PLN</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="9" class="text-center">No orders match the selected filters.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-end">
+        @if (Model.PageNumber > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="@(@Model.PageNumber - 1)">Previous</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            if (i == Model.PageNumber)
+            {
+                <li class="page-item active">
+                    <span class="page-link">@i</span>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="@i">@i</a>
+                </li>
+            }
+        }
+
+        @if (Model.PageNumber < Model.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="@(@Model.PageNumber + 1)">Next</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+        }
+    </ul>
+</nav>
+
+
+
+<!-- Product Selection Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="productSelectionOffcanvas" aria-labelledby="productSelectionOffcanvasLabel">
+    <div class="offcanvas-header d-flex align-items-center">
+        <h5 class="offcanvas-title me-auto" id="productSelectionOffcanvasLabel">Select Products</h5>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="selectAllProductsCheckbox">
+            <label class="form-check-label" for="selectAllProductsCheckbox">
+                Select/Unselect all
+            </label>
+        </div>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="productSelectionForm">
+            <ul class="list-unstyled">
+                @foreach (var product in ViewBag.AllProducts as List<ProductVM>)
+                {
+                    <li class="mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input product-checkbox" type="checkbox" id="product_@product.Id" value="@product.Id"
+                            @(Model.SelectedProductIds != null && Model.SelectedProductIds.Contains(product.Id) ? "checked" : "") />
+                            <label class="form-check-label" for="product_@product.Id">
+                                @product.Name
+                            </label>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </form>
+    </div>
+    <div class="offcanvas-footer">
+        <button type="button" id="addSelectedProductsBtn" class="btn btn-primary">Add</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Details - #<span id="modalOrderId"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- Left Column: Flat Fields and Conditional Fields -->
+                        <div class="col-md-6">
+                            <!-- Flat Fields Section -->
+                            <h5>Order Information</h5>
+                            <div id="orderFlatFields">
+                                <!-- Order flat fields will be populated here -->
+                            </div>
+                        </div>
+                        <!-- Right Column: Products Section -->
+                        <div class="col-md-6">
+                            <h5>Products</h5>
+                            <div id="orderProducts">
+                                <!-- Products and options will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- Footer buttons -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Include jQuery from CDN -->
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $(document).on('click', '.order-row', function () {
+            var orderId = $(this).data('order-id');
+            $.ajax({
+                url: '@Url.Action("GetOrderDetails")',
+                type: 'GET',
+                data: { id: orderId },
+                success: function (order) {
+                    // Set order ID in modal title
+                    $('#modalOrderId').text(order.id);
+
+                    // =========================
+                    // Populate Left Column
+                    // =========================
+
+                    // Start building the flat fields HTML
+                    var flatFieldsHtml = '<table class="table table-sm table-borderless">';
+
+                    // 1. Order ID
+                    flatFieldsHtml += '<tr><th>Order ID</th><td>' + order.id + '</td></tr>';
+
+                    // 2. Delivery Method (use the enum label)
+                    flatFieldsHtml += '<tr><th>Delivery Method</th><td>' + order.deliveryMethodName + '</td></tr>';
+
+                    // 3. Status (use the enum label)
+                    flatFieldsHtml += '<tr><th>Status</th><td>' + order.statusName + '</td></tr>';
+
+                    // 4. Comment
+                    flatFieldsHtml += '<tr><th>Comment</th><td>' + (order.comment || '-') + '</td></tr>';
+
+                    // 5. Expected Waiting Time
+                    flatFieldsHtml += '<tr><th>Expected Waiting Time</th><td>' + order.waitingTime + ' min</td></tr>';
+
+                    // 6. Actual Waiting Time
+                    var actualWaitingTime = '-';
+                    if (order.completionDate) {
+                        var creationDate = new Date(order.creationDate);
+                        var completionDate = new Date(order.completionDate);
+                        var diffMinutes = Math.floor((completionDate - creationDate) / 60000);
+                        actualWaitingTime = diffMinutes + ' min';
+                    }
+                    flatFieldsHtml += '<tr><th>Actual Waiting Time</th><td>' + actualWaitingTime + '</td></tr>';
+
+                    // 7. Creation Date
+                    flatFieldsHtml += '<tr><th>Creation Date</th><td>' + formatDateTime(order.creationDate) + '</td></tr>';
+
+                    // 8. Completion Date
+                    flatFieldsHtml += '<tr><th>Completion Date</th><td>' + (order.completionDate ? formatDateTime(order.completionDate) : '-') + '</td></tr>';
+
+                    // 9. Total Price (Added as the last flat field)
+                    flatFieldsHtml += '<tr><th>Total Price</th><td>' + parseFloat(order.totalPrice).toFixed(2) + ' PLN</td></tr>';
+
+                    flatFieldsHtml += '</table>';
+
+                    // Initialize the HTML for conditional sections
+                    var conditionalSectionsHtml = '';
+
+                    // Conditionally display TableNr or Address
+                    if (order.deliveryMethodName === 'DineIn') {
+                        conditionalSectionsHtml += '<h6>Table Information</h6>';
+                        conditionalSectionsHtml += '<table class="table table-sm table-borderless">';
+                        conditionalSectionsHtml += '<tr><th>Table Number</th><td>' + (order.tableNr || '-') + '</td></tr>';
+                        conditionalSectionsHtml += '</table>';
+                    } else if (order.deliveryMethodName === 'Delivery') {
+                        // Address fields
+                        conditionalSectionsHtml += '<h6>Address</h6>';
+                        conditionalSectionsHtml += '<table class="table table-sm table-borderless">';
+                        conditionalSectionsHtml += '<tr><th>City</th><td>' + (order.address.city || '-') + '</td></tr>';
+                        conditionalSectionsHtml += '<tr><th>Street</th><td>' + (order.address.street || '-') + '</td></tr>';
+                        conditionalSectionsHtml += '<tr><th>House Number</th><td>' + (order.address.houseNumber || '-') + '</td></tr>';
+                        conditionalSectionsHtml += '<tr><th>Flat Number</th><td>' + (order.address.flatNumber || '-') + '</td></tr>';
+                        conditionalSectionsHtml += '<tr><th>Postal Code</th><td>' + (order.address.postCode || '-') + '</td></tr>';
+                        conditionalSectionsHtml += '</table>';
+                    }
+
+                    // Combine flat fields and conditional sections
+                    var completeFieldsHtml = flatFieldsHtml + conditionalSectionsHtml;
+                    $('#orderFlatFields').html(completeFieldsHtml);
+
+                    // =========================
+                    // Populate Right Column
+                    // =========================
+
+                    // Populate products
+                    var productsHtml = '<div class="list-group">';
+                    if (order.products && order.products.length > 0) {
+                        order.products.forEach(function (product) {
+                            productsHtml += '<div class="list-group-item">';
+                            productsHtml += '<h6>' + product.quantity + ' x ' + product.name + ' (' + (product.price * product.quantity).toFixed(2) + ' PLN)</h6>';
+                            if (product.orderOptions && product.orderOptions.length > 0) {
+                                productsHtml += '<ul class="list-unstyled ms-3">';
+                                product.orderOptions.forEach(function (option) {
+                                    productsHtml += '<li>' + option.optionSet.name + ': ' + option.option.name;
+                                    if (option.option.price) {
+                                        productsHtml += ' (' + parseFloat(option.option.price).toFixed(2) + ' PLN)';
+                                    }
+                                    productsHtml += '</li>';
+                                });
+                                productsHtml += '</ul>';
+                            }
+                            productsHtml += '</div>';
+                        });
+                    } else {
+                        productsHtml += '<div class="list-group-item">No products in this order.</div>';
+                    }
+                    productsHtml += '</div>';
+                    $('#orderProducts').html(productsHtml);
+
+                    // Show the modal
+                    $('#orderDetailsModal').modal('show');
+                },
+                error: function () {
+                    alert('Failed to get order details.');
+                }
+            });
+        });
+
+        // Helper function to format date and time
+        function formatDateTime(dateTimeStr) {
+            var date = new Date(dateTimeStr);
+            if (isNaN(date)) {
+                return dateTimeStr;
+            }
+            var day = ('0' + date.getDate()).slice(-2);
+            var month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+            var year = date.getFullYear();
+            var hours = ('0' + date.getHours()).slice(-2);
+            var minutes = ('0' + date.getMinutes()).slice(-2);
+            return day + '.' + month + '.' + year + ' ' + hours + ':' + minutes;
+        }
+
+
+        // Handle "Select/Unselect all" checkbox change
+        $('#selectAllProductsCheckbox').change(function () {
+            var isChecked = $(this).is(':checked');
+            $('#productSelectionForm .product-checkbox').prop('checked', isChecked);
+        });
+
+        // Update "Select/Unselect all" checkbox based on individual checkbox changes
+        $('#productSelectionForm').on('change', '.product-checkbox', function () {
+            var totalCheckboxes = $('#productSelectionForm .product-checkbox').length;
+            var checkedCheckboxes = $('#productSelectionForm .product-checkbox:checked').length;
+
+            if (checkedCheckboxes === totalCheckboxes) {
+                $('#selectAllProductsCheckbox').prop('checked', true);
+            } else {
+                $('#selectAllProductsCheckbox').prop('checked', false);
+            }
+        });
+
+        // Initialize "Select/Unselect all" checkbox state when offcanvas is opened
+        $('#productSelectionOffcanvas').on('shown.bs.offcanvas', function () {
+            var totalCheckboxes = $('#productSelectionForm .product-checkbox').length;
+            var checkedCheckboxes = $('#productSelectionForm .product-checkbox:checked').length;
+
+            if (checkedCheckboxes === totalCheckboxes && totalCheckboxes > 0) {
+                $('#selectAllProductsCheckbox').prop('checked', true);
+            } else {
+                $('#selectAllProductsCheckbox').prop('checked', false);
+            }
+        });
+
+        // Handle reset filters button click
+        $('#resetFiltersBtn').click(function () {
+            // Reset the form fields to their default values
+            $('#filterForm')[0].reset();
+
+            // Manually reset select inputs to 'All' or default option
+            $('#DeliveryMethod').val('');
+            $('#WaitingTimeOption').val('all');
+
+            // Hide custom waiting time fields
+            $('#waitingTimeCustom').hide();
+            $('#WaitingTimeFrom').val('');
+            $('#WaitingTimeTo').val('');
+
+            // Reset date pickers and update buttons
+            $('#CreationDateFrom, #CreationDateTo, #CompletionDateFrom, #CompletionDateTo, #ScheduledDeliveryDateFrom, #ScheduledDeliveryDateTo').val('');
+            updateCreationDateButtonLabel();
+            updateCompletionDateButtonLabel();
+            updateScheduledDateButtonLabel();
+
+            // Uncheck IsScheduledDelivery and disable scheduled date dropdown
+            $('#IsScheduledDelivery').prop('checked', false);
+            $('#scheduledDateDropdownBtn').prop('disabled', true);
+
+            // Clear selected products
+            $('#selectedProductsArea').empty();
+            $('input[name="SelectedProductIds"]').remove();
+            $('#productSelectionForm .product-checkbox').prop('checked', false);
+
+            // Reset sorting and pagination hidden fields
+            $('input[name="SortColumn"]').val('');
+            $('input[name="SortDirection"]').val('');
+            $('input[name="PageNumber"]').val(1);
+
+            // Submit the form
+            $('#filterForm').submit();
+        });
+
+        // Handle pagination link clicks
+        $('.pagination').on('click', 'a.page-link', function (e) {
+            e.preventDefault();
+            var pageNumber = $(this).data('page');
+            $('input[name="PageNumber"]').val(pageNumber);
+            $('#filterForm').submit();
+        });
+
+        // Reset PageNumber to 1 when filters are changed
+        $('#filterForm').on('change', 'input, select', function () {
+            $('input[name="PageNumber"]').val(1);
+        });
+
+        // Reset PageNumber to 1 when sorting
+        $('.sort-header').click(function (e) {
+            e.preventDefault();
+            var column = $(this).data('column');
+            var currentSortColumn = $('input[name="SortColumn"]').val();
+            var currentSortDirection = $('input[name="SortDirection"]').val();
+            var newSortDirection = 'asc';
+
+            if (currentSortColumn === column) {
+                newSortDirection = (currentSortDirection === 'asc') ? 'desc' : 'asc';
+            } else {
+                newSortDirection = 'asc';
+            }
+
+            $('input[name="SortColumn"]').val(column);
+            $('input[name="SortDirection"]').val(newSortDirection);
+
+            // Reset PageNumber to 1
+            $('input[name="PageNumber"]').val(1);
+
+            $('#filterForm').submit();
+        });
+
+        function formatDate(dateString) {
+            if (!dateString) return 'dd.mm.rrrr';
+            var date = new Date(dateString);
+            if (isNaN(date)) return 'dd.mm.rrrr';
+            var day = ('0' + date.getDate()).slice(-2);
+            var month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+            var year = date.getFullYear();
+            return day + '.' + month + '.' + year;
+        }
+
+        function updateCreationDateButtonLabel() {
+            var fromDate = $('#CreationDateFrom').val();
+            var toDate = $('#CreationDateTo').val();
+
+            var label = 'dd.mm.rrrr - dd.mm.rrrr';
+
+            if (fromDate || toDate) {
+                var fromLabel = formatDate(fromDate);
+                var toLabel = formatDate(toDate);
+                label = fromLabel + ' - ' + toLabel;
+            }
+
+            $('#creationDateDropdownBtn').text(label);
+        }
+
+        // Function to update Completion Date button label
+        function updateCompletionDateButtonLabel() {
+            var fromDate = $('#CompletionDateFrom').val();
+            var toDate = $('#CompletionDateTo').val();
+
+            var label = 'dd.mm.rrrr - dd.mm.rrrr';
+
+            if (fromDate || toDate) {
+                var fromLabel = formatDate(fromDate);
+                var toLabel = formatDate(toDate);
+                label = fromLabel + ' - ' + toLabel;
+            }
+
+            $('#completionDateDropdownBtn').text(label);
+        }
+
+        // Function to update Scheduled Delivery Date button label
+        function updateScheduledDateButtonLabel() {
+            var fromDate = $('#ScheduledDeliveryDateFrom').val();
+            var toDate = $('#ScheduledDeliveryDateTo').val();
+
+            var label = 'dd.mm.rrrr - dd.mm.rrrr';
+
+            if (fromDate || toDate) {
+                var fromLabel = formatDate(fromDate);
+                var toLabel = formatDate(toDate);
+                label = fromLabel + ' - ' + toLabel;
+            }
+
+            $('#scheduledDateDropdownBtn').text(label);
+        }
+
+        // Update button labels when date inputs change
+        $('#CreationDateFrom, #CreationDateTo').on('change', function () {
+            updateCreationDateButtonLabel();
+        });
+        $('#CompletionDateFrom, #CompletionDateTo').on('change', function () {
+            updateCompletionDateButtonLabel();
+        });
+        $('#ScheduledDeliveryDateFrom, #ScheduledDeliveryDateTo').on('change', function () {
+            updateScheduledDateButtonLabel();
+        });
+
+        // Update button labels when the dropdowns hide
+        $('#creationDateDropdownBtn').closest('.dropdown').on('hidden.bs.dropdown', function () {
+            updateCreationDateButtonLabel();
+        });
+        $('#completionDateDropdownBtn').closest('.dropdown').on('hidden.bs.dropdown', function () {
+            updateCompletionDateButtonLabel();
+        });
+        $('#scheduledDateDropdownBtn').closest('.dropdown').on('hidden.bs.dropdown', function () {
+            updateScheduledDateButtonLabel();
+        });
+
+        // Initialize button labels on page load
+        updateCreationDateButtonLabel();
+        updateCompletionDateButtonLabel();
+        updateScheduledDateButtonLabel();
+
+        // Handle IsScheduledDelivery checkbox change
+        $('#IsScheduledDelivery').change(function () {
+            if ($(this).is(':checked')) {
+                $('#scheduledDateDropdownBtn').prop('disabled', false);
+            } else {
+                $('#scheduledDateDropdownBtn').prop('disabled', true);
+                // Clear scheduled delivery date fields and update button label
+                $('#ScheduledDeliveryDateFrom, #ScheduledDeliveryDateTo').val('');
+                updateScheduledDateButtonLabel();
+            }
+        });
+
+        // Initialize Scheduled Delivery Date button state
+        if (!$('#IsScheduledDelivery').is(':checked')) {
+            $('#scheduledDateDropdownBtn').prop('disabled', true);
+        }
+
+        var productOffcanvas = new bootstrap.Offcanvas(document.getElementById('productSelectionOffcanvas'));
+
+        $('#openProductOffcanvasBtn').click(function () {
+            // Show the offcanvas
+            productOffcanvas.show();
+        });
+
+        // Handle adding selected products
+        $('#addSelectedProductsBtn').click(function () {
+            var selectedProductIds = [];
+            var selectedProductNames = [];
+            $('#productSelectionForm .product-checkbox:checked').each(function () {
+                var productId = $(this).val();
+                var productName = $(this).next('label').text();
+                selectedProductIds.push(productId);
+                selectedProductNames.push({ id: productId, name: productName });
+            });
+
+            // Clear the selected products area
+            $('#selectedProductsArea').empty();
+
+            // Add the selected products to the area
+            for (var i = 0; i < selectedProductNames.length; i++) {
+                var productId = selectedProductNames[i].id;
+                var productName = selectedProductNames[i].name;
+                var productHtml = '<span class="selected-product" data-product-id="' + productId + '">'
+                    + productName + ' <button type="button" class="remove-product-btn">X</button></span> ';
+                $('#selectedProductsArea').append(productHtml);
+            }
+
+            // Update the hidden input fields for selected products
+            updateSelectedProductsInput();
+
+            // Close the offcanvas
+            productOffcanvas.hide();
+        });
+
+        // Remove product when 'X' button is clicked
+        $('#selectedProductsArea').on('click', '.remove-product-btn', function () {
+            var productId = $(this).parent('.selected-product').data('product-id');
+            $(this).parent('.selected-product').remove();
+            // Uncheck the checkbox in the offcanvas
+            $('#productSelectionForm #product_' + productId).prop('checked', false);
+            // Update the hidden input fields for selected products
+            updateSelectedProductsInput();
+        });
+
+        function updateSelectedProductsInput() {
+            // Remove existing hidden inputs
+            $('input[name="SelectedProductIds"]').remove();
+            // Add new hidden inputs
+            $('#selectedProductsArea .selected-product').each(function () {
+                var productId = $(this).data('product-id');
+                var input = $('<input>').attr({
+                    type: 'hidden',
+                    name: 'SelectedProductIds',
+                    value: productId
+                });
+                $('#selectedProductsArea').after(input);
+            });
+        }
+
+        // Initialize selected products on page load
+        var existingProductIds = [];
+        $('#selectedProductsArea .selected-product').each(function () {
+            var productId = $(this).data('product-id');
+            existingProductIds.push(productId);
+            // Check the corresponding checkbox
+            $('#productSelectionForm #product_' + productId).prop('checked', true);
+        });
+        updateSelectedProductsInput();
+
+        $('#WaitingTimeOption').change(function () {
+            if ($(this).val() === 'custom') {
+                $('#waitingTimeCustom').slideDown();
+            } else {
+                $('#waitingTimeCustom').slideUp();
+                // Clear custom fields when not in use
+                $('#WaitingTimeFrom').val('');
+                $('#WaitingTimeTo').val('');
+            }
+        });
+    });
+</script>
+
+<style>
+
+
+    /* Add the hover effect for table rows */
+    .order-row:hover {
+        background-color: #e9e0ef; /* Slightly darker color */
+        cursor: pointer;
+    }
+
+    /* Style the modal content */
+    #orderFlatFields th {
+        width: 150px; /* Adjusted for better alignment */
+        vertical-align: top;
+    }
+
+    /* Product List Group Styling */
+    #orderProducts .list-group-item {
+        background-color: #f8f9fa; /* Light background for products */
+        border: 1px solid #d3cde1; /* Matching border color */
+        margin-bottom: 5px; /* Space between products */
+        border-radius: 5px; /* Rounded corners */
+    }
+
+    /* Conditional Sections Headers */
+    #orderFlatFields h6 {
+        margin-top: 20px;
+        color: #5e387c; /* Deep purple for section headers */
+    }
+
+    /* Product Options List */
+    #orderProducts ul.list-unstyled li {
+        padding-left: 15px;
+        position: relative;
+    }
+
+    #orderProducts ul.list-unstyled li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #5e387c;
+    }
+
+    /* Ensure the Products section is scrollable if content overflows */
+    #orderProducts {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+   /*  .order-row:hover {
+        background-color: #e9e0ef;
+        cursor: pointer;
+    }
+
+    #orderFlatFields th {
+        width: 200px;
+    }
+
+    .product h6 {
+        margin-top: 10px;
+    }
+
+    .product ul {
+        list-style-type: none;
+        padding-left: 20px;
+    }
+
+        .product ul li:before {
+            content: "• ";
+            color: #5e387c;
+        } */
+
+
+    .filter-panel {
+        background-color: #f1ebf5; /* Light lavender background */
+        border-radius: 10px; /* Rounded corners */
+        padding: 20px; /* Inner padding */
+        margin-bottom: 20px; /* Space below the panel */
+        border: 1px solid #d3cde1; /* Slightly darker lavender border */
+        box-shadow: inset 0 0 10px rgba(197, 189, 215, 0.5); /* Convex effect */
+    }
+
+    /* Adjust label colors for better contrast */
+    .filter-panel label {
+        color: #5e387c; /* Deep purple for labels */
+        font-weight: bold;
+    }
+
+    /* Style form controls */
+    .filter-panel .form-control {
+        border-color: #d3cde1; /* Match border color */
+    }
+
+
+    .filter-panel .btn-secondary {
+        background-color: #5e387c; 
+        border-color: #4a3066;
+        color: #ffffff; 
+    }
+
+    .filter-panel .btn-secondary:hover {
+        background-color: #4a3066; 
+        border-color: #3b2555;
+    }
+
+    .filter-panel .btn-primary {
+        background-color: #BC5EE4;
+        border-color: #25171A;
+        color: #ffffff;
+    }
+
+    .filter-panel .btn-primary:hover {
+        background-color: #A14AC6;
+        border-color: #25171A;
+    }
+
+        /* Styling for the Remove Filters button */
+        .filter-panel .btn-remove-filters {
+            background-color: #C94B6A; /* Reddish-purple color */
+            border-color: #B03E5A;
+            color: #ffffff;
+        }
+
+            .filter-panel .btn-remove-filters:hover {
+                background-color: #B03E5A; /* Slightly darker on hover */
+                border-color: #9A3550;
+            }
+
+        /* Adjusted spacing for buttons */
+        .filter-panel .d-flex.align-items-center .ms-auto .btn {
+            margin-left: 5px;
+        }
+
+    #selectedProductsArea {
+        background-color: #e9e0ef; /* Slightly darker lavender */
+        border: 1px solid #d3cde1; /* Match the filter-panel border color */
+        padding: 10px;
+        min-height: 50px;
+        border-radius: 5px; /* Optional: Rounded corners */
+    }
+
+    .selected-product {
+        display: inline-block;
+        background-color: #BC5EE4; /* Match the primary button color */
+        color: #ffffff; /* White text for contrast */
+        padding: 5px 10px;
+        margin: 2px;
+        border-radius: 15px;
+        border: 1px solid #A14AC6; /* Slight border to define edges */
+    }
+
+        .selected-product button {
+            background: none;
+            border: none;
+            font-weight: bold;
+            color: #ffffff; /* White 'X' for contrast */
+            margin-left: 5px;
+            cursor: pointer; /* Indicate clickable element */
+        }
+
+            .selected-product button:hover {
+                color: #d9534f; /* Change color on hover to indicate action */
+            }
+
+
+    /* .selected-product {
+        display: inline-block;
+        background-color: #e9ecef;
+        padding: 5px 10px;
+        margin: 2px;
+        border-radius: 15px;
+    }
+
+    .selected-product button {
+        background: none;
+        border: none;
+        font-weight: bold;
+        color: #dc3545;
+        margin-left: 5px;
+    } */
+
+    /* Adjust offcanvas footer */
+    .offcanvas-footer {
+        padding: 1rem;
+        border-top: 1px solid #dee2e6;
+        text-align: right;
+    }
+
+    /* Offcanvas styles */
+    .offcanvas-body {
+        overflow-y: auto; /* Ensure the offcanvas body is scrollable */
+    }
+
+    .offcanvas-body .form-check-input {
+        transform: scale(1.3); /* Increase the size of the checkbox */
+        margin-right: 10px;
+    }
+
+    .offcanvas-body .form-check-label {
+        font-size: 1.1em; /* Increase the font size of the label */
+    }
+
+    .table th {
+        font-size: 0.9em;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Apply Flexbox to the header-cell div */
+    .header-cell {
+        display: flex;
+        justify-content: center; /* Center content horizontally */
+        align-items: center; /* Center content vertically */
+        padding: 8px; /* Adjust padding as needed */
+    }
+
+    /* Style the sort-header link */
+    .header-cell .sort-header {
+            color: #5e387c;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%; /* Ensure it fills the header cell */
+        text-decoration: none; /* Remove underline from link */
+        color: inherit; /* Inherit text color */
+    }
+
+    /* Ensure the label wraps and the icon stays on the right */
+    .header-cell .sort-header span {
+        flex-grow: 1;
+        word-wrap: break-word; /* Allow wrapping of long words */
+    }
+    
+    .header-cell .sort-header i {
+        flex-shrink: 0; /* Prevent the icon from shrinking */
+        margin-left: 5px; /* Space between label and icon */
+                color: inherit;
+    }
+
+    /* Optional: Adjust the cursor to indicate clickable headers */
+    .header-cell .sort-header {
+        cursor: pointer;
+    }
+
+    /* Optional: Add hover effect */
+    .header-cell .sort-header:hover {
+                color: #A14AC6;
+        text-decoration: underline;
+    }
+
+    .table {
+        border: 1px solid #d3cde1; /* Match filter panel border */
+        background-color: #ffffff; /* Keep table background white for readability */
+        margin-top: 20px; /* Add space above the table */
+    }
+
+    .table td {
+        font-size: 0.9em; /* Slightly smaller than header labels */
+            border-bottom: 1px solid #d3cde1;
+            color: #4a3066;
+    }
+
+    /* Center content in specified columns */
+    .table td.center-content {
+        text-align: center;
+                color: #4a3066;
+    }
+
+    /* Optional: Center header labels (if not already centered) */
+    .table th {
+        text-align: center;
+        vertical-align: middle;
+            background-color: #e9e0ef; /* Slightly darker than filter panel background */
+            color: #5e387c; /* Deep purple text */
+            border-bottom: 1px solid #d3cde1; /* Match border color */
+            font-weight: bold;
+    }
+
+        .table tr:nth-child(even) {
+            background-color: #f6effa; /* Very light lavender for even rows */
+        }
+
+        .table tr:hover {
+            background-color: #e9e0ef; /* Highlight row on hover */
+        }
+
+    .pagination .page-link {
+        color: #5e387c; /* Deep purple for pagination links */
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #BC5EE4; /* Match primary button color */
+        border-color: #BC5EE4;
+        color: #ffffff;
+    }
+
+    .pagination .page-link:hover {
+        color: #A14AC6; /* Slightly lighter purple on hover */
+    }
+
+</style>
+

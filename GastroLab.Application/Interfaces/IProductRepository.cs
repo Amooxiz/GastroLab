@@ -24,5 +24,7 @@ namespace GastroLab.Application.Interfaces
         public IEnumerable<Ingredient> GetAllIngredients();
         void AddCategory(Category category);
         void AddIngredient(Ingredient ingredient);
+        void DeleteIngredient(int id);
+        void DeleteCategory(int id);
     }
 }

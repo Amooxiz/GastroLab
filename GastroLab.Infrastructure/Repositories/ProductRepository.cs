@@ -19,6 +19,27 @@ namespace GastroLab.Infrastructure.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public void DeleteIngredient(int id)
+        {
+            var ingredientToDelete = _context.Ingredients.Find(id);
+            if (ingredientToDelete == null)
+            {
+                throw new ArgumentNullException(nameof(ingredientToDelete));
+            }
+            _context.Ingredients.Remove(ingredientToDelete);
+            _context.SaveChanges();
+        }
+        public void DeleteCategory(int id)
+        {
+            var categoryToDelete = _context.Categories.Find(id);
+            if (categoryToDelete == null)
+            {
+                throw new ArgumentNullException(nameof(categoryToDelete));
+            }
+            _context.Categories.Remove(categoryToDelete);
+            _context.SaveChanges();
+        }
+
         public void DeleteProductOptionSet(ProductOptionSet productOptionSet)
         {
             if (productOptionSet == null)

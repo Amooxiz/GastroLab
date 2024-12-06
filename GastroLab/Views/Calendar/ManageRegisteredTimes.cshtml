@@ -126,7 +126,7 @@
     </div>
 </div>
 
-<div class="calendar-container">
+<div id="calendarDiv" class="calendar-container">
     <div class="button-container">
         <button type="button" class="btn btn-outline-primary" onclick="changeWeek(-7)">
             <i class="bi bi-arrow-left-circle-fill"></i> Previous week
@@ -260,6 +260,15 @@
             var userId = document.getElementById('userId').value;
             var date = '@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")';
             window.location.href = '@Url.Action("ManageRegisteredTimesListView", "Calendar")?userId=' + userId + '&date=' + date;
+        }
+    });
+
+    // Add the DOMContentLoaded event listener
+    document.addEventListener('DOMContentLoaded', function () {
+        // Set the scroll position of the calendar to the middle when the page loads
+        var calendarDiv = document.querySelector('#calendarDiv .table-responsive');
+        if (calendarDiv) {
+            calendarDiv.scrollTop = (calendarDiv.scrollHeight - calendarDiv.clientHeight) / 2;
         }
     });
 </script>

@@ -19,7 +19,44 @@ namespace GastroLab.Infrastructure.Repositories
             _context = context;
         }
 
-        public bool CheckForOverlappingTimes(string userId, RegisteredTime registeredTime)
+        public void DeleteWorkingTime(int timeslotId)
+        {
+            var workingTimeToRemove = _context.WorkingTimes.Find(timeslotId);
+
+            if (workingTimeToRemove != null)
+            {
+                _context.WorkingTimes.Remove(workingTimeToRemove);
+                _context.SaveChanges();
+            }
+        }
+
+        public WorkingTime GetWorkingTimeById(int timeslotId)
+        {
+            var workingTime = _context.WorkingTimes.Find(timeslotId);
+
+            if (workingTime == null)
+            {
+                throw new Exception("Working time not found");
+            }
+            return workingTime;
+        }
+        public void UpdateWorkingTime(WorkingTime workingTime)
+        {
+            _context.WorkingTimes.Update(workingTime);
+            _context.SaveChanges();
+        }
+
+        public bool CheckForOverlappingWorkingTimes(WorkingTime workingTime)
+        {
+            return _context.WorkingTimes
+            .Any(rt =>
+                rt.UserId == workingTime.UserId &&
+                rt.Id != workingTime.Id &&
+                rt.DateFrom < workingTime.DateTo &&
+                rt.DateTo > workingTime.DateFrom);
+        }
+
+        public bool CheckForOverlappingRegisteredTimes(string userId, RegisteredTime registeredTime)
         {
             return _context.RegisteredTimes
             .Any(rt =>

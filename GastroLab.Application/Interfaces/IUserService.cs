@@ -7,6 +7,8 @@ namespace GastroLab.Application.Interfaces
 {
     public interface IUserService
     {
+        List<LeaveHoursByUserVM> GetLeaveHoursByUsers(DateTime dateFrom, DateTime dateTo);
+        List<WorkingHoursByUserVM> GetWorkingHoursByUsers(DateTime dateFrom, DateTime dateTo);
         Task<IEnumerable<UserVM>> GetAllUsersAsync();
         Task<UserVM> GetUserByIdAsync(string userId);
         Task<IdentityResult> CreateUserAsync(CreateUserVM userVM);

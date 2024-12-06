@@ -25,13 +25,71 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateWorkingTime([FromBody] UpdateWorkingTimeRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid data.");
+            }
+
+
+            // Walidacja, czy StartDate jest przed FinishDate
+            if (request.StartDate >= request.FinishDate)
+            {
+                return BadRequest("Start time must be before finish time.");
+            }
+
+            var timeSlot = new TimeSlotVM()
+            {
+                Id = request.TimeslotId,
+                DateFrom = request.StartDate,
+                DateTo = request.FinishDate,
+                UserId = request.UserId
+            };
+
+            // Sprawdzenie, czy nie ma nakładających się czasów
+            var overlappingTimes = _calendarService.CheckForOverlappingWorkingTimes(timeSlot);
+
+            if (overlappingTimes)
+            {
+                return BadRequest("Updated time slot is overlapping another registered time slot.");
+            }
+
+            _calendarService.UpdateWorkingTime(timeSlot);
+
+            return Json(new { success = true });
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteWorkingTime([FromBody] DeleteWorkingTimeRequest request)
+        {
+            // Retrieve the working time from the database
+            var workingTime = _calendarService.GetWorkingTimeById(request.TimeslotId);
+
+            if (workingTime == null)
+            {
+                return NotFound("Working time not found.");
+            }
+
+            // Delete the working time
+            _calendarService.DeleteWorkingTime(workingTime.Id);
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
         public IActionResult UpdateRegisteredTime([FromBody] UpdateRegisteredTimeRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Nieprawidłowe dane.");
+                return BadRequest("Invalid data.");
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -40,7 +98,7 @@ namespace GastroLab.Presentation.Controllers
             // Walidacja, czy StartDate jest przed FinishDate
             if (request.StartDate >= request.FinishDate)
             {
-                return BadRequest("Czas rozpoczęcia musi być przed czasem zakończenia.");
+                return BadRequest("Start time must be before finish time.");
             }
 
             var timeSlot = new TimeSlotVM()
@@ -53,11 +111,11 @@ namespace GastroLab.Presentation.Controllers
             };
 
             // Sprawdzenie, czy nie ma nakładających się czasów
-            var overlappingTimes = _calendarService.CheckForOverlappingTimes(userId, timeSlot);
+            var overlappingTimes = _calendarService.CheckForOverlappingRegisteredTimes(userId, timeSlot);
 
             if (overlappingTimes)
             {
-                return BadRequest("Zaktualizowany czas nakłada się na inny zarejestrowany czas.");
+                return BadRequest("Updated time slot is overlapping another registered time slot.");
             }
 
             _calendarService.UpdateRegisteredTime(timeSlot);
@@ -88,9 +146,6 @@ namespace GastroLab.Presentation.Controllers
 
             return Json(new { success = true });
         }
-
-
-
 
         [Authorize(Roles = "Admin,Director,Manager")]
         public IActionResult ManageRegisteredTimesListView(int? year, int? month)

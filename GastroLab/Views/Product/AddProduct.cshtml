@@ -200,10 +200,10 @@
                 <label for="optionSetName" class="form-label">Name</label>
                 <input type="text" class="form-control" id="optionSetName" name="Name" required>
             </div>
-            <div class="mb-3">
+            @* <div class="mb-3">
                 <label for="optionSetDisplayName" class="form-label">Display Name</label>
                 <input type="text" class="form-control" id="optionSetDisplayName" name="DisplayName">
-            </div>
+            </div> *@
             <div class="mb-3">
                 <label for="optionSetDescription" class="form-label">Description</label>
                 <textarea class="form-control" id="optionSetDescription" name="Description" rows="3"></textarea>
@@ -504,7 +504,7 @@
         function createOptionSet() {
             // Get data from the form
             var optionSetName = document.getElementById("optionSetName").value.trim();
-            var optionSetDisplayName = document.getElementById("optionSetDisplayName").value.trim();
+            // var optionSetDisplayName = document.getElementById("optionSetDisplayName").value.trim();
             var optionSetDescription = document.getElementById("optionSetDescription").value.trim();
             var optionSetIsRequired = document.getElementById("optionSetIsRequired").checked;
             var optionSetIsMultiple = document.getElementById("optionSetIsMultiple").checked;
@@ -524,7 +524,7 @@
             var optionSet = {
                 Id: 0, // Will be updated if saved globally
                 Name: optionSetName,
-                DisplayName: optionSetDisplayName,
+                // DisplayName: optionSetDisplayName,
                 Description: optionSetDescription,
                 IsRequired: optionSetIsRequired,
                 IsMultiple: optionSetIsMultiple,
@@ -550,7 +550,7 @@
                 data: JSON.stringify(optionSet),
                 success: function (response) {
                     // The server should return the created OptionSet with its ID and options with their IDs
-                    optionSet.Id = response.Id;
+                    optionSet.Id = response.id;
                     optionSet.options = response.options;
                     addOptionSetToTable(optionSet);
                     resetOptionSetModal();

@@ -24,6 +24,9 @@ namespace GastroLab.Application.ViewModels
         [DisplayName("Scheduled delivery date")]
         public DateTime? ScheduledDeliveryDate { get; set; }
 
+        public string DeliveryMethodName => DeliveryMethod.ToString();
+        public string StatusName => Status.ToString();
+
         public string? ClientId { get; set; }
         public List<ProductVM> products { get; set; } = new List<ProductVM>();
     }

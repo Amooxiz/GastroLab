@@ -19,6 +19,15 @@ namespace GastroLab.Infrastructure.Services
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         }
 
+        public void DeleteIngredient(int id)
+        {
+            _productRepository.DeleteIngredient(id);
+        }
+        public void DeleteCategory(int id)
+        {
+            _productRepository.DeleteCategory(id);
+        }
+
         public IEnumerable<ProductVM> GetProducts(string searchName, int? categoryId)
         {
             return _productRepository.GetProducts(searchName, categoryId).Select(x => x.ToVM());

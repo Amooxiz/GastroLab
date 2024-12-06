@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System.Linq;
 
 namespace GastroLab.Presentation.Controllers
 {
@@ -28,6 +30,201 @@ namespace GastroLab.Presentation.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin,Director,Waiter")]
+        public JsonResult GetOrderDetails(int id)
+        {
+            var order = _orderService.GetOrderById(id);
+            if (order == null)
+            {
+                return Json(new { success = false, message = "Order not found." });
+            }
+
+            return Json(order);
+        }
+
+
+        [HttpGet]
+        [Authorize(Roles = "Admin,Director,Waiter")]
+        public IActionResult GetHistoricalOrders(OrderFilterVM filter)
+        {
+            // If no filter is provided, initialize a new one
+            if (filter == null)
+            {
+                filter = new OrderFilterVM();
+            }
+
+            if (string.IsNullOrEmpty(filter.SortColumn))
+            {
+                filter.SortColumn = "CreationDate";
+                filter.SortDirection = "desc";
+            }
+
+            // Retrieve all orders
+            var orders = _orderService.GetFinishedOrders();
+
+            // Apply filters
+            if (filter.DeliveryMethod.HasValue)
+            {
+                orders = orders.Where(o => o.DeliveryMethod == filter.DeliveryMethod.Value).ToList();
+            }
+
+            if (filter.CreationDateFrom.HasValue)
+            {
+                orders = orders.Where(o => o.CreationDate >= filter.CreationDateFrom.Value).ToList();
+            }
+
+            if (filter.CreationDateTo.HasValue)
+            {
+                orders = orders.Where(o => o.CreationDate <= filter.CreationDateTo.Value).ToList();
+            }
+
+            if (filter.CompletionDateFrom.HasValue)
+            {
+                orders = orders.Where(o => o.CompletionDate.HasValue && o.CompletionDate.Value >= filter.CompletionDateFrom.Value).ToList();
+            }
+
+            if (filter.CompletionDateTo.HasValue)
+            {
+                orders = orders.Where(o => o.CompletionDate.HasValue && o.CompletionDate.Value <= filter.CompletionDateTo.Value).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(filter.WaitingTimeOption))
+            {
+                if (filter.WaitingTimeOption == "custom" && filter.WaitingTimeFrom.HasValue && filter.WaitingTimeTo.HasValue)
+                {
+                    orders = orders.Where(o => o.WaitingTime >= filter.WaitingTimeFrom
+                        && o.WaitingTime <= filter.WaitingTimeTo).ToList();
+                }
+                else
+                {
+                    switch (filter.WaitingTimeOption)
+                    {
+                        case "20-30":
+                            orders = orders.Where(o => o.WaitingTime >= 20 && o.WaitingTime < 30).ToList();
+                            break;
+                        case "30-45":
+                            orders = orders.Where(o => o.WaitingTime >= 30 && o.WaitingTime < 45).ToList();
+                            break;
+                        case "45-60":
+                            orders = orders.Where(o => o.WaitingTime >= 45 && o.WaitingTime < 60).ToList();
+                            break;
+                        case "60-90":
+                            orders = orders.Where(o => o.WaitingTime >= 60 && o.WaitingTime < 90).ToList();
+                            break;
+                        case "90+":
+                            orders = orders.Where(o => o.WaitingTime >= 90).ToList();
+                            break;
+                    }
+                }
+            }
+
+            if (filter.IsScheduledDelivery)
+            {
+                orders = orders.Where(o => o.isScheduledDelivery).ToList();
+
+                if (filter.ScheduledDeliveryDateFrom.HasValue)
+                {
+                    orders = orders.Where(o => o.ScheduledDeliveryDate.HasValue && o.ScheduledDeliveryDate.Value >= filter.ScheduledDeliveryDateFrom.Value).ToList();
+                }
+
+                if (filter.ScheduledDeliveryDateTo.HasValue)
+                {
+                    orders = orders.Where(o => o.ScheduledDeliveryDate.HasValue && o.ScheduledDeliveryDate.Value <= filter.ScheduledDeliveryDateTo.Value).ToList();
+                }
+            }
+
+            // Filter by selected products
+            if (filter.SelectedProductIds != null && filter.SelectedProductIds.Any())
+            {
+                orders = orders.Where(o => o.products.Any(p => filter.SelectedProductIds.Contains(p.Id))).ToList();
+            }
+
+            // Sorting
+            if (!string.IsNullOrEmpty(filter.SortColumn))
+            {
+                switch (filter.SortColumn)
+                {
+                    case "Id":
+                        orders = (filter.SortDirection == "asc") ? orders.OrderBy(o => o.Id).ToList() : orders.OrderByDescending(o => o.Id).ToList();
+                        break;
+                    case "DeliveryMethod":
+                        orders = (filter.SortDirection == "asc") ? orders.OrderBy(o => o.DeliveryMethod).ToList() : orders.OrderByDescending(o => o.DeliveryMethod).ToList();
+                        break;
+                    case "WaitingTime":
+                        orders = (filter.SortDirection == "asc") ? orders.OrderBy(o => o.WaitingTime).ToList() : orders.OrderByDescending(o => o.WaitingTime).ToList();
+                        break;
+                    case "ActualWaitingTime":
+                        orders = (filter.SortDirection == "asc")
+                            ? orders.OrderBy(o => o.CompletionDate.HasValue ? (int)(o.CompletionDate.Value - o.CreationDate).TotalMinutes : int.MaxValue).ToList()
+                            : orders.OrderByDescending(o => o.CompletionDate.HasValue ? (int)(o.CompletionDate.Value - o.CreationDate).TotalMinutes : int.MinValue).ToList();
+                        break;
+                    case "CreationDate":
+                        orders = (filter.SortDirection == "asc") ? orders.OrderBy(o => o.CreationDate).ToList() : orders.OrderByDescending(o => o.CreationDate).ToList();
+                        break;
+                    case "CompletionDate":
+                        orders = (filter.SortDirection == "asc") ? orders.OrderBy(o => o.CompletionDate).ToList() : orders.OrderByDescending(o => o.CompletionDate).ToList();
+                        break;
+                    case "ScheduledDeliveryDate":
+                        orders = (filter.SortDirection == "asc") ? orders.OrderBy(o => o.ScheduledDeliveryDate).ToList() : orders.OrderByDescending(o => o.ScheduledDeliveryDate).ToList();
+                        break;
+                    case "TotalPrice":
+                        orders = (filter.SortDirection == "asc") ? orders.OrderBy(o => o.TotalPrice).ToList() : orders.OrderByDescending(o => o.TotalPrice).ToList();
+                        break;
+                    default:
+                        // Default sorting by CreationDate descending
+                        orders = orders.OrderByDescending(o => o.CreationDate).ToList();
+                        break;
+                }
+            }
+            else
+            {
+                // Default sorting by CreationDate descending
+                orders = orders.OrderByDescending(o => o.CreationDate).ToList();
+            }
+
+            filter.TotalRecords = orders.Count();
+
+            // Paging
+            orders = orders.Skip((filter.PageNumber - 1) * filter.PageSize)
+                           .Take(filter.PageSize)
+                           .ToList();
+
+
+            // Map to ViewModel
+            filter.Orders = orders.ToList();
+
+            // Populate filter dropdowns and other necessary data
+            PopulateFilterViewBag();
+
+            return View(filter);
+        }
+
+        private void PopulateFilterViewBag()
+        {
+            ViewBag.DeliveryMethods = Enum.GetValues(typeof(DeliveryMethod))
+                                  .Cast<DeliveryMethod>()
+                                  .Select(d => new SelectListItem
+                                  {
+                                      Value = ((int)d).ToString(),
+                                      Text = d.ToString()
+                                  }).ToList();
+
+            ViewBag.WaitingTimeOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "", Text = "All" },
+                new SelectListItem { Value = "20-30", Text = "20-30 min" },
+                new SelectListItem { Value = "30-45", Text = "30-45 min" },
+                new SelectListItem { Value = "45-60", Text = "45-60 min" },
+                new SelectListItem { Value = "60-90", Text = "60-90 min" },
+                new SelectListItem { Value = "90+", Text = "90+ min" },
+                new SelectListItem { Value = "custom", Text = "Custom" }
+            };
+
+            // Add this line to pass all products to the view
+            ViewBag.AllProducts = _productService.GetAllProducts().ToList();
         }
 
         [HttpGet]
@@ -263,6 +460,9 @@ namespace GastroLab.Presentation.Controllers
             }
 
             _orderService.CreateOrder(order);
+
+            _cookieService.RemoveCookie("products");
+
             return RedirectToAction("ManageAllOrders");
         }
 

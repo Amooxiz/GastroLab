@@ -43,7 +43,6 @@
     /* Apply partly transparent background to all header cells */
     thead th {
         background-color: rgba(232, 247, 154, 0.8) !important;
-        /* background-color: rgba(217, 242, 255, 0.8) !important; */
     }
 
     /* Style for the date label (larger font size) */
@@ -70,7 +69,6 @@
         background-color: transparent !important;
     }
 
-
     /* Hover effect for selectable cells */
     .calendar-cell:hover {
         background-color: #e6e6e6; /* Light gray color */
@@ -79,8 +77,12 @@
 
     /* Disable hover effect on registered cells */
     .registered-cell:hover {
-        background-color: #cadefc; /* Maintain the registered cell color */
-        cursor: default;
+        cursor: pointer;
+    }
+
+    /* Highlight all cells in a timeslot on hover */
+    .timeslot-hover {
+        background-color: #a0d0f0 !important; /* Slightly darker color */
     }
 
     /* New styles for the calendar container */
@@ -100,24 +102,23 @@
         margin-bottom: 15px;
     }
 
-    .button-container form {
-        margin: 0;
-    }
+        .button-container form {
+            margin: 0;
+        }
 
-    .button-container .form-group {
-        margin: 0;
-    }
+        .button-container .form-group {
+            margin: 0;
+        }
 
-    .button-container .form-control {
-        min-width: 200px;
-    }
-
+        .button-container .form-control {
+            min-width: 200px;
+        }
 </style>
 
-<h2>Weekly calendar (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
+<h2>Manage working times (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
 
-<div class="calendar-container">
-    
+<div id="calendarDiv" class="calendar-container">
+
     <div class="button-container">
         <button type="button" class="btn btn-outline-primary" onclick="changeWeek(-7)">
             <i class="bi bi-arrow-left-circle-fill"></i> Previous week
@@ -134,8 +135,6 @@
         </button>
     </div>
 
-
-    
     <div class="table-responsive" style="overflow-y: auto; max-height: calc(100vh - 300px);">
         <table class="table">
             <colgroup>
@@ -150,7 +149,7 @@
                     <th style="border: none; opacity: 0;">
                         <!-- Empty header cell -->
                     </th>
-    
+
                     @foreach (var day in Model.DaysOfWeek)
                     {
                         <th style="border: none;">
@@ -163,7 +162,7 @@
                             </span>
                         </th>
                     }
-    
+
                 </tr>
             </thead>
             <tbody>
@@ -197,18 +196,25 @@
                                 if (ViewBag.UserWorkingTimes != null && ViewBag.UserWorkingTimes.Count > 0)
                                 {
                                     List<TimeSlotVM> timeSlots = ViewBag.UserWorkingTimes;
-                                    @foreach (var timeSlot in timeSlots)
+                                    for (int timeslotIndex = 0; timeslotIndex < timeSlots.Count; timeslotIndex++)
                                     {
-                                        @if (timeSlot.DateFrom.Date == day.Date && (timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) <= totalMinutes && (timeSlot.DateTo.Hour * 60 + timeSlot.DateTo.Minute) > totalMinutes)
+                                        var timeSlot = timeSlots[timeslotIndex];
+                                        if (timeSlot.DateFrom.Date == day.Date && (timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) <= totalMinutes && (timeSlot.DateTo.Hour * 60 + timeSlot.DateTo.Minute) > totalMinutes)
                                         {
-                                            if ((timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) == totalMinutes)
-                                            {
-                                                <td class="calendar-cell registered-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="background-color: #cadefc; @tableCellStyle">@String.Format("{0:00}:{1:00} - {2:00}:{3:00}", timeSlot.DateFrom.Hour, timeSlot.DateFrom.Minute, timeSlot.DateTo.Hour, timeSlot.DateTo.Minute)</td>
-                                            }
-                                            else
-                                            {
-                                                <td class="calendar-cell registered-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="background-color: #cadefc; @tableCellStyle"></td>
-                                            }
+                                            <!-- Include data attributes on all registered cells -->
+                                            <td class="calendar-cell registered-cell"
+                                                data-day="@day.ToString("yyyy-MM-dd")"
+                                                data-hour="@hour"
+                                                data-minute="@minute"
+                                                data-timeslot-id="@timeSlot.Id"
+                                                data-datefrom="@timeSlot.DateFrom.ToString("yyyy-MM-dd HH:mm")"
+                                                data-dateto="@timeSlot.DateTo.ToString("yyyy-MM-dd HH:mm")"
+                                                style="background-color: #cadefc; @tableCellStyle">
+                                                @if ((timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) == totalMinutes)
+                                                {
+                                                    @String.Format("{0:00}:{1:00} - {2:00}:{3:00}", timeSlot.DateFrom.Hour, timeSlot.DateFrom.Minute, timeSlot.DateTo.Hour, timeSlot.DateTo.Minute)
+                                                }
+                                            </td>
                                             isBreak = true;
                                             break;
                                         }
@@ -219,7 +225,11 @@
                                     continue;
                                 }
                                 <!-- Added class and data attributes to cells -->
-                                <td class="calendar-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="@tableCellStyle"></td>
+                                <td class="calendar-cell"
+                                    data-day="@day.ToString("yyyy-MM-dd")"
+                                    data-hour="@hour"
+                                    data-minute="@minute"
+                                    style="@tableCellStyle"></td>
                             }
                         </tr>
                     }
@@ -228,6 +238,7 @@
         </table>
     </div>
 </div>
+
 <!-- Modal -->
 <div class="modal fade" id="workingHoursModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="workingHoursModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -266,6 +277,8 @@
             <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary cancel-modal-btn" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="deleteWorkingHoursBtn" style="display: none;">Delete</button>
+                <button type="button" class="btn btn-primary" id="saveWorkingHoursBtn" style="display: none;">Save</button>
                 <button type="button" class="btn btn-primary" id="addWorkingHoursBtn">Add Working Hours</button>
             </div>
         </div>
@@ -280,6 +293,17 @@
     let startCellTime = null;
     let columnCells = [];
     let selectionValid = true;
+    let isEditing = false;
+    let editingTimeslotId = null;
+
+    // Variables to hold selected timeslot data
+    let selectedStartDate = null;
+    let selectedFinishDate = null;
+    let selectedStartTime = null;
+    let selectedFinishTime = null;
+    let selectedUserName = '';
+    let selectedUserId = '';
+    let selectedDescription = ''; // If you have a description field
 
     document.addEventListener('mousedown', function (e) {
         if (e.button !== 0) return; // Only respond to left-click
@@ -314,6 +338,7 @@
         if (isMouseDown) {
             isMouseDown = false;
             if (selectedCells.length > 0 && selectionValid) {
+                isEditing = false;
                 showModal();
             } else {
                 alert("You can only register working time on free time slots");
@@ -371,8 +396,6 @@
         });
     }
 
-
-
     function clearSelection() {
         selectedCells.forEach(cell => {
             cell.classList.remove('selected');
@@ -380,29 +403,11 @@
         selectedCells = [];
     }
 
-    function showModal() {
-        // Get the selected user name
+    function showModal(isEdit = false) {
+        // Get the selected user name and id
         const userSelect = document.getElementById('userId');
         const userName = userSelect.options[userSelect.selectedIndex].text;
-
-        // Get start and finish times
-        let times = selectedCells.map(cell => {
-            return {
-                hour: parseInt(cell.getAttribute('data-hour')),
-                minute: parseInt(cell.getAttribute('data-minute'))
-            };
-        });
-
-        // Sort times to find earliest and latest
-        times.sort((a, b) => {
-            if (a.hour === b.hour) {
-                return a.minute - b.minute;
-            }
-            return a.hour - b.hour;
-        });
-
-        const earliestTime = times[0];
-        const latestTime = times[times.length - 1];
+        const userId = userSelect.value;
 
         // Prepare time options
         const timeOptions = [];
@@ -424,26 +429,90 @@
             const option1 = document.createElement('option');
             option1.value = time;
             option1.text = time;
-            if (parseTime(time) === (earliestTime.hour * 60 + earliestTime.minute)) {
-                option1.selected = true;
-            }
             startTimeSelect.add(option1);
 
             const option2 = document.createElement('option');
             option2.value = time;
             option2.text = time;
-            if (parseTime(time) === (latestTime.hour * 60 + latestTime.minute + 30)) {
-                option2.selected = true;
-            }
             finishTimeSelect.add(option2);
         });
 
-        // Set date fields
-        document.getElementById('startDate').value = selectedDay;
-        document.getElementById('finishDate').value = selectedDay;
+        if (isEdit) {
+            // Set modal title
+            document.getElementById('workingHoursModalLabel').innerText = 'Edit Working Hours';
+            // Show or hide buttons
+            document.getElementById('deleteWorkingHoursBtn').style.display = 'inline-block';
+            document.getElementById('addWorkingHoursBtn').style.display = 'none';
+            document.getElementById('saveWorkingHoursBtn').style.display = 'inline-block';
 
-        // Set user name
-        document.getElementById('userName').value = userName;
+            // Set date fields
+            document.getElementById('startDate').value = selectedStartDate;
+            document.getElementById('finishDate').value = selectedFinishDate;
+
+            // Set time fields
+            document.getElementById('startTime').value = selectedStartTime;
+            document.getElementById('finishTime').value = selectedFinishTime;
+
+            // Set user name
+            document.getElementById('userName').value = selectedUserName;
+
+        } else {
+            // Clear any previous selections
+            editingTimeslotId = null;
+
+            // Get start and finish times
+            let times = selectedCells.map(cell => {
+                return {
+                    hour: parseInt(cell.getAttribute('data-hour')),
+                    minute: parseInt(cell.getAttribute('data-minute'))
+                };
+            });
+
+            // Sort times to find earliest and latest
+            times.sort((a, b) => {
+                if (a.hour === b.hour) {
+                    return a.minute - b.minute;
+                }
+                return a.hour - b.hour;
+            });
+
+            const earliestTime = times[0];
+            const latestTime = times[times.length - 1];
+
+            // Set selected values
+            selectedStartDate = selectedDay;
+            selectedFinishDate = selectedDay;
+
+            selectedStartTime = ('0' + earliestTime.hour).slice(-2) + ':' + ('0' + earliestTime.minute).slice(-2);
+
+            // Calculate total minutes from midnight
+            let totalMinutes = latestTime.hour * 60 + latestTime.minute + 30;
+
+            // Calculate finish hour and minute
+            let finishHour = Math.floor(totalMinutes / 60) % 24; // Modulo 24 to handle wrap-around at midnight
+            let finishMinute = totalMinutes % 60;
+
+            selectedFinishTime = ('0' + finishHour).slice(-2) + ':' + ('0' + finishMinute).slice(-2);
+
+            // Set the values in the modal
+            document.getElementById('startDate').value = selectedStartDate;
+            document.getElementById('finishDate').value = selectedFinishDate;
+            document.getElementById('startTime').value = selectedStartTime;
+            document.getElementById('finishTime').value = selectedFinishTime;
+
+            // Set user name
+            document.getElementById('userName').value = userName;
+            selectedUserName = userName;
+            selectedUserId = userId;
+
+            // Set modal title
+            document.getElementById('workingHoursModalLabel').innerText = 'Add Working Hours';
+
+            // Show or hide buttons
+            document.getElementById('deleteWorkingHoursBtn').style.display = 'none';
+            document.getElementById('addWorkingHoursBtn').style.display = 'inline-block';
+            document.getElementById('saveWorkingHoursBtn').style.display = 'none';
+        }
 
         // Show the modal
         var workingHoursModal = new bootstrap.Modal(document.getElementById('workingHoursModal'));
@@ -502,7 +571,6 @@
                 }
             })
             .then(result => {
-                // Handle success (e.g., update the calendar)
                 // Close the modal
                 var workingHoursModal = bootstrap.Modal.getInstance(document.getElementById('workingHoursModal'));
                 workingHoursModal.hide();
@@ -510,8 +578,7 @@
                 // Clear the selection
                 clearSelection();
 
-                // Optionally, refresh the page or update the calendar dynamically
-                // For now, let's refresh the page to show the updated working times
+                // Refresh the page to show the updated working times
                 location.reload();
             })
             .catch(error => {
@@ -529,6 +596,153 @@
         });
     });
 
+    // Add event listeners to registered cells for hover and click
+    document.addEventListener('DOMContentLoaded', function () {
+        const registeredCells = document.querySelectorAll('.registered-cell');
+        registeredCells.forEach(function (cell) {
+            cell.addEventListener('mouseenter', function () {
+                const timeslotId = this.getAttribute('data-timeslot-id');
+                const timeslotCells = document.querySelectorAll('.registered-cell[data-timeslot-id="' + timeslotId + '"]');
+                timeslotCells.forEach(function (cell) {
+                    cell.classList.add('timeslot-hover');
+                });
+            });
+
+            cell.addEventListener('mouseleave', function () {
+                const timeslotId = this.getAttribute('data-timeslot-id');
+                const timeslotCells = document.querySelectorAll('.registered-cell[data-timeslot-id="' + timeslotId + '"]');
+                timeslotCells.forEach(function (cell) {
+                    cell.classList.remove('timeslot-hover');
+                });
+            });
+
+            cell.addEventListener('click', function (event) {
+                // Prevent event propagation to avoid triggering other handlers
+                event.stopPropagation();
+                isEditing = true;
+                editingTimeslotId = this.getAttribute('data-timeslot-id');
+            
+                // Get timeslot data
+                const dateFrom = this.getAttribute('data-datefrom');
+                const dateTo = this.getAttribute('data-dateto');
+            
+                // Get the selected user name and id from the dropdown
+                const userSelect = document.getElementById('userId');
+                selectedUserName = userSelect.options[userSelect.selectedIndex].text;
+                selectedUserId = userSelect.value;
+            
+                selectedStartDate = dateFrom.split(' ')[0];
+                selectedFinishDate = dateTo.split(' ')[0];
+            
+                selectedStartTime = dateFrom.split(' ')[1].slice(0,5);
+                selectedFinishTime = dateTo.split(' ')[1].slice(0,5);
+            
+                // Show modal in edit mode
+                showModal(true);
+            });
+
+        });
+
+        // Set the scroll position of the calendar to the middle when the page loads
+        var calendarDiv = document.querySelector('#calendarDiv .table-responsive');
+        if (calendarDiv) {
+            calendarDiv.scrollTop = (calendarDiv.scrollHeight - calendarDiv.clientHeight) / 2;
+        }
+    });
+
+    // Save button handler
+    document.getElementById('saveWorkingHoursBtn').addEventListener('click', function () {
+        // Collect data from modal fields
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const finishDate = document.getElementById('finishDate').value;
+        const finishTime = document.getElementById('finishTime').value;
+        const userId = selectedUserId;
+
+        // Prepare data to send
+        const data = {
+            TimeslotId: editingTimeslotId,
+            StartDate: startDate + 'T' + startTime,
+            FinishDate: finishDate + 'T' + finishTime,
+            UserId: userId
+        };
+
+        // Get the anti-forgery token
+        const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        // Send AJAX POST request to update
+        fetch('@Url.Action("UpdateWorkingTime", "Calendar")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': antiForgeryToken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else if (response.status === 400) {
+                return response.text().then(text => { throw new Error(text); });
+            } else if (response.status === 403) {
+                throw new Error('You have no permissions to this action');
+            } else {
+                throw new Error('Error updating working time');
+            }
+        })
+        .then(result => {
+            // Close the modal
+            var workingHoursModal = bootstrap.Modal.getInstance(document.getElementById('workingHoursModal'));
+            workingHoursModal.hide();
+
+            // Refresh the page to show the updated times
+            location.reload();
+        })
+        .catch(error => {
+            alert(error.message);
+        });
+    });
+
+    // Delete button handler
+    document.getElementById('deleteWorkingHoursBtn').addEventListener('click', function () {
+        // Prepare data to send
+        const data = {
+            timeslotId: editingTimeslotId
+        };
+
+        // Get the anti-forgery token
+        const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        // Send AJAX POST request to delete
+        fetch('@Url.Action("DeleteWorkingTime", "Calendar")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': antiForgeryToken
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Request was successful
+                    return response.json();
+                } else {
+                    // Handle errors
+                    throw new Error('Error deleting working time');
+                }
+            })
+            .then(result => {
+                // Close the modal
+                var workingHoursModal = bootstrap.Modal.getInstance(document.getElementById('workingHoursModal'));
+                workingHoursModal.hide();
+
+                // Refresh the page to show the updated times
+                location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+    });
 </script>
 
 @section Scripts {

@@ -86,7 +86,7 @@
 
 <h2>Weekly calendar (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
 
-<div class="calendar-container">
+<div id="calendarDiv" class="calendar-container">
 
     <div class="button-container">
         <button type="button" class="btn btn-outline-primary" onclick="changeWeek(-7)">
@@ -200,4 +200,13 @@
 
         window.location.href = '?date=' + currentDate.toISOString().split('T')[0];
     }
+
+    // Add the DOMContentLoaded event listener
+    document.addEventListener('DOMContentLoaded', function () {
+        // Set the scroll position of the calendar to the middle when the page loads
+        var calendarDiv = document.querySelector('#calendarDiv .table-responsive');
+        if (calendarDiv) {
+            calendarDiv.scrollTop = (calendarDiv.scrollHeight - calendarDiv.clientHeight) / 2;
+        }
+    });
 </script>
