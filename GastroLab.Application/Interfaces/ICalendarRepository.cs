@@ -10,9 +10,13 @@ namespace GastroLab.Application.Interfaces
 {
     public interface ICalendarRepository
     {
+        public void DeleteWorkingTime(int timeslotId);
+        public WorkingTime GetWorkingTimeById(int timeslotId);
+        public void UpdateWorkingTime(WorkingTime workingTime);
+        public bool CheckForOverlappingWorkingTimes(WorkingTime workingTime);
         public void AddRegisteredTime(RegisteredTime registeredTime);
         public void AddWorkingTime(WorkingTime workingTime);
-        public bool CheckForOverlappingTimes(string userId, RegisteredTime registeredTime);
+        public bool CheckForOverlappingRegisteredTimes(string userId, RegisteredTime registeredTime);
         public void DeleteRegisteredTime(int timeslotId);
         public RegisteredTime GetRegisteredTimeById(int timeslotId);
         public List<RegisteredTime> GetRegisteredTimesByUserId(string currentUserId);

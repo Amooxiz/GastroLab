@@ -2,7 +2,89 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <!-- First Row: Image -->
+    <div class="row">
+        <div class="col text-center">
+            <img src="~/images/gastrolab_logo.png" alt="GastroLab Logo" class="img-fluid" style="max-width: 250px;">
+        </div>
+    </div>
+
+    <!-- Second Row: About This App -->
+    <div class="row mt-5">
+        <div class="col">
+            <h2>About this app</h2>
+            <p class="lead">
+                GastroLab is a comprehensive system designed to streamline restaurant management. It allows you to register products and orders, keep track of working hours, register time entries, and analyze historical orders. This application aims to enhance operational efficiency and provide valuable insights for better decision-making in your restaurant.
+            </p>
+        </div>
+    </div>
+
+    <!-- Third Row: Orders and Time Sections -->
+    <div class="row mt-5">
+        <!-- Orders Section -->
+        <div class="col-md-6">
+            <h3 class="text-center">Orders</h3>
+            <ul class="list-group">
+                @if (User.IsInRole("Admin") || User.IsInRole("Director") || User.IsInRole("Waiter"))
+                {
+                    <li class="list-group-item">
+                        <a asp-controller="Order" asp-action="ManageAllOrders">Manage orders</a>
+                    </li>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("Director") || User.IsInRole("Cook"))
+                {
+                    <li class="list-group-item">
+                        <a asp-controller="Order" asp-action="ManageOrders">Manage active orders</a>
+                    </li>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("Director") || User.IsInRole("Delivery"))
+                {
+                    <li class="list-group-item">
+                        <a asp-controller="Order" asp-action="ManageDeliveryOrders">Manage delivery orders</a>
+                    </li>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("Director"))
+                {
+                    <li class="list-group-item">
+                        <a asp-controller="Order" asp-action="GetHistoricalOrders">Historical orders</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a asp-controller="Dashboard" asp-action="Index">Analytics dashboard</a>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- Time Section -->
+        <div class="col-md-6">
+            <h3 class="text-center">Time</h3>
+            <ul class="list-group">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="list-group-item">
+                        <a asp-controller="Calendar" asp-action="RegisterTime">Register time</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a asp-controller="Calendar" asp-action="GetCalendar">Calendar</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a asp-controller="LeaveRequest" asp-action="MyLeaveRequests">My leave requests</a>
+                    </li>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Director"))
+                    {
+                        <li class="list-group-item">
+                            <a asp-controller="Calendar" asp-action="ManageRegisteredTimes">Manage registered times</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a asp-controller="Calendar" asp-action="ManageWorkingTimes">Manage working times</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a asp-controller="LeaveRequest" asp-action="ManageLeaveRequests">Manage leave requests</a>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
 </div>

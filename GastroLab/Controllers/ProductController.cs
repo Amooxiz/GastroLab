@@ -26,6 +26,31 @@ namespace GastroLab.Presentation.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult ManageProductComponents()
+        {
+            var ingredients = _productService.GetAllIngredients()
+                .Select(i => new IngredientVM { Id = i.Id, Name = i.Name }).ToList();
+            var categories = _productService.GetAllCategories()
+                .Select(c => new CategoryVM { Id = c.Id, Name = c.Name }).ToList();
+
+            var model = new Tuple<IEnumerable<IngredientVM>, IEnumerable<CategoryVM>>(ingredients, categories);
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteIngredient(int id)
+        {
+            _productService.DeleteIngredient(id);
+            return RedirectToAction(nameof(ManageProductComponents));
+        }
+
+        [HttpPost]
+        public IActionResult DeleteCategory(int id)
+        {
+            _productService.DeleteCategory(id);
+            return RedirectToAction(nameof(ManageProductComponents));
+        }
 
         [HttpGet]
         public IActionResult AddProduct()
@@ -35,19 +60,6 @@ namespace GastroLab.Presentation.Controllers
             ViewBag.AllIngredients = _productService.GetAllIngredients();
             return View();
         }
-
-        //[HttpPost]
-        //public IActionResult AddProduct(string Name, string Description, string Image, ProductStatus productStatus)
-        //{
-        //    _productService.AddProduct(new Application.ViewModels.ProductVM()
-        //    {
-        //        Name = Name,
-        //        Description = Description,
-        //        Image = Image,
-        //        productStatus = productStatus
-        //    });
-        //    return View();
-        //}
 
         [HttpPost]
         public IActionResult AddProduct(ProductVM model)

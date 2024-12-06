@@ -11,6 +11,7 @@ namespace GastroLab.Application.ViewModels
     public class GlobalSettingsVM
     {
         public int Id { get; set; }
+        [Display(Name = "Restaurant name")]
         public string RestaurantName { get; set; }
         public virtual AddressVM AddressVM { get; set; }
         [Required]

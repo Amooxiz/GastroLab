@@ -21,6 +21,180 @@ namespace GastroLab.Infrastructure.Services
             _orderRepository = orderRepository;
         }
 
+        public List<AverageQuantityByMonthVM> GetAvgQuantityByMonths(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgQuantityByMonths(dateFrom, dateTo)
+                .Select(x => new AverageQuantityByMonthVM()
+                {
+                    Month = x.Month,
+                    AverageQuantity = x.AverageQuantity
+                }).ToList();
+        }
+        public List<AverageSalesByMonthVM> GetAvgSalesByMonths(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgSalesByMonths(dateFrom, dateTo)
+                .Select(x => new AverageSalesByMonthVM()
+                {
+                    Month = x.Month,
+                    AverageSales = x.AverageSales
+                }).ToList();
+        }
+        public List<AverageQuantityByDayVM> GetAvgQuantityByDays(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgQuantityByDays(dateFrom, dateTo)
+                .Select(x => new AverageQuantityByDayVM()
+                {
+                    DayOfWeek = x.DayOfWeek,
+                    AverageQuantity = x.AverageQuantity
+                }).ToList();
+        }
+        public List<AverageSalesByDayVM> GetAvgSalesByDays(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgSalesByDays(dateFrom, dateTo)
+                .Select(x => new AverageSalesByDayVM()
+                {
+                    DayOfWeek = x.DayOfWeek,
+                    AverageSales = x.AverageSales
+                }).ToList();
+        }
+        public List<WaitingTimeComparisonVM> GetComparisonOfWaitingTimes(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetComparisonOfWaitingTimes(dateFrom, dateTo)
+                .Select(x => new WaitingTimeComparisonVM()
+                {
+                    Comparison = x.Comparison,
+                    OrderCount = x.OrderCount
+                }).ToList();
+        }
+        public List<AverageDeliveryMethodByHoursVM> GetAvgDeliveryMethodQuantityByHours(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgDeliveryMethodQuantityByHours(dateFrom, dateTo)
+                .Select(x => new AverageDeliveryMethodByHoursVM()
+                {
+                    HourRange = x.HourRange,
+                    AverageQuantityDelivery = x.AverageQuantityDelivery,
+                    AverageQuantityDineIn = x.AverageQuantityDineIn,
+                    AverageQuantityPickup = x.AverageQuantityPickup
+                }).ToList();
+        }
+        public List<AverageWaitingTimeByHoursVM> GetAvgWaitingTimeByHours(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgWaitingTimeByHours(dateFrom, dateTo)
+                .Select(x => new AverageWaitingTimeByHoursVM()
+                {
+                    HourRange = x.HourRange,
+                    AverageExpectedWaitingTime = x.AverageExpectedWaitingTime,
+                    AverageActualWaitingTime = x.AverageActualWaitingTime
+                }).ToList();
+        }
+        public List<AverageQuantityByHoursVM> GetAvgQuantityByHours(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgQuantityByHours(dateFrom, dateTo)
+                .Select(x => new AverageQuantityByHoursVM()
+                {
+                    HourRange = x.HourRange,
+                    AverageQuantity = x.AverageQuantity
+                }).ToList();
+        }
+        public List<AverageSalesByHoursVM> GetAvgSalesByHours(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgSalesByHours(dateFrom, dateTo)
+                .Select(x => new AverageSalesByHoursVM()
+                {
+                    HourRange = x.HourRange,
+                    AverageSales = x.AverageSales
+                }).ToList();
+        }
+        public List<SalesByDeliveryMethodVM> GetSalesByDeliveryMethods(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetSalesByDeliveryMethods(dateFrom, dateTo)
+                .Select(x => new SalesByDeliveryMethodVM()
+                {
+                    DeliveryMethod = x.DeliveryMethod,
+                    TotalSales = x.TotalSales
+                }).ToList();
+        }
+        public List<QuantityByDeliveryMethodVM> GetQuantityByDeliveryMethods(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetQuantityByDeliveryMethods(dateFrom, dateTo)
+                .Select(x => new QuantityByDeliveryMethodVM()
+                {
+                    DeliveryMethod = x.DeliveryMethod,
+                    TotalQuantity = x.TotalQuantity
+                }).ToList();
+        }
+        public List<AverageWaitingTimeByDeliveryMethodVM> GetAvgWaitingTimesByDeliveryMethods(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgWaitingTimesByDeliveryMethods(dateFrom, dateTo)
+                .Select(x => new AverageWaitingTimeByDeliveryMethodVM()
+                {
+                    DeliveryMethod = x.DeliveryMethod,
+                    AverageExpectedWaitingTime = x.AverageExpectedWaitingTime,
+                    AverageActualWaitingTime = x.AverageActualWaitingTime
+                }).ToList();
+        }
+        public List<DeliveryMethodByProductVM> GetDeliveryMethodsQuantityByProducts(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetDeliveryMethodsQuantityByProducts(dateFrom, dateTo)
+                .Select(x => new DeliveryMethodByProductVM()
+                {
+                    Product = x.Product,
+                    QuantityDelivery = x.QuantityDelivery,
+                    QuantityDineIn = x.QuantityDineIn,
+                    QuantityPickup = x.QuantityPickup
+                }).ToList();
+        }
+        public List<AverageWaitingTimeByProductVM> GetAvgWaitingTimesByProducts(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetAvgWaitingTimesByProducts(dateFrom, dateTo)
+                .Select(x => new AverageWaitingTimeByProductVM()
+                {
+                    Product = x.ProductName,
+                    AverageExpectedWaitingTime = x.AverageExpectedWaitingTime,
+                    AverageActualWaitingTime = x.AverageActualWaitingTime
+                }).ToList();
+        }
+        public List<QuantityByProductVM> GetQuantityByProducts(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetQuantityByProducts(dateFrom, dateTo)
+                .Select(x => new QuantityByProductVM()
+                {
+                    Product = x.ProductName,
+                    TotalQuantity = x.TotalQuantity
+                }).ToList();
+        }
+
+        public List<SalesByProductVM> GetSalesByProducts(DateTime dateFrom, DateTime dateTo)
+        {
+            return _orderRepository
+                .GetSalesByProducts(dateFrom, dateTo)
+                .Select(x => new SalesByProductVM()
+                {
+                    Product = x.ProductName,
+                    TotalSales = x.TotalSales
+                }).ToList();
+        }
+
+        public IEnumerable<OrderVM> GetFinishedOrders()
+        {
+            return _orderRepository.GetFinishedOrders().Select(x => x.ToVM());
+        }
+
         public OrderVM GetOrderById(int id)
         {
             return _orderRepository.GetOrderById(id).ToVM();

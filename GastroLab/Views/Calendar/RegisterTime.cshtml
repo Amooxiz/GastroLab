@@ -118,7 +118,7 @@
 
 <h2>Register Time (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
 
-<div class="calendar-container">
+<div id="calendarDiv" class="calendar-container">
     <div class="button-container">
         <button type="button" class="btn btn-outline-primary" onclick="changeWeek(-7)">
             <i class="bi bi-arrow-left-circle-fill"></i> Previous week
@@ -266,7 +266,7 @@
                 <!-- Description Row -->
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
-                    <input type="text" class="form-control" id="description">
+                    <textarea class="form-control" id="description" rows="3"></textarea>
                 </div>
             </div>
             <!-- Modal Footer -->
@@ -623,6 +623,12 @@
             });
 
         });
+
+        // Set the scroll position of the calendar to the middle when the page loads
+        var calendarDiv = document.querySelector('#calendarDiv .table-responsive');
+        if (calendarDiv) {
+            calendarDiv.scrollTop = (calendarDiv.scrollHeight - calendarDiv.clientHeight) / 2;
+        }
     });
 
     // Save button handler
@@ -661,9 +667,9 @@
             } else if (response.status === 400) {
                 return response.text().then(text => { throw new Error(text); });
             } else if (response.status === 403) {
-                throw new Error('Nie masz uprawnień do wykonania tej akcji.');
+                throw new Error('You have no permissions to this action');
             } else {
-                throw new Error('Wystąpił błąd podczas aktualizacji czasu.');
+                throw new Error('Error updating registered time');
             }
         })
         .then(result => {

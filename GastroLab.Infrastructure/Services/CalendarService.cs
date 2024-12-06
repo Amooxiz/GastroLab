@@ -1,6 +1,7 @@
 ﻿using GastroLab.Application.Extensions;
 using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
+using GastroLab.Domain.DBO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,40 @@ namespace GastroLab.Infrastructure.Services
         public CalendarService(ICalendarRepository calendarRepository)
         {
             _calendarRepository = calendarRepository;
+        }
+
+        public void DeleteWorkingTime(int timeslotId)
+        {
+            _calendarRepository.DeleteWorkingTime(timeslotId);
+        }
+
+        public TimeSlotVM GetWorkingTimeById(int timeslotId)
+        {
+            return _calendarRepository.GetWorkingTimeById(timeslotId).ToVM();
+        }
+
+        public void UpdateWorkingTime(TimeSlotVM timeSlot)
+        {
+            var workingTimeToUpdate = _calendarRepository.GetWorkingTimeById(timeSlot.Id);
+
+            if (workingTimeToUpdate == null)
+            {
+                throw new Exception("Registered time not found");
+            }
+
+            var workingTime = timeSlot.ToWorkingTimeModel();
+
+            workingTimeToUpdate.DateFrom = workingTime.DateFrom;
+            workingTimeToUpdate.DateTo = workingTime.DateTo;
+            workingTimeToUpdate.DayOfWeek = workingTime.DayOfWeek;
+            workingTimeToUpdate.TimeInterval = workingTime.TimeInterval;
+
+            _calendarRepository.UpdateWorkingTime(workingTimeToUpdate);
+        }
+
+        public bool CheckForOverlappingWorkingTimes(TimeSlotVM workingTime)
+        {
+            return _calendarRepository.CheckForOverlappingWorkingTimes(workingTime.ToWorkingTimeModel());
         }
 
         public TimeSlotVM GetRegisteredTimeById(int timeslotId)
@@ -48,9 +83,9 @@ namespace GastroLab.Infrastructure.Services
             _calendarRepository.DeleteRegisteredTime(timeslotId);
         }
 
-        public bool CheckForOverlappingTimes(string userId, TimeSlotVM timeToCheck)
+        public bool CheckForOverlappingRegisteredTimes(string userId, TimeSlotVM timeToCheck)
         {
-            return _calendarRepository.CheckForOverlappingTimes(userId, timeToCheck.ToRegisteredTimeModel());
+            return _calendarRepository.CheckForOverlappingRegisteredTimes(userId, timeToCheck.ToRegisteredTimeModel());
         }
 
         public void AddRegisteredTime(TimeSlotVM timeSlot)
