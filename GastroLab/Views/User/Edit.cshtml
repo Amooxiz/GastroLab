@@ -1,14 +1,16 @@
 ﻿@model GastroLab.Application.ViewModels.EditUserVM
 
 @{
-    ViewData["Title"] = "Edit User";
+    ViewData["Title"] = "Edit user";
 }
 
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="Edit" method="post">
-    @* Hidden field to hold the user ID *@
     <input type="hidden" asp-for="Id" />
+
+    @* Ogólne błędy walidacji *@
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
         <label asp-for="UserName"></label>
@@ -22,16 +24,14 @@
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
-    @* Password fields are typically omitted in edit *@
-
     <div class="form-group">
-        <label asp-for="Name"></label>
+        <label asp-for="Name">First name</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Surname"></label>
+        <label asp-for="Surname">Last name</label>
         <input asp-for="Surname" class="form-control" />
         <span asp-validation-for="Surname" class="text-danger"></span>
     </div>
@@ -48,9 +48,10 @@
         <span asp-validation-for="SelectedRoles" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <button type="submit" class="btn btn-primary">Save changes</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
+
 
 @section Scripts {
     @{

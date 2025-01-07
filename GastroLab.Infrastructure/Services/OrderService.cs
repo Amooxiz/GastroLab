@@ -250,7 +250,7 @@ namespace GastroLab.Infrastructure.Services
                 if (existingOrder.Address == null)
                     existingOrder.Address = new Address();
 
-                existingOrder.Address.HouseNumber = updatedOrder.Address.HouseNumber;
+                existingOrder.Address.HouseNumber = updatedOrder.Address.HouseNumber ?? 0;
                 existingOrder.Address.FlatNumber = updatedOrder.Address.FlatNumber;
                 existingOrder.Address.Street = updatedOrder.Address.Street;
                 existingOrder.Address.City = updatedOrder.Address.City;

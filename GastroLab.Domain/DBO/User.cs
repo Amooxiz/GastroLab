@@ -11,7 +11,6 @@ namespace GastroLab.Domain.DBO
     {
         public string? Name { get; set; }
         public string? Surname { get; set; }
-        public virtual ICollection<Order>? Orders { get; set; }
         public virtual ICollection<WorkingTime>? WorkingTimes { get; set; }
         public virtual ICollection<RegisteredTime>? RegisteredTimes { get; set; }
     }

@@ -22,8 +22,6 @@ namespace GastroLab.Domain.DBO
         public bool isScheduledDelivery { get; set; }
         public DateTime? ScheduledDeliveryDate { get; set; }
 
-        public string? ClientId { get; set; }
-        public virtual User? Client { get; set; }
         public virtual ICollection<OrderProduct>? OrderProducts { get; set; }
     }
 }

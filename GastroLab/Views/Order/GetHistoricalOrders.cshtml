@@ -5,7 +5,7 @@
     ViewBag.Title = "Historical Orders";
 }
 
-<h2>Historical Orders</h2>
+<h2>Historical orders</h2>
 
 <div class="filter-panel">
     <form id="filterForm" method="get" action="@Url.Action("GetHistoricalOrders")" class="form-inline">
@@ -20,7 +20,7 @@
             <!-- Delivery Method -->
             <div class="col">
                 <div class="form-group">
-                    <label for="DeliveryMethod">Delivery Method:</label>
+                    <label for="DeliveryMethod">Delivery method:</label>
                     @Html.DropDownListFor(m => m.DeliveryMethod,
                              new SelectList(Enum.GetValues(typeof(DeliveryMethod)).Cast<DeliveryMethod>().Select(dm => new { Value = (int)dm, Text = dm.ToString() }), "Value", "Text", Model.DeliveryMethod),
                              "All",
@@ -31,10 +31,10 @@
             <!-- Creation Date -->
             <div class="col">
                 <div class="form-group">
-                    <label>Creation Date:</label>
+                    <label>Creation date:</label>
                     <div class="dropdown">
                         <button type="button" id="creationDateDropdownBtn" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                            dd.mm.rrrr - dd.mm.rrrr
+                            dd.mm.yyyy - dd.mm.yyyy
                         </button>
                         <div class="dropdown-menu p-4">
                             <div class="mb-3">
@@ -53,10 +53,10 @@
             <!-- Completion Date -->
             <div class="col">
                 <div class="form-group">
-                    <label>Completion Date:</label>
+                    <label>Completion date:</label>
                     <div class="dropdown">
                         <button type="button" id="completionDateDropdownBtn" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                            dd.mm.rrrr - dd.mm.rrrr
+                            dd.mm.yyyy - dd.mm.yyyy
                         </button>
                         <div class="dropdown-menu p-4">
                             <div class="mb-3">
@@ -75,10 +75,10 @@
             <!-- Scheduled Delivery Date -->
             <div class="col">
                 <div class="form-group">
-                    <label>Scheduled Delivery Date:</label>
+                    <label>Scheduled delivery date:</label>
                     <div class="dropdown">
                         <button type="button" id="scheduledDateDropdownBtn" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" @(Model.IsScheduledDelivery ? "" : "disabled")>
-                            dd.mm.rrrr - dd.mm.rrrr
+                            dd.mm.yyyy - dd.mm.yyyy
                         </button>
                         <div class="dropdown-menu p-4">
                             <div class="mb-3">
@@ -93,7 +93,7 @@
                     </div>
                     <div class="form-check" style="margin-top: 5px;">
                         @Html.CheckBoxFor(m => m.IsScheduledDelivery, new { id = "IsScheduledDelivery", @class = "form-check-input" })
-                        <label class="form-check-label" for="IsScheduledDelivery">Scheduled Delivery</label>
+                        <label class="form-check-label" for="IsScheduledDelivery">Scheduled delivery</label>
                     </div>
                 </div>
             </div>
@@ -101,7 +101,7 @@
             <!-- Waiting Time -->
             <div class="col">
                 <div class="form-group">
-                    <label for="WaitingTimeOption">Waiting Time:</label>
+                    <label for="WaitingTimeOption">Waiting time:</label>
                     @Html.DropDownListFor(m => m.WaitingTimeOption,
                              new SelectList(ViewBag.WaitingTimeOptions as List<SelectListItem>, "Value", "Text", Model.WaitingTimeOption),
                              new { @class = "form-control", id = "WaitingTimeOption" })
@@ -145,7 +145,7 @@
                         }
                     </div>
                     <div class="d-flex align-items-center" style="margin-top: 10px;">
-                        <button type="button" id="openProductOffcanvasBtn" class="btn btn-secondary">Select Products</button>
+                        <button type="button" id="openProductOffcanvasBtn" class="btn btn-secondary">Select products</button>
                         <div class="ms-auto">
                             <button type="button" id="resetFiltersBtn" class="btn btn-remove-filters btn-lg me-2">
                                 <i class="bi bi-eraser"></i> Remove filters
@@ -185,7 +185,7 @@
             <th>
                 <div class="header-cell">
                 <a href="#" class="sort-header" data-column="DeliveryMethod">
-                    Delivery Method
+                    Delivery method
                     @if (Model.SortColumn == "DeliveryMethod")
                     {
                         <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
@@ -196,7 +196,7 @@
             <th>
                 <div class="header-cell">
                 <a href="#" class="sort-header" data-column="WaitingTime">
-                    Expected Waiting Time
+                    Expected waiting time
                     @if (Model.SortColumn == "WaitingTime")
                     {
                         <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
@@ -207,7 +207,7 @@
             <th>
                 <div class="header-cell">
                 <a href="#" class="sort-header" data-column="ActualWaitingTime">
-                    Actual Waiting Time
+                    Actual waiting time
                     @if (Model.SortColumn == "ActualWaitingTime")
                     {
                         <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
@@ -217,7 +217,7 @@
             <th>
                 <div class="header-cell">
                 <a href="#" class="sort-header" data-column="CreationDate">
-                    Creation Date
+                    Creation date
                     @if (Model.SortColumn == "CreationDate")
                     {
                         <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
@@ -228,7 +228,7 @@
             <th>
                 <div class="header-cell">
                 <a href="#" class="sort-header" data-column="CompletionDate">
-                    Completion Date
+                    Completion date
                     @if (Model.SortColumn == "CompletionDate")
                     {
                         <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
@@ -239,7 +239,7 @@
             <th>
                 <div class="header-cell">
                 <a href="#" class="sort-header" data-column="ScheduledDeliveryDate">
-                    Scheduled Delivery Date
+                    Scheduled delivery date
                     @if (Model.SortColumn == "ScheduledDeliveryDate")
                     {
                         <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
@@ -250,7 +250,7 @@
             <th>
                 <div class="header-cell">
                 <a href="#" class="sort-header" data-column="TotalPrice">
-                    Total Price
+                    Total price
                     @if (Model.SortColumn == "TotalPrice")
                     {
                         <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
@@ -274,21 +274,29 @@
                         }
                     </td>
                     <td class="center-content">@order.DeliveryMethod</td>
-                    <td class="center-content">@order.WaitingTime min</td>
-                    <td class="center-content">
-                        @{
-                            if (order.CompletionDate.HasValue)
-                            {
-                                var actualWaitingTime = (int)Math.Floor((order.CompletionDate.Value - order.CreationDate).TotalMinutes);
-                                var color = actualWaitingTime > order.WaitingTime ? "red" : "green";
-                                    <span style="color:@color">@actualWaitingTime min</span>
+                    @if (order.isScheduledDelivery)
+                    {
+                        <td class="center-content">Scheduled</td>
+                        <td class="center-content">Scheduled</td>
+                    }
+                    else
+                    {
+                        <td class="center-content">@order.WaitingTime min</td>
+                        <td class="center-content">
+                            @{
+                                if (order.CompletionDate.HasValue)
+                                {
+                                    var actualWaitingTime = (int)Math.Floor((order.CompletionDate.Value - order.CreationDate).TotalMinutes);
+                                    var color = actualWaitingTime > order.WaitingTime ? "red" : "green";
+                                        <span style="color:@color">@actualWaitingTime min</span>
+                                }
+                                else
+                                {
+                                        <span>—</span>
+                                }
                             }
-                            else
-                            {
-                                    <span>—</span>
-                            }
-                        }
-                    </td>
+                        </td>
+                    }
                     <td class="center-content">@order.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
                     <td class="center-content">@(order.CompletionDate.HasValue ? order.CompletionDate.Value.ToString("yyyy-MM-dd HH:mm") : "—")</td>
                     <td class="center-content">@(order.ScheduledDeliveryDate.HasValue ? order.ScheduledDeliveryDate.Value.ToString("yyyy-MM-dd HH:mm") : "—")</td>
@@ -356,7 +364,7 @@
 <!-- Product Selection Offcanvas -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="productSelectionOffcanvas" aria-labelledby="productSelectionOffcanvasLabel">
     <div class="offcanvas-header d-flex align-items-center">
-        <h5 class="offcanvas-title me-auto" id="productSelectionOffcanvasLabel">Select Products</h5>
+        <h5 class="offcanvas-title me-auto" id="productSelectionOffcanvasLabel">Select products</h5>
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="selectAllProductsCheckbox">
             <label class="form-check-label" for="selectAllProductsCheckbox">
@@ -452,10 +460,10 @@
                     var flatFieldsHtml = '<table class="table table-sm table-borderless">';
 
                     // 1. Order ID
-                    flatFieldsHtml += '<tr><th>Order ID</th><td>' + order.id + '</td></tr>';
+                    flatFieldsHtml += '<tr><th>Order Id</th><td>' + order.id + '</td></tr>';
 
                     // 2. Delivery Method (use the enum label)
-                    flatFieldsHtml += '<tr><th>Delivery Method</th><td>' + order.deliveryMethodName + '</td></tr>';
+                    flatFieldsHtml += '<tr><th>Delivery method</th><td>' + order.deliveryMethodName + '</td></tr>';
 
                     // 3. Status (use the enum label)
                     flatFieldsHtml += '<tr><th>Status</th><td>' + order.statusName + '</td></tr>';
@@ -463,27 +471,34 @@
                     // 4. Comment
                     flatFieldsHtml += '<tr><th>Comment</th><td>' + (order.comment || '-') + '</td></tr>';
 
-                    // 5. Expected Waiting Time
-                    flatFieldsHtml += '<tr><th>Expected Waiting Time</th><td>' + order.waitingTime + ' min</td></tr>';
-
-                    // 6. Actual Waiting Time
-                    var actualWaitingTime = '-';
-                    if (order.completionDate) {
-                        var creationDate = new Date(order.creationDate);
-                        var completionDate = new Date(order.completionDate);
-                        var diffMinutes = Math.floor((completionDate - creationDate) / 60000);
-                        actualWaitingTime = diffMinutes + ' min';
+                    if (order.isScheduledDelivery) {
+                        // 5. Scheduled Delivery Date
+                        flatFieldsHtml += '<tr><th>Scheduled delivery date</th><td>' + (order.scheduledDeliveryDate ? new Date(order.scheduledDeliveryDate).toLocaleString() : '-') + '</td></tr>';
                     }
-                    flatFieldsHtml += '<tr><th>Actual Waiting Time</th><td>' + actualWaitingTime + '</td></tr>';
+                    else {
+                        // 5. Expected Waiting Time
+                        flatFieldsHtml += '<tr><th>Expected waiting time</th><td>' + order.waitingTime + ' min</td></tr>';
+
+                        // 6. Actual Waiting Time
+                        var actualWaitingTime = '-';
+                        if (order.completionDate) {
+                            var creationDate = new Date(order.creationDate);
+                            var completionDate = new Date(order.completionDate);
+                            var diffMinutes = Math.floor((completionDate - creationDate) / 60000);
+                            actualWaitingTime = diffMinutes + ' min';
+                        }
+                        flatFieldsHtml += '<tr><th>Actual waiting time</th><td>' + actualWaitingTime + '</td></tr>';
+                    }
+                    
 
                     // 7. Creation Date
-                    flatFieldsHtml += '<tr><th>Creation Date</th><td>' + formatDateTime(order.creationDate) + '</td></tr>';
+                    flatFieldsHtml += '<tr><th>Creation date</th><td>' + formatDateTime(order.creationDate) + '</td></tr>';
 
                     // 8. Completion Date
-                    flatFieldsHtml += '<tr><th>Completion Date</th><td>' + (order.completionDate ? formatDateTime(order.completionDate) : '-') + '</td></tr>';
+                    flatFieldsHtml += '<tr><th>Completion date</th><td>' + (order.completionDate ? formatDateTime(order.completionDate) : '-') + '</td></tr>';
 
                     // 9. Total Price (Added as the last flat field)
-                    flatFieldsHtml += '<tr><th>Total Price</th><td>' + parseFloat(order.totalPrice).toFixed(2) + ' PLN</td></tr>';
+                    flatFieldsHtml += '<tr><th>Total price</th><td>' + parseFloat(order.totalPrice).toFixed(2) + ' PLN</td></tr>';
 
                     flatFieldsHtml += '</table>';
 
@@ -670,9 +685,9 @@
         });
 
         function formatDate(dateString) {
-            if (!dateString) return 'dd.mm.rrrr';
+            if (!dateString) return 'dd.mm.yyyy';
             var date = new Date(dateString);
-            if (isNaN(date)) return 'dd.mm.rrrr';
+            if (isNaN(date)) return 'dd.mm.yyyy';
             var day = ('0' + date.getDate()).slice(-2);
             var month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-based
             var year = date.getFullYear();
@@ -683,7 +698,7 @@
             var fromDate = $('#CreationDateFrom').val();
             var toDate = $('#CreationDateTo').val();
 
-            var label = 'dd.mm.rrrr - dd.mm.rrrr';
+            var label = 'dd.mm.yyyy - dd.mm.yyyy';
 
             if (fromDate || toDate) {
                 var fromLabel = formatDate(fromDate);
@@ -699,7 +714,7 @@
             var fromDate = $('#CompletionDateFrom').val();
             var toDate = $('#CompletionDateTo').val();
 
-            var label = 'dd.mm.rrrr - dd.mm.rrrr';
+            var label = 'dd.mm.yyyy - dd.mm.yyyy';
 
             if (fromDate || toDate) {
                 var fromLabel = formatDate(fromDate);
@@ -715,7 +730,7 @@
             var fromDate = $('#ScheduledDeliveryDateFrom').val();
             var toDate = $('#ScheduledDeliveryDateTo').val();
 
-            var label = 'dd.mm.rrrr - dd.mm.rrrr';
+            var label = 'dd.mm.yyyy - dd.mm.yyyy';
 
             if (fromDate || toDate) {
                 var fromLabel = formatDate(fromDate);

@@ -247,6 +247,8 @@ namespace GastroLab.Presentation.Controllers
 
             ViewBag.AllProducts = _productService.GetAllProducts();
 
+            ViewBag.GlobalSettings = _globalSettingsService.GetSettings();
+
             return View(order);
         }
 
@@ -263,13 +265,10 @@ namespace GastroLab.Presentation.Controllers
             }
             order.TotalPrice = totalPrice;
 
-            // Update the order in the database
-            _orderService.UpdateOrder(order);
-
-            return RedirectToAction("ManageAllOrders");
-
-            // If model state is invalid, reload the view with existing data
-            ViewBag.DeliveryMethods = Enum.GetValues(typeof(DeliveryMethod))
+            if (!ModelState.IsValid)
+            {
+                // Re-populate ViewBag and return the view
+                ViewBag.DeliveryMethods = Enum.GetValues(typeof(DeliveryMethod))
                                   .Cast<DeliveryMethod>()
                                   .Select(d => new SelectListItem
                                   {
@@ -277,9 +276,15 @@ namespace GastroLab.Presentation.Controllers
                                       Text = d.ToString()
                                   }).ToList();
 
-            ViewBag.AllProducts = _productService.GetAllProducts();
+                ViewBag.AllProducts = _productService.GetAllProducts();
 
-            return View(order);
+                return View(order);
+            }
+
+            // Update the order in the database
+            _orderService.UpdateOrder(order);
+
+            return RedirectToAction("ManageAllOrders");
         }
 
         [HttpGet]
@@ -346,7 +351,7 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult ManageAllOrders()
         {
-            ViewData.Model = _orderService.GetAllActiveOrders().OrderByDescending(x => x.CreationDate);
+            ViewData.Model = _orderService.GetAllActiveOrders();
             return View();
         }
 
@@ -359,7 +364,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Director,Delivery,Cook")]
+        [Authorize(Roles = "Admin,Director,Delivery,Cook,Waiter")]
         public IActionResult ChangeStatusOfOrder([FromBody] OrderStatusChangeRequest statusChangeRequest)
         {
             if (statusChangeRequest == null || statusChangeRequest.OrderId == 0)
@@ -416,47 +421,70 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult AddOrder(OrderVM order)
         {
-            if (String.IsNullOrEmpty(_cookieService.GetCookie("products")))
+            var products = new CartProductList();
+            if (!String.IsNullOrEmpty(_cookieService.GetCookie("products")))
             {
-                throw new Exception("No products in the cart");
-            }
-            var products = JsonConvert.DeserializeObject<CartProductList>(_cookieService.GetCookie("products"));
+                products = JsonConvert.DeserializeObject<CartProductList>(_cookieService.GetCookie("products"));
 
-            if (products == null)
-                throw new Exception("Error acured while deserializing cookie");
+                if (products == null)
+                    throw new Exception("Error acured while deserializing cookie");
 
-            foreach (var product in products.Products)
-            {
-                order.TotalPrice += product.Price * product.Quantity;
-
-                var productVM = new ProductVM()
+                foreach (var product in products.Products)
                 {
-                    Id = product.ProductId,
-                    Name = product.ProductName,
-                    Price = product.Price,
-                    Quantity = product.Quantity
-                };
+                    order.TotalPrice += product.Price * product.Quantity;
 
-                foreach (var option in product.SelectedOptions)
-                {
-                    var orderProductOptionVM = new OrderProductOptionVM()
+                    var productVM = new ProductVM()
                     {
-                        OptionSet = new OptionSetVM()
-                        {
-                            Id = option.OptionSetId,
-                            DisplayName = option.OptionSetName
-                        },
-                        Option = new OptionVM()
-                        {
-                            Id = option.OptionId,
-                            DisplayName = option.OptionName,
-                            Price = option.Price
-                        }
+                        Id = product.ProductId,
+                        Name = product.ProductName,
+                        Price = product.Price,
+                        Quantity = product.Quantity
                     };
-                    productVM.OrderOptions.Add(orderProductOptionVM);
-                }
 
-                order.products.Add(productVM);
+                    foreach (var option in product.SelectedOptions)
+                    {
+                        var orderProductOptionVM = new OrderProductOptionVM()
+                        {
+                            OptionSet = new OptionSetVM()
+                            {
+                                Id = option.OptionSetId,
+                                DisplayName = option.OptionSetName
+                            },
+                            Option = new OptionVM()
+                            {
+                                Id = option.OptionId,
+                                DisplayName = option.OptionName,
+                                Price = option.Price
+                            }
+                        };
+                        productVM.OrderOptions.Add(orderProductOptionVM);
+                    }
+
+                    order.products.Add(productVM);
+                }
+            }
+            
+
+            // After assigning products
+            ModelState.Clear();
+            TryValidateModel(order);
+
+            if (!ModelState.IsValid)
+            {
+                // Re-populate ViewBag and return the view
+                ViewBag.DeliveryMethods = Enum.GetValues(typeof(DeliveryMethod))
+                    .Cast<DeliveryMethod>()
+                    .Select(d => new SelectListItem
+                    {
+                        Value = ((int)d).ToString(),
+                        Text = d.ToString()
+                    }).ToList();
+
+                ViewBag.AllProducts = _productService.GetAllProducts();
+                ViewBag.GlobalSettings = _globalSettingsService.GetSettings();
+                ViewBag.AddedProducts = products;
+
+                return View(order);
             }
 
             _orderService.CreateOrder(order);

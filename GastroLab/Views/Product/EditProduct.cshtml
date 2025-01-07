@@ -16,7 +16,7 @@
     }
 </style>
 
-<h1>Edit Product</h1>
+<h1>Edit product</h1>
 
 <hr />
 <div class="row">
@@ -35,16 +35,18 @@
                     <div class="row">
                         <!-- Name Field (2/3 width) -->
                         <div class="col-md-8">
+                            <!-- Name Field -->
                             <div class="form-group mb-3">
-                                <label asp-for="Name" class="form-label"></label>
+                                <label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label>
                                 <input asp-for="Name" class="form-control" />
                                 <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
                         </div>
                         <!-- Price Field (1/3 width) -->
                         <div class="col-md-4">
+                            <!-- Price Field -->
                             <div class="form-group mb-3">
-                                <label asp-for="Price" class="form-label"></label>
+                                <label asp-for="Price" class="form-label">Price <span class="text-danger">*</span></label>
                                 <input asp-for="Price" class="form-control" type="number" step="0.01" />
                                 <span asp-validation-for="Price" class="text-danger"></span>
                             </div>
@@ -63,7 +65,7 @@
             <!-- Categories Section -->
             <div class="card mb-3 bg-light">
                 <div class="card-body">
-                    <label class="form-label">Categories</label>
+                    <label class="form-label">Categories <span class="text-danger">*</span></label>
                     <div id="categoryContainer" class="mb-3">
                         @foreach (var category in ViewBag.AllCategories)
                         {
@@ -72,14 +74,13 @@
                             {
                                 isChecked = Model.categories.Any(cat => cat.Id == category.Id);
                             }
-                            
+
                             <div class="d-inline-block me-1 mb-1">
                                 <input type="checkbox" class="btn-check" id="category-@category.Id" name="SelectedCategoryIds" value="@category.Id" autocomplete="off" @(isChecked ? "checked" : "")>
                                 <label class="btn btn-outline-secondary" for="category-@category.Id">@category.Name</label>
                             </div>
                         }
                     </div>
-                    <!-- Removed New Category Button -->
                     <span asp-validation-for="SelectedCategoryIds" class="text-danger"></span>
                 </div>
             </div>
@@ -102,7 +103,6 @@
                             </div>
                         }
                     </div>
-                    <!-- Removed New Ingredient Button -->
                     <span asp-validation-for="SelectedIngredientIds" class="text-danger"></span>
                 </div>
             </div>
@@ -120,7 +120,7 @@
             <div class="card-body">
                 <!-- Header with "Browse global option sets" and "New option set" links -->
                 <div class="d-flex justify-content-between align-items-center">
-                    <label class="form-label mb-0">Option Sets</label>
+                    <label class="form-label mb-0">Option sets</label>
 
                     <!-- "Browse global option sets" button -->
                     <a href="#" class="btn btn-link text-decoration-none me-2" data-bs-toggle="modal" data-bs-target="#globalOptionSetsModal">
@@ -136,22 +136,22 @@
                         <tr>
                             <th>Name</th>
                             <th>Description</th>
-                            <th>Multiple Choice</th>
+                            <th>Multiple choice</th>
                             <th>Required</th>
                             <th>Remove</th>
                             <th></th> <!-- Column for chevron icon -->
                         </tr>
                     </thead>
                     <tbody id="optionSetsTableBody">
-                        @* Populate with existing Option Sets *@
                         @if (Model.optionSets != null && Model.optionSets.Any())
                         {
                             for (int i = 0; i < Model.optionSets.Count; i++)
                             {
                                 var optionSet = Model.optionSets[i];
                                 <tr data-optionset-id="@i">
-                                    <td>@optionSet.Name 
-                                        @if(optionSet.IsGlobal)
+                                    <td>
+                                        @optionSet.Name
+                                        @if (optionSet.IsGlobal)
                                         {
                                             <span class="badge bg-info">Global</span>
                                         }
@@ -185,8 +185,8 @@
                                         <div class="container">
                                             @{
                                                 int columnCount = 3;
-                                                var options = optionSet.options.ToList();
-                                                int totalOptions = options.Count;
+                                                var opts = optionSet.options.ToList();
+                                                int totalOptions = opts.Count;
                                                 int optionsPerColumn = (int)Math.Ceiling(totalOptions / (double)columnCount);
                                             }
                                             @for (int row = 0; row < optionsPerColumn; row++)
@@ -197,10 +197,10 @@
                                                         int index = row + col * optionsPerColumn;
                                                         if (index < totalOptions)
                                                         {
-                                                            var option = options[index];
+                                                            var opt = opts[index];
                                                             <div class="col-md-4">
                                                                 <div class="option-item">
-                                                                    &bull; @option.Name @(option.Price > 0 ? $" - {option.Price:F2}zł" : "")
+                                                                    &bull; @opt.Name @(opt.Price > 0 ? $" - {opt.Price:F2}zł" : "")
                                                                 </div>
                                                             </div>
                                                         }
@@ -226,8 +226,14 @@
     <div class="modal-dialog modal-dialog-scrollable modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Select Global Option Sets</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Select global option sets</h5>
+                <div class="d-flex ms-auto">
+                    <!-- Delete button for bulk deletion (copied from AddProduct) -->
+                    <button type="button" class="btn btn-danger me-2" id="deleteSelectedOptionSetsBtn" disabled>
+                        <i class="bi bi-trash3"></i> Delete
+                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
             </div>
             <div class="modal-body">
                 <!-- Table of Global Option Sets -->
@@ -256,26 +262,57 @@
     </div>
 </div>
 
+<!-- Confirmation Modal for Deletion of Global Option Sets -->
+<div class="modal fade" id="deleteOptionSetsConfirmModal" tabindex="-1" aria-labelledby="deleteOptionSetsConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="deleteOptionSetsConfirmModalLabel" class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <span id="selectedCountSpan"></span> global option sets? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="deleteOptionSetsFinalBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast for Success Message -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="deleteSuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" style="display: none;">
+        <div class="d-flex">
+            <div class="toast-body" id="deleteSuccessToastMessage"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="hideDeleteSuccessToast()"></button>
+        </div>
+    </div>
+</div>
+
 <!-- Offcanvas Modal for New Option Set -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasOptionSet" aria-labelledby="offcanvasOptionSetLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasOptionSetLabel">New Option Set</h5>
+        <h5 class="offcanvas-title" id="offcanvasOptionSetLabel">New option set</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
         <!-- Option Set Creation Form -->
         <form id="newOptionSetForm">
             <div class="mb-3">
-                <label for="optionSetName" class="form-label">Name</label>
-                <input type="text" class="form-control" id="optionSetName" name="Name" required>
-            </div>
-            <div class="mb-3">
-                <label for="optionSetDisplayName" class="form-label">Display Name</label>
-                <input type="text" class="form-control" id="optionSetDisplayName" name="DisplayName">
+                <label for="optionSetName" class="form-label">Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="optionSetName" name="Name" required maxlength="50">
+                <div class="invalid-feedback">
+                    Please provide a name (max 50 characters).
+                </div>
             </div>
             <div class="mb-3">
                 <label for="optionSetDescription" class="form-label">Description</label>
-                <textarea class="form-control" id="optionSetDescription" name="Description" rows="3"></textarea>
+                <textarea class="form-control" id="optionSetDescription" name="Description" rows="3" maxlength="300"></textarea>
+                <div class="invalid-feedback">
+                    Description cannot exceed 300 characters.
+                </div>
             </div>
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="optionSetIsRequired" name="IsRequired">
@@ -302,16 +339,18 @@
                         <i class="bi bi-plus-circle"></i> New option
                     </a>
                 </div>
+                <div class="text-danger d-none" id="optionsErrorMsg">
+                    Please add at least one option.
+                </div>
             </div>
             <!-- Action Buttons -->
             <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="offcanvas">Cancel</button>
-                <button type="button" class="btn btn-primary" id="createOptionSetButton" onclick="createOptionSet()">Create</button>
+                <button type="button" class="btn btn-primary" id="createOptionSetButton" onclick="validateOptionSet()">Create</button>
             </div>
         </form>
     </div>
 </div>
-
 
 <div>
     <a asp-action="ProductList">Back to List</a>
@@ -336,14 +375,145 @@
                     url: '/OptionSet/GetGlobalOptionSets',
                     type: 'GET',
                     success: function (data) {
-                        populateGlobalOptionSetsTable(data);
+                        // Filter out already added global sets
+                        var existingGlobalIds = window.productOptionSets
+                            .filter(function (os) {
+                                // Check if IsGlobal is defined, otherwise use isGlobal
+                                var isGlobal = (os.IsGlobal !== undefined) ? os.IsGlobal : os.isGlobal;
+                                return isGlobal;
+                            })
+                            .map(function (os) {
+                                // Check if Id is defined, otherwise use id
+                                var id = (os.Id !== undefined) ? os.Id : os.id;
+                                return id;
+                            });
+
+                        var filteredData = data.filter(function (os) {
+                            // Again, check if id or Id is available
+                            var targetId = (os.Id !== undefined) ? os.Id : os.id;
+                            return !existingGlobalIds.includes(targetId);
+                        });
+
+                        populateGlobalOptionSetsTable(filteredData);
+                        updateDeleteSelectedOptionSetsButton();
                     },
                     error: function (xhr, status, error) {
                         console.error(error);
                     }
                 });
             });
+
+            $('#globalOptionSetsTableBody').on('change', '.select-option-set-checkbox', function () {
+                updateDeleteSelectedOptionSetsButton();
+            });
+
+            // Handle click on delete button in the modal header
+            $('#deleteSelectedOptionSetsBtn').on('click', function () {
+                var selectedCount = $('.select-option-set-checkbox:checked').length;
+                if (selectedCount > 0) {
+                    $('#selectedCountSpan').text(selectedCount);
+                    $('#deleteOptionSetsConfirmModal').modal('show');
+                }
+            });
+
+            // Final confirmation to delete selected option sets
+            $('#deleteOptionSetsFinalBtn').on('click', function () {
+                deleteSelectedGlobalOptionSets();
+            });
         });
+
+        function updateDeleteSelectedOptionSetsButton() {
+            var selectedCount = $('.select-option-set-checkbox:checked').length;
+            var deleteBtn = $('#deleteSelectedOptionSetsBtn');
+            if (selectedCount > 0) {
+                deleteBtn.prop('disabled', false);
+            } else {
+                deleteBtn.prop('disabled', true);
+            }
+        }
+
+        function deleteSelectedGlobalOptionSets() {
+            var selectedIds = $('.select-option-set-checkbox:checked').map(function () {
+                return $(this).data('optionset-id');
+            }).get();
+
+            // Close the confirmation modal
+            $('#deleteOptionSetsConfirmModal').modal('hide');
+
+            if (selectedIds.length === 0) {
+                return;
+            }
+
+            $.ajax({
+                url: '/Product/DeleteGlobalOptionSets',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(selectedIds),
+                success: function (response) {
+                    if (response.success === true) {
+                        // Show toast message for success
+                        showDeleteSuccessToast(`Successfully deleted ${response.deletedCount} global option sets.`);
+                        // Reload the global option sets modal table
+                        reloadGlobalOptionSets();
+                    } else {
+                        // Some option sets are in use
+                        var usedNames = response.usedOptionSets.map(os => '- ' + os.name).join('\n');
+                        alert(`The following global option sets are being used in other products. Please ensure that these global option sets are no longer in use before trying again.\n${usedNames}`);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    alert("An error occurred while deleting the Option Sets.");
+                }
+            });
+        }
+
+        function reloadGlobalOptionSets() {
+            // Clear and reload the list
+            $('#globalOptionSetsTableBody').empty();
+
+            $.ajax({
+                url: '/OptionSet/GetGlobalOptionSets',
+                type: 'GET',
+                success: function (data) {
+                    var existingGlobalIds = window.productOptionSets
+                        .filter(function (os) {
+                            // Check if IsGlobal is defined, otherwise use isGlobal
+                            var isGlobal = (os.IsGlobal !== undefined) ? os.IsGlobal : os.isGlobal;
+                            return isGlobal;
+                        })
+                        .map(function (os) {
+                            // Check if Id is defined, otherwise use id
+                            var id = (os.Id !== undefined) ? os.Id : os.id;
+                            return id;
+                        });
+
+                    var filteredData = data.filter(function (os) {
+                        // Again, check if id or Id is available
+                        var targetId = (os.Id !== undefined) ? os.Id : os.id;
+                        return !existingGlobalIds.includes(targetId);
+                    });
+
+
+                    populateGlobalOptionSetsTable(filteredData);
+                    updateDeleteSelectedOptionSetsButton();
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function showDeleteSuccessToast(message) {
+            $('#deleteSuccessToastMessage').text(message);
+            var toast = new bootstrap.Toast($('#deleteSuccessToast')[0]);
+            $('#deleteSuccessToast').show();
+            toast.show();
+        }
+
+        function hideDeleteSuccessToast() {
+            $('#deleteSuccessToast').hide();
+        }
 
         function confirmGlobalOptionSets() {
             // Get all selected checkboxes
@@ -370,7 +540,6 @@
                 var exists = window.productOptionSets.some(os => os.Id === optionSet.id && os.IsGlobal);
 
                 if (exists) {
-                    // Optionally, inform the user that this option set is already added
                     return; // Skip adding this option set
                 }
 
@@ -395,7 +564,6 @@
             $('.select-option-set-checkbox').prop('checked', false);
         }
 
-        // Function to populate the global option sets table
         function populateGlobalOptionSetsTable(optionSets) {
             var tbody = $('#globalOptionSetsTableBody');
             tbody.empty();
@@ -452,6 +620,16 @@
         }
 
         document.getElementById('editProductForm').addEventListener('submit', function (e) {
+
+            var categoryCheckboxes = document.querySelectorAll('input[name="SelectedCategoryIds"]:checked');
+
+            // If no category selected
+            if (categoryCheckboxes.length === 0) {
+                e.preventDefault(); // Prevent form submission
+                alert("Please select at least one category.");
+                return false;
+            }
+
             // Update the hidden fields
             var globalOptionSetIds = [];
             var localOptionSets = [];
@@ -469,6 +647,7 @@
             document.getElementById("SerializedOptionSets").value = JSON.stringify(localOptionSets);
         });
 
+        // Same option-adding logic as in AddProduct
         function showNewOptionInput() {
             isAddingOption = true;
             updateCreateOptionSetButtonState();
@@ -489,7 +668,6 @@
                     `;
         }
 
-        // Function to confirm adding a new option
         function confirmAddOption() {
             var name = document.getElementById("newOptionName").value.trim();
             var price = parseFloat(document.getElementById("newOptionPrice").value);
@@ -503,18 +681,13 @@
                 price = 0;
             }
 
-            // Add new option to the list
             var option = {
-                Id: 0, // 0 indicates the option is not yet saved in the database
+                Id: 0,
                 Name: name,
                 Price: price
             };
             options.push(option);
-
-            // Update the options list in the UI
             renderOptionsList();
-
-            // Restore the "New option" link
             cancelAddOption();
         }
 
@@ -534,7 +707,6 @@
             createButton.disabled = isAddingOption;
         }
 
-        // Function to render the list of added options
         function renderOptionsList() {
             var optionsList = document.getElementById("optionsList");
             optionsList.innerHTML = '';
@@ -561,23 +733,20 @@
             });
         }
 
-        // Function to remove an option from the list
         function removeOption(index) {
             options.splice(index, 1);
             renderOptionsList();
         }
 
-        function createOptionSet() {
-            // Get data from the form
-            var optionSetName = document.getElementById("optionSetName").value.trim();
-            var optionSetDisplayName = document.getElementById("optionSetDisplayName").value.trim();
-            var optionSetDescription = document.getElementById("optionSetDescription").value.trim();
-            var optionSetIsRequired = document.getElementById("optionSetIsRequired").checked;
-            var optionSetIsMultiple = document.getElementById("optionSetIsMultiple").checked;
-            var optionSetIsGlobal = document.getElementById("optionSetIsGlobal").checked;
+        // Validate function for new option set before calling createOptionSet
+        function validateOptionSet() {
+            var form = document.getElementById('newOptionSetForm');
+            var nameInput = document.getElementById('optionSetName');
+            var descriptionInput = document.getElementById('optionSetDescription');
 
-            if (optionSetName === "") {
-                alert("Please enter a name for the Option Set.");
+            // Basic HTML5 validation
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
                 return;
             }
 
@@ -586,23 +755,30 @@
                 return;
             }
 
-            // Create OptionSet object
+            createOptionSet();
+        }
+
+        function createOptionSet() {
+            var optionSetName = document.getElementById("optionSetName").value.trim();
+            var optionSetDescription = document.getElementById("optionSetDescription").value.trim();
+            var optionSetIsRequired = document.getElementById("optionSetIsRequired").checked;
+            var optionSetIsMultiple = document.getElementById("optionSetIsMultiple").checked;
+            var optionSetIsGlobal = document.getElementById("optionSetIsGlobal").checked;
+
+            // Already validated by validateOptionSet()
             var optionSet = {
-                Id: 0, // Will be updated if saved globally
+                Id: 0,
                 Name: optionSetName,
-                DisplayName: optionSetDisplayName,
                 Description: optionSetDescription,
                 IsRequired: optionSetIsRequired,
                 IsMultiple: optionSetIsMultiple,
                 IsGlobal: optionSetIsGlobal,
-                Options: options.slice() // Copy of the options array
+                Options: options.slice()
             };
 
             if (optionSetIsGlobal) {
-                // Save OptionSet globally via AJAX
                 saveOptionSetGlobally(optionSet);
             } else {
-                // Add OptionSet locally
                 addOptionSetToTable(optionSet);
                 resetOptionSetModal();
             }
@@ -615,9 +791,8 @@
                 contentType: 'application/json',
                 data: JSON.stringify(optionSet),
                 success: function (response) {
-                    // The server should return the created OptionSet with its ID and options with their IDs
-                    optionSet.Id = response.Id;
-                    optionSet.Options = response.Options;
+                    optionSet.Id = response.id;
+                    optionSet.Options = response.options;
                     addOptionSetToTable(optionSet);
                     resetOptionSetModal();
                 },
@@ -632,12 +807,10 @@
             isAddingOption = false;
             updateCreateOptionSetButtonState();
 
-            // Close the offcanvas
             var offcanvasElement = document.getElementById('offcanvasOptionSet');
             var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
             offcanvas.hide();
 
-            // Reset the form and options
             document.getElementById("newOptionSetForm").reset();
             options = [];
             renderOptionsList();
@@ -645,18 +818,13 @@
         }
 
         function addOptionSetToTable(optionSet) {
-            // Add OptionSet to the list
             if (!window.productOptionSets) {
                 window.productOptionSets = [];
             }
             window.productOptionSets.push(optionSet);
 
-            // Update the table
             var tbody = document.querySelector('#optionSetsTableBody');
-            var optionSetId = window.productOptionSets.length - 1; // Index in the array
-
-            var row = document.createElement('tr');
-            row.setAttribute('data-optionset-id', optionSetId);
+            var optionSetId = window.productOptionSets.length - 1;
 
             var requiredBadge = optionSet.IsRequired
                 ? '<span class="badge bg-danger">Required</span>'
@@ -665,6 +833,9 @@
             var globalBadge = optionSet.IsGlobal
                 ? '<span class="badge bg-info">Global</span>'
                 : '';
+
+            var row = document.createElement('tr');
+            row.setAttribute('data-optionset-id', optionSetId);
 
             row.innerHTML = `
                         <td>${optionSet.Name} ${globalBadge}</td>
@@ -685,7 +856,6 @@
 
             tbody.appendChild(row);
 
-            // Add the options row
             var optionsRow = document.createElement('tr');
             optionsRow.id = 'options-row-' + optionSetId;
             optionsRow.style.display = 'none';
@@ -701,7 +871,6 @@
             tbody.appendChild(optionsRow);
         }
 
-        // Function to generate options HTML
         function generateOptionsHtml(optionsList) {
             var totalOptions = optionsList.length;
             var columnCount = 3;
@@ -721,12 +890,12 @@
                             : `<span>&bull; ${option.name} - ${option.price.toFixed(2)}zł</span>`;
 
                         htmlContent += `
-                                        <div class="col-md-4">
-                                            <div class="option-item">
-                                                ${optionText}
-                                            </div>
+                                    <div class="col-md-4">
+                                        <div class="option-item">
+                                            ${optionText}
                                         </div>
-                                    `;
+                                    </div>
+                                `;
                     }
                 }
                 htmlContent += '</div>';
@@ -751,20 +920,16 @@
         }
 
         function removeOptionSet(optionSetId) {
-            // Remove OptionSet from the list
             window.productOptionSets.splice(optionSetId, 1);
 
-            // Remove the OptionSet row and the options row
             var optionSetRow = document.querySelector('tr[data-optionset-id="' + optionSetId + '"]');
             var optionsRow = document.getElementById('options-row-' + optionSetId);
             optionSetRow.parentNode.removeChild(optionSetRow);
             optionsRow.parentNode.removeChild(optionsRow);
 
-            // Update the identifiers of the remaining OptionSets
             updateOptionSetIds();
         }
 
-        // Function to update the OptionSet IDs after removal
         function updateOptionSetIds() {
             var rows = document.querySelectorAll('#optionSetsTableBody tr[data-optionset-id]');
             rows.forEach(function (row, index) {
@@ -782,15 +947,10 @@
                 }
             });
         }
-
-        // Functions for handling categories are removed as per requirement
-
-        // Functions for handling ingredients are removed as per requirement
-
-        // If you have any JavaScript related to categories or ingredients, ensure they are removed or adjusted accordingly.
     </script>
 
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
 }

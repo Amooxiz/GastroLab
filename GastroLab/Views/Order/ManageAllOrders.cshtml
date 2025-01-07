@@ -13,7 +13,7 @@
 </div>
 
 <div class="table-responsive">
-    <table class="table table-striped border">
+    <table class="table table-striped border" id="ordersTable">
         <thead>
             <tr>
                 <th>Status</th>
@@ -25,7 +25,7 @@
         <tbody>
             @foreach (var order in Model)
             {
-                <tr>
+                <tr id="order-row-@order.Id">
                     <!-- First Column: Status -->
                     <td>
                         @{
@@ -35,7 +35,7 @@
                                 "InProgress" => "text-bg-warning",
                                 "Done" => "text-bg-success",
                                 "OnTheWay" => "text-bg-dark",
-                                _ => "text-bg-secondary" // Default color for undefined statuses
+                                _ => "text-bg-secondary"
                             };
                         }
                         <span class="badge rounded-pill @badgeClass">@order.Status</span>
@@ -73,18 +73,36 @@
                         <div>
                             <strong>Created on:</strong> @order.CreationDate.ToString("dd.MM.yyyy HH:mm")<br />
                             @{
-                                var elapsedTime = DateTime.Now - order.CreationDate;
-                                var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
-
-                                // Ensure remaining minutes are not negative
-                                if (remainingMinutes < 0)
+                                if (order.isScheduledDelivery)
                                 {
-                                    remainingMinutes = 0;
-                                }
-                                <strong>Remaining time: @remainingMinutes min</strong>
+                                    <strong>Scheduled delivery:</strong> @order.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                    <br />
 
-                                <br />
+                                    var elapsedTime = order.ScheduledDeliveryDate.Value - DateTime.Now;
+                                    var remainingMinutes = (int)Math.Ceiling(elapsedTime.TotalMinutes);
+
+                                    // Ensure remaining minutes are not negative
+                                    if (remainingMinutes < 0)
+                                    {
+                                        remainingMinutes = 0;
+                                    }
+                                    <strong>Remaining time: </strong>
+                                    <span>@remainingMinutes min</span>
+                                }
+                                else
+                                {
+                                    var elapsedTime = DateTime.Now - order.CreationDate;
+                                    var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
+
+                                    if (remainingMinutes < 0)
+                                    {
+                                        remainingMinutes = 0;
+                                    }
+                                    <strong>Remaining time: </strong>
+                                    <span>@remainingMinutes min</span>
+                                }
                             }
+                            <br />
                             <strong>@order.DeliveryMethod</strong><br />
                             @if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.Delivery && order.Address != null)
                             {
@@ -93,32 +111,41 @@
                             }
                             else if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.DineIn)
                             {
-                                <p>Table: @order.TableNr</p>
+                                <strong>Table: </strong>
+                                <span>@order.TableNr</span>
                             }
                             else // Pickup
                             {
-                                <p>
-                                    Pickup time: @(
-                            order.ScheduledDeliveryDate.HasValue
-                            ? order.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
-                            : (order.CreationDate + (TimeSpan.FromMinutes(order.WaitingTime))).ToString("dd.MM.yyyy HH:mm")
-                            )
-                                </p>
+                                if (!@order.isScheduledDelivery)
+                                {
+                                    <strong>Pickup time: </strong>
+                                    <span>@((order.CreationDate + (TimeSpan.FromMinutes(order.WaitingTime))).ToString("dd.MM.yyyy HH:mm"))</span>
+                                }
                             }
                         </div>
                     </td>
 
-                    <!-- Fourth Column: Total Price and Edit/Delete buttons -->
+                    <!-- Fourth Column: Total Price and Actions -->
                     <td>
                         <div>
-                            <strong>Total Price:</strong> @order.TotalPrice.ToString("F2") zł
+                            <strong>Total Price:</strong> @order.TotalPrice.ToString("F2") PLN
                         </div>
                         <div class="mt-2">
-                            <a asp-action="EditOrder" asp-route-id="@order.Id" class="btn btn-sm btn-warning me-2">
-                                <i class="bi bi-pencil-square" aria-hidden="true"></i> <span class="visually-hidden">Edit Order</span> Edit
-                            </a>
+                            @if (order.Status == GastroLab.Domain.DBO.OrderStatus.Done && order.DeliveryMethod != GastroLab.Domain.DBO.DeliveryMethod.Delivery)
+                            {
+                                <button class="btn btn-sm btn-success finish-order-button"
+                                        data-order-id="@order.Id">
+                                    <i class="bi bi-check-circle"></i> Finish
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-action="EditOrder" asp-route-id="@order.Id" class="btn btn-sm btn-warning me-2">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                            }
                             <a asp-action="DeleteOrder" asp-route-id="@order.Id" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash3" aria-hidden="true"></i> <span class="visually-hidden">Delete Order</span> Delete
+                                <i class="bi bi-trash3"></i> Delete
                             </a>
                         </div>
                     </td>
@@ -127,3 +154,42 @@
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ordersTable = document.getElementById('ordersTable');
+
+            ordersTable.addEventListener('click', function (event) {
+                const button = event.target.closest('.finish-order-button');
+                if (button) {
+                    const orderId = button.getAttribute('data-order-id');
+                    if (confirm('Are you sure you want to finish this order?')) {
+                        fetch('/Order/ChangeStatusOfOrder', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                OrderId: parseInt(orderId),
+                                OrderStatus: "Finished"
+                            })
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                document.getElementById(`order-row-${orderId}`).remove();
+                                alert('Order has been finished successfully!');
+                            } else {
+                                alert('Failed to finish the order. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while finishing the order.');
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+}

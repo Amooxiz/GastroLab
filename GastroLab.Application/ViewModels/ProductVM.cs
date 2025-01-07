@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,10 +13,18 @@ namespace GastroLab.Application.ViewModels
     {
         public int Id { get; set; }
         public int OrderProductId { get; set; }
+
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(50, ErrorMessage = "Name cannot exceed 50 characters.")]
         public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Image { get; set; } = string.Empty;
+
+        [StringLength(300, ErrorMessage = "Description cannot exceed 300 characters.")]
+        public string? Description { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Price is required.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be a positive number.")]
         public decimal Price { get; set; }
+        public string Image { get; set; } = string.Empty;
         [DisplayName("Product status")]
         public ProductStatus productStatus { get; set; }
         public int Quantity { get; set; } = 1;
@@ -29,8 +38,8 @@ namespace GastroLab.Application.ViewModels
         public List<int> SelectedIngredientIds { get; set; } = new List<int>();
         public List<int> SelectedOptionSetIds { get; set; } = new List<int>();
 
-        public string SerializedOptionSets { get; set; } = string.Empty;
-        public string GlobalOptionSetIds { get; set; } = string.Empty;
+        public string? SerializedOptionSets { get; set; } = string.Empty;
+        public string? GlobalOptionSetIds { get; set; } = string.Empty;
 
         public List<OrderProductOptionVM> OrderOptions { get; set; } = new List<OrderProductOptionVM>();
 

@@ -4,6 +4,7 @@ using GastroLab.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GastroLab.Infrastructure.Migrations
 {
     [DbContext(typeof(GastroLabDbContext))]
-    partial class GastroLabDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241207012037_product_description_nullable")]
+    partial class product_description_nullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -245,6 +248,9 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<int?>("AddressId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
 
@@ -278,6 +284,8 @@ namespace GastroLab.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
+
+                    b.HasIndex("ClientId");
 
                     b.ToTable("Orders");
                 });
@@ -794,7 +802,13 @@ namespace GastroLab.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("AddressId");
 
+                    b.HasOne("GastroLab.Domain.DBO.User", "Client")
+                        .WithMany("Orders")
+                        .HasForeignKey("ClientId");
+
                     b.Navigation("Address");
+
+                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("GastroLab.Domain.DBO.OrderProduct", b =>
@@ -1062,6 +1076,8 @@ namespace GastroLab.Infrastructure.Migrations
 
             modelBuilder.Entity("GastroLab.Domain.DBO.User", b =>
                 {
+                    b.Navigation("Orders");
+
                     b.Navigation("RegisteredTimes");
 
                     b.Navigation("WorkingTimes");

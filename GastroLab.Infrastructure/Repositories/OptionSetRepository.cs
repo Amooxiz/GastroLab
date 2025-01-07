@@ -20,6 +20,31 @@ namespace GastroLab.Infrastructure.Repositories
             _context = context;
         }
 
+        public List<OptionSet> GetUsedOptionSetsByIds(List<int> optionSetIds)
+        {
+            return _context.ProductOptionSets
+                           .Where(x => optionSetIds.Contains(x.OptionSetId))
+                           .Select(x => x.OptionSet)
+                           .Distinct()
+                           .ToList();
+        }
+
+        public void DeleteGlobalOptionSets(List<int> optionSetIds)
+        {
+            var optionSets = _context.OptionSets.Where(x => optionSetIds.Contains(x.Id));
+
+            if (optionSets.Count() != optionSetIds.Count())
+            {
+                throw new Exception("Some of provided global option set Id's are invalid");
+            }
+
+            foreach (var optionSet in optionSets)
+            {
+                _context.OptionSets.Remove(optionSet);
+            }
+            _context.SaveChanges();
+        }
+
         public OptionSet CreateGlobalOptionSet(OptionSet optionSet)
         {
             foreach (var optionSetOption in optionSet.OptionSetOptions)

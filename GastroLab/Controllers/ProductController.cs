@@ -26,6 +26,25 @@ namespace GastroLab.Presentation.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult DeleteGlobalOptionSets([FromBody] List<int> optionSetIds)
+        {
+            // Pseudocode:
+            // 1. Check which of these OptionSetIds are in use by products.
+            var usedOptionSets = _optionSetService.GetUsedOptionSetsByIds(optionSetIds);
+
+            if (usedOptionSets.Any())
+            {
+                return Json(new { success = false, usedOptionSets = usedOptionSets.Select(u => new { id = u.Id, name = u.Name }) });
+            }
+
+            // 2. If not in use, delete them.
+            _optionSetService.DeleteGlobalOptionSets(optionSetIds);
+
+            return Json(new { success = true, deletedCount = optionSetIds.Count });
+        }
+
+
         [HttpGet]
         public IActionResult ManageProductComponents()
         {
@@ -64,10 +83,20 @@ namespace GastroLab.Presentation.Controllers
         [HttpPost]
         public IActionResult AddProduct(ProductVM model)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.AllCategories = _productService.GetAllCategories();
+                ViewBag.AllIngredients = _productService.GetAllIngredients();
 
+                // Return the same view so that user can correct errors
+                return View(model);
+            }
+
+            // If valid, proceed
             _productService.AddProduct(model);
             return RedirectToAction("ProductList");
         }
+
 
         [HttpGet]
         public IActionResult EditProduct([FromRoute] int Id)

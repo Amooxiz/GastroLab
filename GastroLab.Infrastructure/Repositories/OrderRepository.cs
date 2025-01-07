@@ -430,19 +430,21 @@ namespace GastroLab.Infrastructure.Repositories
         }
         public List<(string ProductName, double AverageExpectedWaitingTime, double AverageActualWaitingTime)> GetAvgWaitingTimesByProducts(DateTime dateFrom, DateTime dateTo)
         {
-            var query = FilterOrderProductsByDates(dateFrom, dateTo);
+            var query = FilterOrderProductsByDates(dateFrom, dateTo).ToList();
 
-            var result = query
+            var resultUnGrouped = query
                 .Where(x => x.Order.WaitingTime.HasValue && x.Order.CompletionDate.HasValue)
-                .ToList()
+                .ToList();
+            var result = resultUnGrouped
                 .GroupBy(q => q.Product.Name)
                 .Select(q => new
                 {
                     ProductName = q.Key,
                     AverageExpectedWaitingTime = q.Average(x => x.Order.WaitingTime.Value.TotalMinutes),
-                    AverageActualWaitingTime = q.Average(x => (x.Order.CompletionDate - x.Order.CreationDate).Value.Minutes)
+                    AverageActualWaitingTime = q.Average(x => (x.Order.CompletionDate - x.Order.CreationDate).Value.TotalMinutes)
                 })
-                .OrderBy(x => x.AverageActualWaitingTime);
+                .OrderBy(x => x.AverageActualWaitingTime)
+                .ToList();
 
             return result.Select(x => (x.ProductName, x.AverageExpectedWaitingTime, x.AverageActualWaitingTime)).ToList();
         }
@@ -576,8 +578,12 @@ namespace GastroLab.Infrastructure.Repositories
 
         public IEnumerable<Order> GetAllActiveOrders()
         {
-            return _context.Orders
-                .Where(x => x.Status != OrderStatus.Finished)
+            // Pobieramy wszystkie zamówienia spełniające kryteria jednym zapytaniem
+            var allOrders = _context.Orders
+                .Where(x =>
+                    (x.Status == OrderStatus.Done && x.DeliveryMethod != DeliveryMethod.Delivery) ||
+                    (x.Status == OrderStatus.New) ||
+                    (x.Status != OrderStatus.Finished))
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
                         .ThenInclude(p => p.ProductIngredients)
@@ -591,7 +597,27 @@ namespace GastroLab.Infrastructure.Repositories
                             .ThenInclude(pos => pos.OptionSet)
                 .Include(o => o.Address)
                 .ToList();
+
+            // HashSet do przechowywania unikalnych identyfikatorów zamówień
+            var seenOrderIds = new HashSet<int>();
+
+            var doneOrders = allOrders
+                .Where(o => o.Status == OrderStatus.Done && o.DeliveryMethod != DeliveryMethod.Delivery && seenOrderIds.Add(o.Id))
+                .OrderBy(o => o.CreationDate);
+
+            var newOrders = allOrders
+                .Where(o => o.Status == OrderStatus.New && seenOrderIds.Add(o.Id))
+                .OrderByDescending(o => o.CreationDate);
+
+            var unFinishedOrders = allOrders
+                .Where(o => o.Status != OrderStatus.Finished && seenOrderIds.Add(o.Id))
+                .OrderByDescending(o => o.CreationDate);
+
+            return doneOrders
+                .Concat(newOrders)
+                .Concat(unFinishedOrders);
         }
+
 
         public void ChangeStatusOfOrder(int orderId, OrderStatus orderStatus)
         {
@@ -603,6 +629,9 @@ namespace GastroLab.Infrastructure.Repositories
             }
 
             order.Status = orderStatus;
+            if (orderStatus == OrderStatus.Finished)
+                order.CompletionDate = DateTime.Now;
+
             _context.Orders.Update(order);
             _context.SaveChanges();
         }

@@ -76,18 +76,36 @@
                     <div>
                         <strong>Created on:</strong> @order.CreationDate.ToString("dd.MM.yyyy HH:mm")<br />
                         @{
-                            var elapsedTime = DateTime.Now - order.CreationDate;
-                            var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
-
-                            // Ensure remaining minutes are not negative
-                            if (remainingMinutes < 0)
+                            if (order.isScheduledDelivery)
                             {
-                                remainingMinutes = 0;
-                            }
-                            <strong>Remaining time: @remainingMinutes min</strong>
+                                <strong>Scheduled delivery:</strong> @order.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                <br />
 
-                            <br />
+                                var elapsedTime = order.ScheduledDeliveryDate.Value - DateTime.Now;
+                                var remainingMinutes = (int)Math.Ceiling(elapsedTime.TotalMinutes);
+
+                                // Ensure remaining minutes are not negative
+                                if (remainingMinutes < 0)
+                                {
+                                    remainingMinutes = 0;
+                                }
+                                <strong>Remaining time: </strong>
+                                <span>@remainingMinutes min</span>
+                            }
+                            else
+                            {
+                                var elapsedTime = DateTime.Now - order.CreationDate;
+                                var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
+
+                                if (remainingMinutes < 0)
+                                {
+                                    remainingMinutes = 0;
+                                }
+                                <strong>Remaining time: </strong>
+                                <span>@remainingMinutes min</span>
+                            }
                         }
+                        <br />
                         @if (order.Address != null)
                         {
                             var FlatNumber = order.Address.FlatNumber != null ? "/" + order.Address.FlatNumber : "";
