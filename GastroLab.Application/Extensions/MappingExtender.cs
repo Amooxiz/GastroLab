@@ -328,7 +328,6 @@ namespace GastroLab.Application.Extensions
                 Id = order.Id,
                 CompletionDate = order.CompletionDate,
                 CreationDate = order.CreationDate,
-                ClientId = order.ClientId,
                 Status = order.Status,
                 TotalPrice = order.TotalPrice,
                 DeliveryMethod = order.DeliveryMethod,
@@ -358,7 +357,6 @@ namespace GastroLab.Application.Extensions
                 Id = orderVM.Id,
                 CompletionDate = orderVM.CompletionDate,
                 CreationDate = DateTime.Now,
-                ClientId = orderVM.ClientId,
                 Status = orderVM.Status,
                 TotalPrice = orderVM.TotalPrice,
                 DeliveryMethod = orderVM.DeliveryMethod,
@@ -495,7 +493,7 @@ namespace GastroLab.Application.Extensions
                 Id = addressVM.Id,
                 City = addressVM.City,
                 FlatNumber = addressVM.FlatNumber,
-                HouseNumber = addressVM.HouseNumber,
+                HouseNumber = addressVM.HouseNumber ?? 0,
                 Street = addressVM.Street,
                 PostCode = addressVM.PostCode
             };

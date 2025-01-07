@@ -27,7 +27,7 @@ namespace GastroLab.Application.ViewModels
 
         // pola do page'owania
         public int PageNumber { get; set; } = 1;
-        public int PageSize { get; set; } = 3; // domyślnie 30 rekordów na stronę
+        public int PageSize { get; set; } = 10; // domyślnie 10 rekordów na stronę
         public int TotalRecords { get; set; }
         public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
 

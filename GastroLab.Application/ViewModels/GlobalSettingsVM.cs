@@ -16,12 +16,12 @@ namespace GastroLab.Application.ViewModels
         public virtual AddressVM AddressVM { get; set; }
         [Required]
         [Range(1, 1440, ErrorMessage = "Waiting time must be between 1 and 1440 minutes.")]
-        [Display(Name = "Default Dine-In Waiting Time (minutes)")]
+        [Display(Name = "Default dineIn waiting time (minutes)")]
         public int DefaultDineInWaitingTimeInMinutes { get; set; }
 
         [Required]
         [Range(1, 1440, ErrorMessage = "Waiting time must be between 1 and 1440 minutes.")]
-        [Display(Name = "Default Delivery Waiting Time (minutes)")]
+        [Display(Name = "Default delivery waiting time (minutes)")]
         public int DefaultDeliveryWaitingTimeInMinutes { get; set; }
     }
 }

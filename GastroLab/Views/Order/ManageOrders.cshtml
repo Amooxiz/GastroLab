@@ -75,16 +75,38 @@
                     <div>
                         <strong>Created on:</strong> @order.CreationDate.ToString("dd.MM.yyyy HH:mm")<br />
                         @{
-                            var elapsedTime = DateTime.Now - order.CreationDate;
-                            var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
-
-                            // Ensure remaining minutes are not negative
-                            if (remainingMinutes < 0)
+                            if (order.isScheduledDelivery)
                             {
-                                remainingMinutes = 0;
+
+                                <strong>Scheduled delivery:</strong> @order.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                <br />
+
+                                var elapsedTime = order.ScheduledDeliveryDate.Value - DateTime.Now;
+                                var remainingMinutes = (int)Math.Ceiling(elapsedTime.TotalMinutes);
+
+                                // Ensure remaining minutes are not negative
+                                if (remainingMinutes < 0)
+                                {
+                                    remainingMinutes = 0;
+                                }
+                                <strong>Remaining time: </strong>
+                                <span>@remainingMinutes min</span>
                             }
-                            <strong>Remaining time: @remainingMinutes min</strong><br />
+                            else
+                            {
+                                var elapsedTime = DateTime.Now - order.CreationDate;
+                                var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
+
+                                // Ensure remaining minutes are not negative
+                                if (remainingMinutes < 0)
+                                {
+                                    remainingMinutes = 0;
+                                }
+                                <strong>Remaining time: </strong>
+                                <span>@remainingMinutes min</span>
+                            }
                         }
+                        <br />
                         <strong>@order.DeliveryMethod</strong><br />
                         @if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.Delivery && order.Address != null)
                         {
@@ -94,11 +116,16 @@
                         }
                         else if (order.DeliveryMethod == GastroLab.Domain.DBO.DeliveryMethod.DineIn)
                         {
-                            <p>Table: @order.TableNr</p>
+                            <strong>Table: </strong>
+                            <span>@order.TableNr</span>
                         }
                         else // Pickup
                         {
-                            <p>Pickup time: @(order.ScheduledDeliveryDate != null ? @order.ScheduledDeliveryDate : (order.CreationDate + TimeSpan.FromMinutes(order.WaitingTime)))</p>
+                            if (!@order.isScheduledDelivery)
+                            {
+                                <strong>Pickup time: </strong>
+                                <span>@((order.CreationDate + (TimeSpan.FromMinutes(order.WaitingTime))).ToString("dd.MM.yyyy HH:mm"))</span>
+                            }
                         }
                     </div>
                 </td>

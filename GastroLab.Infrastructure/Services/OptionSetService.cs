@@ -20,6 +20,15 @@ namespace GastroLab.Infrastructure.Services
             _optionSetRepository = optionSetRepository;
         }
 
+        public List<OptionSetVM> GetUsedOptionSetsByIds(List<int> optionSetIds)
+        {
+            return _optionSetRepository.GetUsedOptionSetsByIds(optionSetIds).Select(x => x.ToVM()).ToList();
+        }
+        public void DeleteGlobalOptionSets(List<int> optionSetIds)
+        {
+            _optionSetRepository.DeleteGlobalOptionSets(optionSetIds);
+        }
+
         public List<OptionSetVM> GetGlobalOptionSets()
         {
             return _optionSetRepository.GetGlobalOptionSets().Select(opt => opt.ToVM()).ToList();

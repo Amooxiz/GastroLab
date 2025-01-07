@@ -39,7 +39,7 @@
         <div class="col-md-8">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h4>Order Details</h4>
+                    <h4>Order details</h4>
                 </div>
                 <div class="card-body bg-light">
                     <div class="form-group">
@@ -53,12 +53,12 @@
                         <span asp-validation-for="isScheduledDelivery" class="text-danger"></span>
                     </div>
                     <div class="form-group" id="scheduledDate">
-                        <label asp-for="ScheduledDeliveryDate" class="control-label"></label>
+                        <label asp-for="ScheduledDeliveryDate" class="control-label">Scheduled delivery date <span class="text-danger">*</span></label>
                         <input asp-for="ScheduledDeliveryDate" class="form-control" />
                         <span asp-validation-for="ScheduledDeliveryDate" class="text-danger"></span>
                     </div>
                     <div class="form-group" id="waitingTime">
-                        <label asp-for="WaitingTime" class="control-label"></label>
+                        <label asp-for="WaitingTime" class="control-label">Waiting time <span class="text-danger">*</span></label>
                         <input asp-for="WaitingTime" class="form-control" />
                         <span asp-validation-for="WaitingTime" class="text-danger"></span>
                     </div>
@@ -69,31 +69,31 @@
                     </div>
                     <br />
                     <div class="form-group" id="tableNrGroup">
-                        <label asp-for="TableNr" class="control-label"></label>
+                        <label asp-for="TableNr" class="control-label">Table number <span class="text-danger">*</span></label>
                         <input asp-for="TableNr" class="form-control" />
                         <span asp-validation-for="TableNr" class="text-danger"></span>
                     </div>
 
                     <div class="form-group address-group" id="addressCityGroup">
-                        <label asp-for="Address.City" class="control-label"></label>
+                        <label asp-for="Address.City" class="control-label">City <span class="text-danger">*</span></label>
                         <input asp-for="Address.City" class="form-control" />
                         <span asp-validation-for="Address.City" class="text-danger"></span>
                     </div>
 
                     <div class="form-group address-group" id="addressStreetGroup">
-                        <label asp-for="Address.Street" class="control-label"></label>
+                        <label asp-for="Address.Street" class="control-label">Street <span class="text-danger">*</span></label>
                         <input asp-for="Address.Street" class="form-control" />
                         <span asp-validation-for="Address.Street" class="text-danger"></span>
                     </div>
 
                     <div class="form-group address-group" id="addressPostCodeGroup">
-                        <label asp-for="Address.PostCode" class="control-label"></label>
+                        <label asp-for="Address.PostCode" class="control-label">Postal code <span class="text-danger">*</span></label>
                         <input asp-for="Address.PostCode" class="form-control" />
                         <span asp-validation-for="Address.PostCode" class="text-danger"></span>
                     </div>
 
                     <div class="form-group address-group" id="addressHouseNumberGroup">
-                        <label asp-for="Address.HouseNumber" class="control-label"></label>
+                        <label asp-for="Address.HouseNumber" class="control-label">House number <span class="text-danger">*</span></label>
                         <input asp-for="Address.HouseNumber" class="form-control" />
                         <span asp-validation-for="Address.HouseNumber" class="text-danger"></span>
                     </div>
@@ -106,74 +106,9 @@
                 </div>
             </div>
 
-        @* <div class="col-md-8">
-            <h4>Order Details</h4>
-            <hr />
-            <div class="form-group">
-                <label asp-for="DeliveryMethod" class="control-label"></label>
-                <select asp-for="DeliveryMethod" class="form-control" id="deliveryMethod" asp-items="ViewBag.DeliveryMethods"></select>
-                <span asp-validation-for="DeliveryMethod" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="isScheduledDelivery" class="control-label"></label>
-                <input asp-for="isScheduledDelivery" type="checkbox" id="isScheduled" />
-                <span asp-validation-for="isScheduledDelivery" class="text-danger"></span>
-            </div>
-            <div class="form-group" id="scheduledDate">
-                <label asp-for="ScheduledDeliveryDate" class="control-label"></label>
-                <input asp-for="ScheduledDeliveryDate" class="form-control" />
-                <span asp-validation-for="ScheduledDeliveryDate" class="text-danger"></span>
-            </div>
-            <div class="form-group" id="waitingTime">
-                <label asp-for="WaitingTime" class="control-label"></label>
-                <input asp-for="WaitingTime" class="form-control" />
-                <span asp-validation-for="WaitingTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Comment" class="control-label"></label>
-                <input asp-for="Comment" class="form-control" />
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
-            <br />
-            <div class="form-group" id="tableNrGroup">
-                <label asp-for="TableNr" class="control-label"></label>
-                <input asp-for="TableNr" class="form-control" />
-                <span asp-validation-for="TableNr" class="text-danger"></span>
-            </div>
-
-            <div class="form-group address-group" id="addressCityGroup">
-                <label asp-for="Address.City" class="control-label"></label>
-                <input asp-for="Address.City" class="form-control" />
-                <span asp-validation-for="Address.City" class="text-danger"></span>
-            </div>
-
-            <div class="form-group address-group" id="addressStreetGroup">
-                <label asp-for="Address.Street" class="control-label"></label>
-                <input asp-for="Address.Street" class="form-control" />
-                <span asp-validation-for="Address.Street" class="text-danger"></span>
-            </div>
-
-            <div class="form-group address-group" id="addressPostCodeGroup">
-                <label asp-for="Address.PostCode" class="control-label"></label>
-                <input asp-for="Address.PostCode" class="form-control" />
-                <span asp-validation-for="Address.PostCode" class="text-danger"></span>
-            </div>
-
-            <div class="form-group address-group" id="addressHouseNumberGroup">
-                <label asp-for="Address.HouseNumber" class="control-label"></label>
-                <input asp-for="Address.HouseNumber" class="form-control" />
-                <span asp-validation-for="Address.HouseNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group address-group" id="addressFlatNumberGroup">
-                <label asp-for="Address.FlatNumber" class="control-label"></label>
-                <input asp-for="Address.FlatNumber" class="form-control" />
-                <span asp-validation-for="Address.FlatNumber" class="text-danger"></span>
-            </div> *@
-
             <div class="card mb-3">
                 <div class="card-header">
-                    <h4>Your Order</h4>
+                    <h4>Your order</h4>
                 </div>
                 <div class="card-body bg-light">
                     <ul class="list-unstyled" id="orderSummary">
@@ -193,18 +128,36 @@
                                     <strong>
                                         @product.Quantity x @product.Name
                                     </strong>
-                                    <span style="float:right">@product.Price.ToString("F2") zł</span>
+                                    <span style="float:right">@product.Price.ToString("F2") PLN</span>
+                                    @{
+                                        var groupedOptions = product.OrderOptions.GroupBy(o => o.OptionSet.Name);
+                                    }
                                     <ul class="list-unstyled">
-                                        @for (int j = 0; j < product.OrderOptions.Count; j++)
+                                        @foreach (var groupedOption in groupedOptions)
                                         {
-                                            var optionSet = product.OrderOptions[j];
-                                            <li>@optionSet.OptionSet.Name:</li>
-                                            <ul class="list-unstyled">
-                                                <li>- @optionSet.Option.Name @(optionSet.Option.Price != 0 ? "+" + optionSet.Option.Price.Value.ToString("F2") + " zł" : "")</li>
-                                            </ul>
+                                            var optionIndexCounter = 0;
+                                            <span>@groupedOption.Key:</span>
+                                            <br>
+                                            <li class="option-item">
+                                                @foreach (var option in groupedOption)
+                                                {
+                                                    <input type="hidden" name="products[@i].OrderOptions[@optionIndexCounter].OptionSet.Id" value="@option.OptionSet.Id" />
+                                                    <input type="hidden" name="products[@i].OrderOptions[@optionIndexCounter].OptionSet.Name" value="@option.OptionSet.Name" />
+                                                    <input type="hidden" name="products[@i].OrderOptions[@optionIndexCounter].Option.Id" value="@option.Option.Id" />
+                                                    <input type="hidden" name="products[@i].OrderOptions[@optionIndexCounter].Option.Name" value="@option.Option.Name" />
+                                                    <input type="hidden" name="products[@i].OrderOptions[@optionIndexCounter].Option.Price" value="@option.Option.Price" />
+                                                    <span>
+                                                        - @option.Option.Name @(option.Option.Price.HasValue && option.Option.Price != 0 ? "+" + option.Option.Price.Value.ToString("F2") + " PLN" : "")
+                                                    </span>
+                                                    <br />
+                                                    {
+                                                        optionIndexCounter++;
+                                                    }
+                                                }
+                                            </li>
                                         }
                                     </ul>
-                                    <button type="button" class="edit-product-button btn btn-warning btn-sm" data-index="@i">Edit</button>
+                                    <button type="button" class="edit-product-button btn btn-secondary btn-sm" data-index="@i">Edit</button>
                                     <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="@i">Remove</button>
                                     <hr />
                                 </li>
@@ -214,65 +167,69 @@
                     <p id="noItemsMessage" @(Model.products != null && Model.products.Count > 0 ? "style='display:none;'" : "")>No items in your order.</p>
                     <div class="form-group">
                         <label id="totalPrice">
-                            Total price: @Model.TotalPrice.ToString("F2") zł
+                            Total price: @Model.TotalPrice.ToString("F2") PLN
                         </label>
                     </div>
+                    <span asp-validation-for="products" class="text-danger" id="productsValidationText"></span>
                 </div>
             </div>
-        </div>
 
 
-            @* <h4>Your Order</h4>
-            <hr />
-            <ul class="list-unstyled" id="orderSummary">
-                @if (Model.products != null && Model.products.Count > 0)
-                {
-                        @for (int i = 0; i < Model.products.Count; i++)
+            @* <div class="card mb-3">
+                <div class="card-header">
+                    <h4>Your order</h4>
+                </div>
+                <div class="card-body bg-light">
+                    <ul class="list-unstyled" id="orderSummary">
+                        @if (Model.products != null && Model.products.Count > 0)
                         {
-                            var product = Model.products[i];
-                            <li id="product-@product.Id-@i">
-                                <input type="hidden" name="products[@i].Id" value="@product.Id" />
-                                <input type="hidden" name="products[@i].OrderProductId" value="@product.OrderProductId" />
-                                <input type="hidden" name="products[@i].Name" value="@product.Name" />
-                                <input type="hidden" name="products[@i].Price" value="@product.Price" />
-                                <input type="hidden" name="products[@i].UnitPrice" value="@(product.Price / product.Quantity)" />
-                                <input type="hidden" name="products[@i].Quantity" value="@product.Quantity" class="quantity-input" />
+                            @for (int i = 0; i < Model.products.Count; i++)
+                            {
+                                var product = Model.products[i];
+                                <li id="product-@product.Id-@i">
+                                    <input type="hidden" name="products[@i].Id" value="@product.Id" />
+                                    <input type="hidden" name="products[@i].OrderProductId" value="@product.OrderProductId" />
+                                    <input type="hidden" name="products[@i].Name" value="@product.Name" />
+                                    <input type="hidden" name="products[@i].Price" value="@product.Price" />
+                                    <input type="hidden" name="products[@i].UnitPrice" value="@(product.Price / product.Quantity)" />
+                                    <input type="hidden" name="products[@i].Quantity" value="@product.Quantity" class="quantity-input" />
 
-                                <strong>
-                                    @product.Quantity x @product.Name
-                                </strong>
-                                <span style="float:right">@product.Price.ToString("F2") zł</span>
-                                <ul class="list-unstyled">
-                                    @for (int j = 0; j < product.OrderOptions.Count; j++)
-                                    {
-                                        var optionSet = product.OrderOptions[j];
-                                        <li>@optionSet.OptionSet.Name:</li>
-                                        <ul class="list-unstyled">
-                                            <li>- @optionSet.Option.Name (@(optionSet.Option.Price.HasValue ? "+" + optionSet.Option.Price.Value.ToString("F2") + " zł" : ""))</li>
-                                        </ul>
-                                    }
-                                </ul>
-                                <button type="button" class="edit-product-button btn btn-warning btn-sm" data-index="@i">Edit</button>
-                                <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="@i">Remove</button>
-                                <hr />
-                            </li>
+                                    <strong>
+                                        @product.Quantity x @product.Name
+                                    </strong>
+                                    <span style="float:right">@product.Price.ToString("F2") PLN</span>
+                                    <ul class="list-unstyled">
+                                        @for (int j = 0; j < product.OrderOptions.Count; j++)
+                                        {
+                                            var optionSet = product.OrderOptions[j];
+                                            <li>@optionSet.OptionSet.Name:</li>
+                                            <ul class="list-unstyled">
+                                                <li>- @optionSet.Option.Name @(optionSet.Option.Price != 0 ? "+" + optionSet.Option.Price.Value.ToString("F2") + " PLN" : "")</li>
+                                            </ul>
+                                        }
+                                    </ul>
+                                    <button type="button" class="edit-product-button btn btn-secondary btn-sm" data-index="@i">Edit</button>
+                                    <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="@i">Remove</button>
+                                    <hr />
+                                </li>
+                            }
                         }
-                }
-            </ul>
-
-            <p id="noItemsMessage" @(Model.products != null && Model.products.Count > 0 ? "style='display:none;'" : "")>No items in your order.</p>
-
-            <div class="form-group">
-                <label id="totalPrice">
-                    Total price: @Model.TotalPrice.ToString("F2") zł
-                </label>
-            </div>
-        </div> *@
+                    </ul>
+                    <p id="noItemsMessage" @(Model.products != null && Model.products.Count > 0 ? "style='display:none;'" : "")>No items in your order.</p>
+                    <div class="form-group">
+                        <label id="totalPrice">
+                            Total price: @Model.TotalPrice.ToString("F2") PLN
+                        </label>
+                    </div>
+                    <span asp-validation-for="products" class="text-danger" id="productsValidationText"></span>
+                </div>
+            </div> *@
+        </div>
 
         <div class="col-md-4">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h4>Add Products</h4>
+                    <h4>Add products</h4>
                 </div>
                 <div class="card-body bg-light">
                     <table class="table">
@@ -289,7 +246,7 @@
                             {
                                 <tr>
                                     <td>@item.Name</td>
-                                    <td>@item.Price.ToString("F2") zł</td>
+                                    <td>@item.Price.ToString("F2") PLN</td>
                                     <td>
                                         <button type="button" class="add-product-button btn btn-primary btn-sm" data-product-id="@item.Id">Add</button>
                                     </td>
@@ -300,42 +257,6 @@
                 </div>
             </div>
         </div>
-
-
-        @* <!-- Right Column: Available Products -->
-        <div class="col-md-4">
-            <h4>Add Products</h4>
-            <hr />
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>
-                            Name
-                        </th>
-                        <th>
-                            Price
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in ViewBag.AllProducts)
-                    {
-                        <tr>
-                            <td>
-                                @item.Name
-                            </td>
-                            <td>
-                                @item.Price.ToString("F2") zł
-                            </td>
-                            <td>
-                                <button type="button" class="add-product-button btn btn-primary btn-sm" data-product-id="@item.Id">Add</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div> *@
     </div>
 </form>
 
@@ -352,9 +273,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Choose product options</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Zamknij">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="modal-body">
                 <!-- Opcje zostaną tutaj załadowane przez JavaScript -->
@@ -375,6 +293,9 @@
 
 
     <script>
+        var defaultDeliveryWaitingTimeInMinutes = @ViewBag.GlobalSettings.DefaultDeliveryWaitingTimeInMinutes;
+        var defaultDineInWaitingTimeInMinutes = @ViewBag.GlobalSettings.DefaultDineInWaitingTimeInMinutes;
+
         $(document).ready(function () {
             var selectedProduct = null; // Global variable to store the selected product
 
@@ -400,6 +321,12 @@
                 } else {
                     $('#scheduledDate').hide();
                     $('#waitingTime').show();
+
+                    if (selectedMethod == '1') { // Delivery
+                        $('#WaitingTime').val(defaultDeliveryWaitingTimeInMinutes);
+                    } else if (selectedMethod == '3' || selectedMethod == '2') { // DineIn lub Pickup
+                        $('#WaitingTime').val(defaultDineInWaitingTimeInMinutes);
+                    }
                 }
             }
 
@@ -429,31 +356,40 @@
                     orderOptions: []
                 };
 
-                // Collect the existing options
+                var productOptions = []; // Kolekcja opcji dla produktu
+                var currentOption = {}; // Tymczasowy obiekt do przechowywania bieżącej opcji
+
                 $li.find('input[name^="products[' + index + '].OrderOptions"]').each(function () {
                     var name = $(this).attr('name');
                     var value = $(this).val();
-                    var optionIndexMatch = name.match(/OrderOptions\[(\d+)\]/);
-                    if (optionIndexMatch) {
-                        var optionIndex = optionIndexMatch[1];
 
-                        if (!product.orderOptions[optionIndex]) {
-                            product.orderOptions[optionIndex] = {};
+                    if (name.endsWith('.OptionSet.Id')) {
+                        // Jeśli trafiamy na nową opcję, dodajemy poprzednią do kolekcji (jeśli istnieje)
+                        if (Object.keys(currentOption).length > 0) {
+                            productOptions.push(currentOption);
                         }
-
-                        if (name.endsWith('.OptionSet.Id')) {
-                            product.orderOptions[optionIndex].OptionSetId = parseInt(value);
-                        } else if (name.endsWith('.OptionSet.Name')) {
-                            product.orderOptions[optionIndex].OptionSetName = value;
-                        } else if (name.endsWith('.Option.Id')) {
-                            product.orderOptions[optionIndex].OptionId = parseInt(value);
-                        } else if (name.endsWith('.Option.Name')) {
-                            product.orderOptions[optionIndex].OptionName = value;
-                        } else if (name.endsWith('.Option.Price')) {
-                            product.orderOptions[optionIndex].Price = parseFloat(value);
-                        }
+                        // Rozpoczynamy nową opcję
+                        currentOption = {
+                            OptionSetId: parseInt(value)
+                        };
+                    } else if (name.endsWith('.OptionSet.Name')) {
+                        currentOption.OptionSetName = value;
+                    } else if (name.endsWith('.Option.Id')) {
+                        currentOption.OptionId = parseInt(value);
+                    } else if (name.endsWith('.Option.Name')) {
+                        currentOption.OptionName = value;
+                    } else if (name.endsWith('.Option.Price')) {
+                        currentOption.Price = parseFloat(value);
                     }
                 });
+
+                // Dodajemy ostatnią opcję, jeśli istnieje
+                if (Object.keys(currentOption).length > 0) {
+                    productOptions.push(currentOption);
+                }
+
+                // Przypisujemy opcje do produktu
+                product.orderOptions = productOptions;
 
                 // Fetch the product details and options via AJAX
                 $.ajax({
@@ -470,9 +406,9 @@
                             var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
                             var requiredIndicator = optionSet.isRequired ? ' *' : '';
                             optionSetsHTML += `
-                            <h5>${optionSet.name}${requiredIndicator}</h5>
-                            <ul class="option-list">
-                        `;
+                                    <h5>${optionSet.name}${requiredIndicator}</h5>
+                                    <ul class="option-list">
+                                `;
                             optionSet.options.forEach(function (option) {
                                 // Check if this option is selected in the existing product
                                 var isChecked = product.orderOptions.some(function (selectedOption) {
@@ -480,32 +416,32 @@
                                 });
 
                                 optionSetsHTML += `
-                                <li>
-                                    <label>
-                                        <input type="${inputType}" class="option-input"
-                                            data-price="${option.price ?? 0}"
-                                            data-optionset-id="${optionSet.id}"
-                                            data-optionset-name="${optionSet.name}"
-                                            data-option-id="${option.id}"
-                                            data-option-name="${option.name}"
-                                            name="optionset-${optionSet.id}"
-                                            ${isChecked ? 'checked' : ''}
-                                        />
-                                        ${option.name} +${(option.price ?? 0).toFixed(2)} zł
-                                    </label>
-                                </li>
-                            `;
+                                        <li>
+                                            <label>
+                                                <input type="${inputType}" class="option-input"
+                                                    data-price="${option.price ?? 0}"
+                                                    data-optionset-id="${optionSet.id}"
+                                                    data-optionset-name="${optionSet.name}"
+                                                    data-option-id="${option.id}"
+                                                    data-option-name="${option.name}"
+                                                    name="optionset-${optionSet.id}"
+                                                    ${isChecked ? 'checked' : ''}
+                                                />
+                                                ${option.name} +${(option.price ?? 0).toFixed(2)} PLN
+                                            </label>
+                                        </li>
+                                    `;
                             });
                             optionSetsHTML += '</ul>';
                         });
 
                         // Add the quantity input with the existing quantity
                         optionSetsHTML += `
-                        <div class="form-group">
-                            <label for="product-quantity">Ilość:</label>
-                            <input type="number" id="product-quantity" class="form-control" value="${product.quantity}" min="1" />
-                        </div>
-                    `;
+                                <div class="form-group">
+                                    <label for="product-quantity">Ilość:</label>
+                                    <input type="number" id="product-quantity" class="form-control" value="${product.quantity}" min="1" />
+                                </div>
+                            `;
 
                         // Update the modal footer buttons
                         $('#productOptionsModal .modal-footer .confirm-add-product')
@@ -523,6 +459,116 @@
                     }
                 });
             });
+
+
+            // $(document).on('click', '.edit-product-button', function () {
+            //     var index = $(this).data('index');
+            //     var $li = $('#orderSummary').children('li').eq(index);
+            //     var productId = $li.find('input[name$=".Id"]').val();
+
+            //     // Retrieve the product data from the list item
+            //     var product = {
+            //         id: parseInt($li.find('input[name$=".Id"]').val()),
+            //         name: $li.find('input[name$=".Name"]').val(),
+            //         price: parseFloat($li.find('input[name$=".UnitPrice"]').val()),
+            //         quantity: parseInt($li.find('input[name$=".Quantity"]').val()),
+            //         orderOptions: []
+            //     };
+
+            //     // Collect the existing options
+            //     $li.find('input[name^="products[' + index + '].OrderOptions"]').each(function () {
+            //         var name = $(this).attr('name');
+            //         var value = $(this).val();
+            //         var optionIndexMatch = name.match(/OrderOptions\[(\d+)\]/);
+            //         if (optionIndexMatch) {
+            //             var optionIndex = optionIndexMatch[1];
+
+            //             if (!product.orderOptions[optionIndex]) {
+            //                 product.orderOptions[optionIndex] = {};
+            //             }
+
+            //             if (name.endsWith('.OptionSet.Id')) {
+            //                 product.orderOptions[optionIndex].OptionSetId = parseInt(value);
+            //             } else if (name.endsWith('.OptionSet.Name')) {
+            //                 product.orderOptions[optionIndex].OptionSetName = value;
+            //             } else if (name.endsWith('.Option.Id')) {
+            //                 product.orderOptions[optionIndex].OptionId = parseInt(value);
+            //             } else if (name.endsWith('.Option.Name')) {
+            //                 product.orderOptions[optionIndex].OptionName = value;
+            //             } else if (name.endsWith('.Option.Price')) {
+            //                 product.orderOptions[optionIndex].Price = parseFloat(value);
+            //             }
+            //         }
+            //     });
+
+            //     // Fetch the product details and options via AJAX
+            //     $.ajax({
+            //         url: '/Order/GetProductDetailsWithOptions',
+            //         type: 'GET',
+            //         data: { id: productId },
+            //         success: function (productDetails) {
+            //             // Pre-select options based on the existing product data
+            //             selectedProduct = productDetails;
+
+            //             // Build the options selection UI with pre-selected options
+            //             var optionSetsHTML = '';
+            //             productDetails.optionSets.forEach(function (optionSet) {
+            //                 var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
+            //                 var requiredIndicator = optionSet.isRequired ? ' *' : '';
+            //                 optionSetsHTML += `
+            //                 <h5>${optionSet.name}${requiredIndicator}</h5>
+            //                 <ul class="option-list">
+            //             `;
+            //                 optionSet.options.forEach(function (option) {
+            //                     // Check if this option is selected in the existing product
+            //                     var isChecked = product.orderOptions.some(function (selectedOption) {
+            //                         return selectedOption.OptionSetId === optionSet.id && selectedOption.OptionId === option.id;
+            //                     });
+
+            //                     optionSetsHTML += `
+            //                     <li>
+            //                         <label>
+            //                             <input type="${inputType}" class="option-input"
+            //                                 data-price="${option.price ?? 0}"
+            //                                 data-optionset-id="${optionSet.id}"
+            //                                 data-optionset-name="${optionSet.name}"
+            //                                 data-option-id="${option.id}"
+            //                                 data-option-name="${option.name}"
+            //                                 name="optionset-${optionSet.id}"
+            //                                 ${isChecked ? 'checked' : ''}
+            //                             />
+            //                             ${option.name} +${(option.price ?? 0).toFixed(2)} PLN
+            //                         </label>
+            //                     </li>
+            //                 `;
+            //                 });
+            //                 optionSetsHTML += '</ul>';
+            //             });
+
+            //             // Add the quantity input with the existing quantity
+            //             optionSetsHTML += `
+            //             <div class="form-group">
+            //                 <label for="product-quantity">Ilość:</label>
+            //                 <input type="number" id="product-quantity" class="form-control" value="${product.quantity}" min="1" />
+            //             </div>
+            //         `;
+
+            //             // Update the modal footer buttons
+            //             $('#productOptionsModal .modal-footer .confirm-add-product')
+            //                 .text('Update Product')
+            //                 .addClass('confirm-update-product')
+            //                 .removeClass('confirm-add-product')
+            //                 .data('index', index); // Store the index of the product being edited
+
+            //             // Display options and quantity in the modal
+            //             $('#productOptionsModal .modal-body').html(optionSetsHTML);
+            //             $('#productOptionsModal').modal('show');
+            //         },
+            //         error: function () {
+            //             alert('Error retrieving product details.');
+            //         }
+            //     });
+            // });
 
 
             // Add product to order
@@ -559,7 +605,7 @@
                                                 data-option-name="${option.name}"
                                                 name="optionset-${optionSet.id}"
                                                 />
-                                            ${option.name} +${(option.price ?? 0).toFixed(2)} zł
+                                            ${option.name} +${(option.price ?? 0).toFixed(2)} PLN
                                         </label>
                                     </li>
                                 `;
@@ -573,6 +619,12 @@
                                 <input type="number" id="product-quantity" class="form-control" value="1" min="1" />
                             </div>
                         `;
+
+                        // Update the modal footer buttons
+                        $('#productOptionsModal .modal-footer .confirm-update-product')
+                            .text('Add to order')
+                            .addClass('confirm-add-product')
+                            .removeClass('confirm-update-product');
 
                         // Display options in the modal
                         $('#productOptionsModal .modal-body').html(optionSetsHTML);
@@ -590,6 +642,15 @@
                     $('#noItemsMessage').show();
                 } else {
                     $('#noItemsMessage').hide();
+                }
+            }
+
+            function updateProductsValidationText() {
+                var productCount = $('#orderSummary li').length;
+                if (productCount === 0) {
+                    $('#productsValidationText').text('Please add at least one product to your order.');
+                } else {
+                    $('#productsValidationText').text('');
                 }
             }
 
@@ -630,7 +691,7 @@
                     });
 
                     if (optionSet.isRequired && optionsSelected.length === 0) {
-                        validationErrors.push('You must select at least one option from "' + optionSet.displayName + '".');
+                        validationErrors.push('You must select at least one option from "' + optionSet.name + '".');
                     }
 
                     selectedOptions = selectedOptions.concat(optionsSelected);
@@ -654,47 +715,70 @@
                 var isUpdating = $(this).hasClass('confirm-update-product');
                 var index = isUpdating ? $(this).data('index') : $('#orderSummary li').length;
 
-                // Build the HTML for the product
+                // Start building the HTML for the product
                 var html = `
-                <li id="product-${selectedProduct.id}-${index}">
-                    <input type="hidden" name="products[${index}].Id" value="${selectedProduct.id}" />
-                    <input type="hidden" name="products[${index}].Name" value="${selectedProduct.name}" />
-                    <input type="hidden" name="products[${index}].Price" value="${productPrice.toFixed(2)}" />
-                    <input type="hidden" name="products[${index}].UnitPrice" value="${unitPrice.toFixed(2)}" />
-                    <input type="hidden" name="products[${index}].Quantity" value="${quantity}" class="quantity-input" />
-                    <strong>
-                        ${quantity} x ${selectedProduct.name}
-                    </strong>
-                    <span style="float:right">${productPrice.toFixed(2)} zł</span>
-                    <ul class="list-unstyled">
+            <li id="product-${selectedProduct.id}-${index}">
+                <input type="hidden" name="products[${index}].Id" value="${selectedProduct.id}" />
+                <input type="hidden" name="products[${index}].Name" value="${selectedProduct.name}" />
+                <input type="hidden" name="products[${index}].Price" value="${productPrice.toFixed(2)}" />
+                <input type="hidden" name="products[${index}].UnitPrice" value="${unitPrice.toFixed(2)}" />
+                <input type="hidden" name="products[${index}].Quantity" value="${quantity}" class="quantity-input" />
+                <strong>
+                    ${quantity} x ${selectedProduct.name}
+                </strong>
+                <span style="float:right">${productPrice.toFixed(2)} PLN</span>
+                <ul class="list-unstyled">
             `;
 
-                // Add selected options to the product
-                selectedOptions.forEach(function (option, optionIndex) {
-                    html += `
-                    <li class="option-item">
-                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].OptionSet.Id" value="${option.OptionSetId}" />
-                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].OptionSet.DisplayName" value="${option.OptionSetName}" />
-                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].Option.Id" value="${option.OptionId}" />
-                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].Option.DisplayName" value="${option.OptionName}" />
-                        <input type="hidden" name="products[${index}].OrderOptions[${optionIndex}].Option.Price" value="${option.Price.toFixed(2)}" />
-
-                        ${option.OptionSetName}:<br> - ${option.OptionName} (+${option.Price.toFixed(2)} zł)
-                    </li>
-                `;
+                // Group selectedOptions by OptionSetName
+                var groupedOptions = {};
+                selectedOptions.forEach(function (opt) {
+                    if (!groupedOptions[opt.OptionSetName]) {
+                        groupedOptions[opt.OptionSetName] = [];
+                    }
+                    groupedOptions[opt.OptionSetName].push(opt);
                 });
 
+                // We'll need a counter to properly name the input indexes for order options
+                var optionIndexCounter = 0;
+
+                // Render grouped options
+                for (var optionSetName in groupedOptions) {
+                    if (groupedOptions.hasOwnProperty(optionSetName)) {
+                        var group = groupedOptions[optionSetName];
+
+                        // Display OptionSetName once
+                        html += `${optionSetName}:<br>`;
+
+                        // Display each option in this OptionSet group
+                        group.forEach(function (option) {
+                            html += `
+                                <li class="option-item">
+                                    <input type="hidden" name="products[${index}].OrderOptions[${optionIndexCounter}].OptionSet.Id" value="${option.OptionSetId}" />
+                                    <input type="hidden" name="products[${index}].OrderOptions[${optionIndexCounter}].OptionSet.Name" value="${option.OptionSetName}" />
+                                    <input type="hidden" name="products[${index}].OrderOptions[${optionIndexCounter}].Option.Id" value="${option.OptionId}" />
+                                    <input type="hidden" name="products[${index}].OrderOptions[${optionIndexCounter}].Option.Name" value="${option.OptionName}" />
+                                    <input type="hidden" name="products[${index}].OrderOptions[${optionIndexCounter}].Option.Price" value="${option.Price.toFixed(2)}" />
+                                    - ${option.OptionName} ${option.Price > 0 ? `+${option.Price.toFixed(2)} PLN` : ''}
+                                </li>
+
+                        `;
+                            optionIndexCounter++;
+                        });
+                    }
+                }
+
                 html += `
-                    </ul>
-                    <button type="button" class="edit-product-button btn btn-warning btn-sm" data-index="${index}">Edit</button>
-                    <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="${index}">Remove</button>
-                    <hr />
-                </li>
+                </ul>
+                <button type="button" class="edit-product-button btn btn-secondary btn-sm" data-index="${index}">Edit</button>
+                <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="${index}">Remove</button>
+                <hr />
+            </li>
             `;
 
                 if (isUpdating) {
                     // Replace the existing product in the order summary
-                    $('#orderSummary li').eq(index).replaceWith(html);
+                    $('#product-' + selectedProduct.id + '-' + index).replaceWith(html);
                 } else {
                     // Append the new product to the order summary
                     $('#orderSummary').append(html);
@@ -703,6 +787,7 @@
                 reindexProducts(); // Re-index products
                 updateTotalPrice();
                 updateNoItemsMessage();
+                updateProductsValidationText();
 
                 // Clear the selected product
                 selectedProduct = null;
@@ -711,10 +796,8 @@
                 $('#productOptionsModal').modal('hide');
 
                 // Reset the confirm button
-                $(this).text('Add to Order').addClass('confirm-add-product').removeClass('confirm-update-product').removeData('index');
+                $(this).text('Add to order').addClass('confirm-add-product').removeClass('confirm-update-product').removeData('index');
             });
-
-
 
             $(document).on('click', '.btn-secondary[data-dismiss="modal"]', function () {
                 $('#productOptionsModal').modal('hide');
@@ -733,7 +816,7 @@
                     var newProductPrice = unitPrice * quantity;
                     $li.find('input[name$=".Price"]').val(newProductPrice.toFixed(2));
                     $li.find('strong').text(quantity + ' x ' + $li.find('input[name$=".Name"]').val());
-                    $li.find('span[style="float:right"]').text(newProductPrice.toFixed(2) + ' zł');
+                    $li.find('span[style="float:right"]').text(newProductPrice.toFixed(2) + ' PLN');
                 } else {
                     $li.remove();
                     reindexProducts(); // Re-index after removal
@@ -750,9 +833,9 @@
                     var quantity = parseInt($(this).find('.quantity-input').val()) || 1;
                     var price = parseFloat($(this).find('input[name$=".UnitPrice"]').val()) || 0;
                     totalPrice += quantity * price;
-                    $(this).find('span[style="float:right"]').text((quantity * price).toFixed(2) + ' zł');
+                    $(this).find('span[style="float:right"]').text((quantity * price).toFixed(2) + ' PLN');
                 });
-                $('#totalPrice').text('Total price: ' + totalPrice.toFixed(2) + ' zł');
+                $('#totalPrice').text('Total price: ' + totalPrice.toFixed(2) + ' PLN');
             }
 
             function reindexProducts() {
@@ -767,14 +850,14 @@
                             // Aktualizuj indeks produktu
                             var newName = name.replace(/products\[\d+\]/, 'products[' + productIndex + ']');
 
-                            // Jeśli pole należy do OrderOptions, zaktualizuj również indeks opcji
-                            if (newName.includes('OrderOptions')) {
-                                var $optionLi = $(this).closest('.option-item');
-                                var optionIndex = $optionLi.index();
+                            // // Jeśli pole należy do OrderOptions, zaktualizuj również indeks opcji
+                            // if (newName.includes('OrderOptions')) {
+                            //     var $optionLi = $(this).closest('.option-item');
+                            //     var optionIndex = $optionLi.index();
 
-                                // Aktualizuj indeks opcji
-                                newName = newName.replace(/OrderOptions\[\d+\]/, 'OrderOptions[' + optionIndex + ']');
-                            }
+                            //     // Aktualizuj indeks opcji
+                            //     newName = newName.replace(/OrderOptions\[\d+\]/, 'OrderOptions[' + optionIndex + ']');
+                            // }
 
                             $(this).attr('name', newName);
                         }
