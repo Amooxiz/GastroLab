@@ -24,7 +24,6 @@ namespace GastroLab.Application.ViewModels
         [Required(ErrorMessage = "Price is required.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Price must be a positive number.")]
         public decimal Price { get; set; }
-        public string Image { get; set; } = string.Empty;
         [DisplayName("Product status")]
         public ProductStatus productStatus { get; set; }
         public int Quantity { get; set; } = 1;

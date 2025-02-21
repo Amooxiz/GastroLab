@@ -1,4 +1,5 @@
-﻿@model IEnumerable<GastroLab.Application.ViewModels.OrderVM>
+﻿@using GastroLab.Application.Extensions
+@model IEnumerable<GastroLab.Application.ViewModels.OrderVM>
 
 @{
     ViewData["Title"] = "Manage Orders";
@@ -6,10 +7,10 @@
 
 <style>
     .btn-disabled {
-        background-color: #d3d3d3 !important; /* Jasny szary kolor */
+        background-color: #d3d3d3 !important;
         border-color: #d3d3d3 !important;
-        color: #ffffff !important; /* Biały tekst dla kontrastu */
-        pointer-events: none; /* Wyłączenie interakcji */
+        color: #000F !important;
+        pointer-events: none;
     }
 </style>
 
@@ -19,15 +20,14 @@
     <thead>
         <tr>
             <th>Status</th>
-            <th>Order Details</th>
-            <th>Delivery Info</th>
+            <th>Order details</th>
+            <th>Delivery info</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var order in Model)
         {
             <tr>
-                <!-- First Column: Status Buttons -->
                 <td>
                     <div class="btn-group-vertical">
                         <button class="btn btn-sm btn-primary change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.New ? "btn-disabled" : "")"
@@ -49,7 +49,6 @@
 
 
 
-                <!-- Second Column: Order Details -->
                 <td>
                     @foreach (var product in order.products)
                     {
@@ -70,41 +69,24 @@
                     }
                 </td>
 
-                <!-- Third Column: Delivery Info -->
                 <td>
                     <div>
                         <strong>Created on:</strong> @order.CreationDate.ToString("dd.MM.yyyy HH:mm")<br />
                         @{
                             if (order.isScheduledDelivery)
                             {
-
                                 <strong>Scheduled delivery:</strong> @order.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
                                 <br />
-
-                                var elapsedTime = order.ScheduledDeliveryDate.Value - DateTime.Now;
-                                var remainingMinutes = (int)Math.Ceiling(elapsedTime.TotalMinutes);
-
-                                // Ensure remaining minutes are not negative
-                                if (remainingMinutes < 0)
-                                {
-                                    remainingMinutes = 0;
-                                }
-                                <strong>Remaining time: </strong>
-                                <span>@remainingMinutes min</span>
                             }
-                            else
-                            {
-                                var elapsedTime = DateTime.Now - order.CreationDate;
-                                var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
 
-                                // Ensure remaining minutes are not negative
-                                if (remainingMinutes < 0)
-                                {
-                                    remainingMinutes = 0;
-                                }
-                                <strong>Remaining time: </strong>
-                                <span>@remainingMinutes min</span>
-                            }
+                            var remainingTime = order.GetRemainingTime();
+
+                            <strong>Remaining time: </strong>
+                            <span style="
+                                        color: @remainingTime.Color;
+                                            ">
+                                @remainingTime.RemainingMinutes min
+                            </span>
                         }
                         <br />
                         <strong>@order.DeliveryMethod</strong><br />
@@ -135,7 +117,6 @@
 </table>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Pobieramy wszystkie przyciski zmiany statusu
         const statusButtons = document.querySelectorAll('.change-status-btn');
 
         statusButtons.forEach(button => {
@@ -145,12 +126,10 @@
                 const orderId = button.getAttribute('data-order-id');
                 const status = button.getAttribute('data-status');
 
-                // Wysyłamy żądanie AJAX
                 fetch('/Order/ChangeStatusOfOrder', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                        //'X-Requested-With': 'XMLHttpRequest' // Informacja, że to AJAX
                     },
                     body: JSON.stringify({
                         OrderId: parseInt(orderId),
@@ -161,8 +140,7 @@
                     .then(result => {
                         if (result.success) {
                             console.log('Status zmieniony na: ' + status);
-                            // Możesz tutaj dodać dodatkowe akcje, np. odświeżenie widoku
-                            window.location.reload(); // Odśwież stronę, jeśli zmiana statusu się udała
+                            window.location.reload();
                         } else {
                             console.error('Zmiana statusu nie powiodła się.');
                         }

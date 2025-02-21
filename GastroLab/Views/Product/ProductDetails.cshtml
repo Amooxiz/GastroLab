@@ -9,9 +9,7 @@
 <hr />
 
 <div class="row">
-    <!-- Lewa Kolumna -->
     <div class="col-md-6">
-        <!-- Flat Fields Section -->
         <div class="card mb-3 bg-light">
             <div class="card-body">
                 <dl class="row">
@@ -30,7 +28,6 @@
             </div>
         </div>
 
-        <!-- Categories Section -->
         <div class="card mb-3 bg-light">
             <div class="card-body">
                 <h4>Categories</h4>
@@ -43,7 +40,6 @@
             </div>
         </div>
 
-        <!-- Ingredients Section -->
         <div class="card mb-3 bg-light">
             <div class="card-body">
                 <h4>Ingredients</h4>
@@ -57,21 +53,17 @@
         </div>
     </div>
 
-    <!-- Prawa Kolumna -->
     <div class="col-md-6">
-        <!-- Option Sets Section with Accordion and Column Headers -->
         <div class="card mb-3 bg-light">
             <div class="card-body">
                 <h4>Option Sets</h4>
 
-                <!-- Nagłówki Kolumn -->
                 <div class="row fw-bold mb-2" style="border-bottom: 1px solid #dee2e6;">
                     <div class="col-md-3">Name</div>
                     <div class="col-md-3">Multiple Choice</div>
                     <div class="col-md-3">Required</div>
                 </div>
 
-                <!-- Accordion -->
                 <div class="accordion accordion-flush" id="optionSetAccordion">
                     @foreach (var optionSet in Model.optionSets)
                     {
@@ -91,7 +83,7 @@
                                     <ul class="list-group list-group-flush">
                                         @foreach (var option in optionSet.options)
                                         {
-                                            var optionPrice = option.Price.HasValue && option.Price.Value > 0 ? $" - {option.Price.Value} zł" : "";
+                                            var optionPrice = option.Price.HasValue && option.Price.Value > 0 ? $" - {option.Price.Value} PLN" : "";
                                             <li class="list-group-item">@option.Name@optionPrice</li>
                                         }
                                     </ul>

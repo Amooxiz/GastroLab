@@ -14,20 +14,17 @@ namespace GastroLab.Presentation.Controllers
     {
         private readonly IUserService _userService;
 
-        // Constructor with dependency injection
         public UserController(IUserService userService)
         {
             _userService = userService;
         }
 
-        // GET: User
         public async Task<IActionResult> Index()
         {
             var users = await _userService.GetAllUsersAsync();
             return View(users);
         }
 
-        // GET: User/Create
         public async Task<IActionResult> Create()
         {
             var model = new CreateUserVM
@@ -39,7 +36,6 @@ namespace GastroLab.Presentation.Controllers
             return View(model);
         }
 
-        // POST: User/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateUserVM model)
@@ -53,14 +49,12 @@ namespace GastroLab.Presentation.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Add errors to the ModelState
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            // Reload roles if ModelState is invalid
             model.AllRoles = (await _userService.GetAllRolesAsync())
                 .Select(role => new SelectListItem { Value = role, Text = role })
                 .ToList();
@@ -68,14 +62,12 @@ namespace GastroLab.Presentation.Controllers
             return View(model);
         }
 
-        // GET: User/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
             var userVM = await _userService.GetUserByIdAsync(id);
             if (userVM == null)
                 return NotFound();
             var editUserVM = userVM.ToEditUserVM();
-            // Populate AllRoles with selection
             editUserVM.AllRoles = (await _userService.GetAllRolesAsync())
                 .Select(role => new SelectListItem
                 {
@@ -88,7 +80,6 @@ namespace GastroLab.Presentation.Controllers
             return View(editUserVM);
         }
 
-        // POST: User/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditUserVM model)
@@ -102,14 +93,12 @@ namespace GastroLab.Presentation.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Add errors to the ModelState
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            // Reload roles
             model.AllRoles = (await _userService.GetAllRolesAsync())
                 .Select(role => new SelectListItem
                 {
@@ -122,7 +111,6 @@ namespace GastroLab.Presentation.Controllers
             return View(model);
         }
 
-        // GET: User/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
             var userVM = await _userService.GetUserByIdAsync(id);
@@ -132,7 +120,6 @@ namespace GastroLab.Presentation.Controllers
             return View(userVM);
         }
 
-        // POST: User/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -144,7 +131,6 @@ namespace GastroLab.Presentation.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Handle errors if needed
             ModelState.AddModelError(string.Empty, "An error occurred while deleting the user.");
 
             var userVM = await _userService.GetUserByIdAsync(id);

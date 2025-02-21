@@ -7,7 +7,6 @@
 }
 
 <style>
-    /* Existing styles */
     table {
         border-collapse: collapse;
         width: 100%;
@@ -29,32 +28,26 @@
 
     body {
         overflow: hidden;
-        /* Prevent text selection during drag */
         -webkit-user-select: none; /* Chrome/Safari */
         -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* IE10+ */
         user-select: none; /* Standard */
     }
 
-    /* Apply partly transparent background to all header cells */
     thead th {
         background-color: rgba(232, 247, 154, 0.8) !important;
-        /* background-color: rgba(217, 242, 255, 0.8) !important; */
     }
 
-    /* Style for the date label (larger font size) */
     .date-label {
         font-size: 1.4em;
         font-weight: bold;
     }
 
-    /* Style for the day label (smaller font size) */
     .day-label {
         font-size: 0.8em;
         color: #555;
     }
 
-    /* Additional styles for the hour column */
     .hour-column {
         text-align: right;
         padding: 3px 15px !important;
@@ -66,7 +59,6 @@
         background-color: transparent !important;
     }
 
-    /* New styles for the calendar container */
     .calendar-container {
         border: 1px solid #ccc;
         border-radius: 15px;
@@ -102,16 +94,15 @@
     <div class="table-responsive" style="overflow-y: auto; max-height: calc(100vh - 300px);">
         <table class="table">
             <colgroup>
-                <col style="width: 55px;"> <!-- Narrow first column -->
+                <col style="width: 55px;">
                 @foreach (var day in Model.DaysOfWeek)
                 {
-                    <col style="width: auto;"> <!-- Equal widths for other columns -->
+                    <col style="width: auto;">
                 }
             </colgroup>
             <thead class="sticky-top">
                 <tr>
                     <th style="border: none; opacity: 0;">
-                        <!-- Empty header cell -->
                     </th>
 
                     @foreach (var day in Model.DaysOfWeek)
@@ -181,7 +172,6 @@
                                 {
                                     continue;
                                 }
-                                <!-- Added class and data attributes to cells -->
                                 <td class="calendar-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="@tableCellStyle"></td>
                             }
                         </tr>

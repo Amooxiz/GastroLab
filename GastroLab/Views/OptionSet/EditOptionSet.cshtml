@@ -93,12 +93,10 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
         function editOption(optionId) {
-            // Toggle visibility of elements
             $('#display-price-' + optionId).hide();
             $('#edit-price-' + optionId).show();
             $('#save-form-' + optionId).show();
 
-            // Update the form value from input
             $('#edit-price-' + optionId).change(function () {
                 $('#input-price-' + optionId).val($(this).val());
             });

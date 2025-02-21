@@ -32,7 +32,6 @@ namespace GastroLab.Presentation.Controllers
         [Authorize]
         public IActionResult RegisterTime(TimeSlotVM registeredTimeVM)
         {
-            // Get the user id from the claims
             var claimsIdentity = User.Identity as ClaimsIdentity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             registeredTimeVM.UserId = userId;

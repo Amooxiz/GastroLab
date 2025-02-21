@@ -7,7 +7,6 @@
 }
 
 <style>
-    /* Existing styles */
     table {
         border-collapse: collapse;
         width: 100%;
@@ -33,32 +32,26 @@
 
     body {
         overflow: hidden;
-        /* Prevent text selection during drag */
         -webkit-user-select: none; /* Chrome/Safari */
         -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* IE10+ */
         user-select: none; /* Standard */
     }
 
-    /* Apply partly transparent background to all header cells */
     thead th {
         background-color: rgba(232, 247, 154, 0.8) !important;
-        /* background-color: rgba(217, 242, 255, 0.8) !important; */
     }
 
-    /* Style for the date label (larger font size) */
     .date-label {
         font-size: 1.4em;
         font-weight: bold;
     }
 
-    /* Style for the day label (smaller font size) */
     .day-label {
         font-size: 0.8em;
         color: #555;
     }
 
-    /* Additional styles for the hour column */
     .hour-column {
         text-align: right;
         padding: 3px 15px !important;
@@ -70,7 +63,6 @@
         background-color: transparent !important;
     }
 
-    /* New styles for the calendar container */
     .calendar-container {
         border: 1px solid #ccc;
         border-radius: 15px;
@@ -99,7 +91,6 @@
             min-width: 200px;
         }
 
-    /* New styles to align header and radio buttons */
     .header-container {
         display: flex;
         justify-content: space-between;
@@ -107,7 +98,6 @@
         margin-bottom: 10px;
     }
 
-    /* Ensure the radio buttons are aligned properly */
     .view-options {
         display: flex;
         align-items: center;
@@ -116,7 +106,6 @@
 
 <div class="header-container">
     <h2>Manage Registered Times (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
-    <!-- Radio buttons for Calendar view and List view -->
     <div class="btn-group view-options" role="group" aria-label="View Options">
         <input type="radio" class="btn-check" name="viewOption" id="calendarView" autocomplete="off" checked>
         <label class="btn btn-outline-primary" for="calendarView">Calendar View</label>
@@ -133,7 +122,6 @@
         </button>
         <form method="get" asp-action="ManageRegisteredTimes">
             <div class="form-group">
-                <!-- User dropdown -->
                 @Html.DropDownList("userId", (SelectList)ViewBag.Users, "Select a user", new { @class = "form-control", @id = "userId", @onchange = "this.form.submit();" })
                 <input type="hidden" name="date" value="@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")" />
             </div>
@@ -146,7 +134,7 @@
     <div class="table-responsive" style="overflow-y: auto; max-height: calc(100vh - 300px);">
         <table class="table">
             <colgroup>
-                <col style="width: 55px;"> <!-- Narrow first column -->
+                <col style="width: 55px;">
                 @foreach (var day in Model.DaysOfWeek)
                 {
                     <col style="width: auto;">
@@ -155,7 +143,6 @@
             <thead class="sticky-top">
                 <tr>
                     <th style="border: none; opacity: 0;">
-                        <!-- Empty header cell -->
                     </th>
 
                     @foreach (var day in Model.DaysOfWeek)
@@ -240,32 +227,26 @@
 <script>
     function changeWeek(days) {
         var currentDate = new Date('@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")');
-        currentDate.setDate(currentDate.getDate() + days); // Add days
+        currentDate.setDate(currentDate.getDate() + days);
 
         var userId = document.getElementById('userId').value;
         window.location.href = '?date=' + currentDate.toISOString().split('T')[0] + '&userId=' + userId;
     }
 
-    // Event listener for view option radio buttons
     document.getElementById('calendarView').addEventListener('change', function () {
         if (this.checked) {
-            // Stay on calendar view
-            // Reload or do nothing
         }
     });
 
     document.getElementById('listView').addEventListener('change', function () {
         if (this.checked) {
-            // Redirect to list view
             var userId = document.getElementById('userId').value;
             var date = '@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")';
             window.location.href = '@Url.Action("ManageRegisteredTimesListView", "Calendar")?userId=' + userId + '&date=' + date;
         }
     });
 
-    // Add the DOMContentLoaded event listener
     document.addEventListener('DOMContentLoaded', function () {
-        // Set the scroll position of the calendar to the middle when the page loads
         var calendarDiv = document.querySelector('#calendarDiv .table-responsive');
         if (calendarDiv) {
             calendarDiv.scrollTop = (calendarDiv.scrollHeight - calendarDiv.clientHeight) / 2;

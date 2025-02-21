@@ -51,7 +51,6 @@
                             <a class="add-button btn btn-primary btn-sm" id="@item.Id" price="@item.Price" name="@item.Name">Add</a>
                         </td>
                     </tr>
-                    @* <tr class="optionsetscontainer" id="@item.Id"></tr> *@
                 }
             </tbody>
         </table>
@@ -166,7 +165,6 @@
                                 <span class="float-right">@((product.Price * product.Quantity).ToString("F2")) PLN</span>
                                 <ul class="list-unstyled">
                                     @{
-                                        // Group the selected options by their OptionSetName
                                         var options = product.SelectedOptions == null ? new List<SelectedOption>() : (List<SelectedOption>)product.SelectedOptions;
 
                                         var groupedOptionSets = options
@@ -207,7 +205,6 @@
     </div>
 </div>
 
-<!-- Modal -->
 <div class="modal fade" id="productOptionsModal" tabindex="-1" role="dialog" aria-labelledby="productOptionsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable" role="document">
         <div class="modal-content">
@@ -215,7 +212,6 @@
                 <h5 class="modal-title" id="productOptionsModalLabel">Select Options</h5>
             </div>
             <div class="modal-body">
-                <!-- Options content will be dynamically inserted here -->
                 <div id="modalOptionsContent"></div>
             </div>
             <div class="modal-footer">
@@ -239,7 +235,6 @@
         var defaultDineInWaitingTimeInMinutes = @ViewBag.GlobalSettings.DefaultDineInWaitingTimeInMinutes;
 
         window.addEventListener('load', function () {
-            // Add event listeners to all "Add" buttons
             var addButtons = document.querySelectorAll('.add-button');
             addButtons.forEach(function (button) {
                 button.addEventListener('click', function (event) {
@@ -248,27 +243,22 @@
                     var price = button.getAttribute('price');
                     var productName = button.getAttribute('name');
 
-                    // Fetch the option sets and options for the selected product
                     fetch('/OptionSet/GetOptions/' + productId)
                         .then(function (response) {
                             return response.json();
                         })
                         .then(function (data) {
-                            // Build the HTML for option sets and options
                             var optionSetsHTML = '';
                             data.optionSets.forEach(function (optionSet, index) {
-                                // Indicate if the OptionSet is required
                                 var requiredIndicator = optionSet.isRequired ? ' <span style="color:red">*</span>' : '';
                                 optionSetsHTML += `
                                         <div class="option-set-container mb-4">
                                             <div class="form-group">
                                                 <label><strong>${optionSet.name}${requiredIndicator}</strong></label>
                                                 <div>`;
-                                // Determine input type based on IsMultiple
                                 var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
                                 optionSet.options.forEach(function (option) {
                                     var optionId = `option-${optionSet.id}-${option.id}`;
-                                    // Display price only if greater than zero
                                     var priceDisplay = (option.price && option.price > 0) ? ` +${option.price.toFixed(2)} PLN` : '';
                                     optionSetsHTML += `
                                             <div class="form-check">
@@ -295,25 +285,19 @@
                                         <input type="number" id="quantityInput" class="form-control" value="1" min="1" />
                                     </div>`;
 
-                            // Insert the options HTML into the modal
                             document.getElementById('modalOptionsContent').innerHTML = optionSetsHTML;
 
-                            // Set the modal title to include the product name
                             document.getElementById('productOptionsModalLabel').textContent = 'Select options for ' + productName;
 
-                            // Show the modal
                             $('#productOptionsModal').modal('show');
 
-                            // Handle option selection for validation
                             var optionInputs = document.querySelectorAll('.option-input');
 
-                            // Handle the 'Add to Order' button click
                             var addToOrderButton = document.getElementById('addToOrderButton');
                             addToOrderButton.onclick = function () {
                                 var selectedOptions = [];
                                 var isValid = true;
 
-                                // Clear previous validation errors
                                 var validationErrors = document.querySelectorAll('.validation-error');
                                 validationErrors.forEach(function (error) {
                                     error.style.display = 'none';
@@ -335,7 +319,6 @@
                                     });
 
                                     if (optionSet.isRequired && optionsSelected.length === 0) {
-                                        // Show validation error
                                         document.getElementById('validation-error-' + optionSet.id).style.display = 'block';
                                         isValid = false;
                                     }
@@ -344,14 +327,12 @@
                                 });
 
                                 if (!isValid) {
-                                    // If validation fails, prevent submission
                                     return;
                                 }
 
                                 var quantityInput = document.getElementById('quantityInput');
-                                var quantity = parseInt(quantityInput.value) || 1; // Default to 1 if no valid input
+                                var quantity = parseInt(quantityInput.value) || 1;
 
-                                // Prepare the data to be sent to the server
                                 var dataToSend = {
                                     ProductId: parseInt(productId),
                                     ProductName: productName,
@@ -360,7 +341,6 @@
                                     SelectedOptions: selectedOptions,
                                 };
 
-                                // Send the data to the server using fetch
                                 fetch('/Order/StoreProduct', {
                                     method: 'POST',
                                     headers: {
@@ -370,11 +350,8 @@
                                 })
                                     .then(response => response.json())
                                     .then(result => {
-                                        // Handle the server response if needed
                                         console.log('Server response:', result);
-                                        // Close the modal
                                         $('#productOptionsModal').modal('hide');
-                                        // Refresh the page or update the order summary
                                         window.location.href = '@Url.Action("AddOrder", "Order")';
                                     })
                                     .catch(error => {
@@ -419,10 +396,8 @@
                 }
             }
 
-            // Run on page load
             toggleFormElements();
 
-            // Run whenever the selection changes
             $('#deliveryMethod').change(function () {
                 toggleFormElements();
             });
@@ -441,7 +416,6 @@
                     var productId = event.target.getAttribute('data-product-id');
                     var itemId = event.target.getAttribute('data-item-id');
 
-                    // Send the remove request to the server
                     fetch('/Order/RemoveProduct?productId=' + productId + '&itemId=' + itemId, {
                         method: 'POST',
                         headers: {
@@ -458,21 +432,17 @@
                             var quantity = parseInt(quantityLabel.textContent.split('x')[0].trim());
 
                             if (quantity > 1) {
-                                // Decrease the quantity
                                 quantity--;
                                 quantityLabel.textContent = `${quantity} x ${result.productName}`;
                                 priceLabel.textContent = `${(result.productPrice * quantity).toFixed(2)} PLN`;
                             } else {
-                                // Remove the product element from the DOM
                                 productElement.remove();
                             }
 
-                            // Check if the list is now empty and show "No items in your order."
                             if (orderSummary.children.length === 0) {
                                 orderSummary.innerHTML = '<p>No items in your order.</p>';
                             }
 
-                            // Update the total price
                             document.querySelector('#totalPrice').textContent = `Total price: ${result.totalPrice} PLN`;
                         } else {
                             console.error('Failed to remove the product.');

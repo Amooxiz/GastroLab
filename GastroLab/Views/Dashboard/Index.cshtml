@@ -1,4 +1,4 @@
-﻿<!-- Views/Dashboard/Index.cshtml -->
+﻿
 @{
     ViewBag.Title = "Analytics Dashboard";
 }
@@ -9,8 +9,8 @@
         max-height: 400px;
         width: 100%;
         height: auto;
-        margin: 0 auto; /* Centers the chart */
-        display: block; /* Ensures proper centering */
+        margin: 0 auto;
+        display: block;
     }
 
     .chart-container {
@@ -18,16 +18,15 @@
     }
 </style>
 
-<h2>Analytics Dashboard</h2>
+<h2>Analytics dashboard</h2>
 
-<!-- Date Range Selection -->
 <div class="row mb-4">
     <div class="col-md-4">
-        <label for="dateFrom">Date From:</label>
+        <label for="dateFrom">Date from:</label>
         <input type="date" id="dateFrom" class="form-control" />
     </div>
     <div class="col-md-4">
-        <label for="dateTo">Date To:</label>
+        <label for="dateTo">Date to:</label>
         <input type="date" id="dateTo" class="form-control" />
     </div>
     <div class="col-md-4 d-flex align-items-end">
@@ -35,181 +34,155 @@
     </div>
 </div>
 
-<!-- Groups Accordion -->
 <div class="accordion" id="groupsAccordion">
-    <!-- Data by Product Group -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingDataByProduct">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByProduct" aria-expanded="true" aria-controls="collapseDataByProduct">
-                Data by Product
+                Data by product
             </button>
         </h2>
         <div id="collapseDataByProduct" class="accordion-collapse collapse show" aria-labelledby="headingDataByProduct" data-bs-parent="#groupsAccordion">
             <div class="accordion-body">
-                <!-- Sales by Product -->
                 <div class="chart-container">
-                    <h3>Sales by Product</h3>
+                    <h3>Sales by product</h3>
                     <canvas id="salesByProductChart"></canvas>
                 </div>
-                <!-- Quantity by Product -->
                 <div class="chart-container">
-                    <h3>Quantity by Product</h3>
+                    <h3>Quantity by product</h3>
                     <canvas id="quantityByProductChart"></canvas>
                 </div>
-                <!-- Average Waiting Time by Product -->
                 <div class="chart-container">
-                    <h3>Average Waiting Time by Product</h3>
+                    <h3>Average waiting time by product</h3>
                     <canvas id="averageWaitingTimeByProductChart"></canvas>
                 </div>
-                <!-- Delivery Method by Product -->
                 <div class="chart-container">
-                    <h3>Delivery Method by Product</h3>
+                    <h3>Delivery method by product</h3>
                     <canvas id="deliveryMethodByProductChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Data by Delivery Method Group -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingDataByDeliveryMethod">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByDeliveryMethod" aria-expanded="false" aria-controls="collapseDataByDeliveryMethod">
-                Data by Delivery Method
+                Data by delivery method
             </button>
         </h2>
         <div id="collapseDataByDeliveryMethod" class="accordion-collapse collapse" aria-labelledby="headingDataByDeliveryMethod" data-bs-parent="#groupsAccordion">
             <div class="accordion-body">
-                <!-- Sales By Delivery Method -->
                 <div class="chart-container">
-                    <h3>Sales By Delivery Method</h3>
+                    <h3>Sales by delivery method</h3>
                     <canvas id="salesByDeliveryMethodChart" class="pie-chart-canvas"></canvas>
                 </div>
-                <!-- Quantity By Delivery Method -->
                 <div class="chart-container">
-                    <h3>Quantity By Delivery Method</h3>
+                    <h3>Quantity by delivery method</h3>
                     <canvas id="quantityByDeliveryMethodChart" class="pie-chart-canvas"></canvas>
                 </div>
-                <!-- Average Waiting Time By Delivery Method -->
                 <div class="chart-container">
-                    <h3>Average Waiting Time By Delivery Method</h3>
+                    <h3>Average waiting time by delivery method</h3>
                     <canvas id="averageWaitingTimeByDeliveryMethodChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Data by Hours Group -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingDataByHours">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByHours" aria-expanded="false" aria-controls="collapseDataByHours">
-                Data by Hours
+                Data by hours
             </button>
         </h2>
         <div id="collapseDataByHours" class="accordion-collapse collapse" aria-labelledby="headingDataByHours" data-bs-parent="#groupsAccordion">
             <div class="accordion-body">
-                <!-- Average Sales By Hours -->
                 <div class="chart-container">
-                    <h3>Average Sales By Hours</h3>
+                    <h3>Average sales by hours</h3>
                     <canvas id="averageSalesByHoursChart"></canvas>
                 </div>
-                <!-- Average Quantity By Hours -->
                 <div class="chart-container">
-                    <h3>Average Quantity By Hours</h3>
+                    <h3>Average quantity by hours</h3>
                     <canvas id="averageQuantityByHoursChart"></canvas>
                 </div>
-                <!-- Average Waiting Time By Hours -->
                 <div class="chart-container">
-                    <h3>Average Waiting Time By Hours</h3>
+                    <h3>Average waiting time by hours</h3>
                     <canvas id="averageWaitingTimeByHoursChart"></canvas>
                 </div>
-                <!-- Average Delivery Method By Hours -->
                 <div class="chart-container">
-                    <h3>Average Delivery Method By Hours</h3>
+                    <h3>Average delivery method by hours</h3>
                     <canvas id="averageDeliveryMethodByHoursChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Data by Days Group -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingDataByDays">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByDays" aria-expanded="false" aria-controls="collapseDataByDays">
-                Data by Days
+                Data by days
             </button>
         </h2>
         <div id="collapseDataByDays" class="accordion-collapse collapse" aria-labelledby="headingDataByDays" data-bs-parent="#groupsAccordion">
             <div class="accordion-body">
-                <!-- Average Sales By Days -->
                 <div class="chart-container">
-                    <h3>Average Sales By Days</h3>
+                    <h3>Average sales by days</h3>
                     <canvas id="averageSalesByDaysChart"></canvas>
                 </div>
-                <!-- Average Quantity By Days -->
                 <div class="chart-container">
-                    <h3>Average Quantity By Days</h3>
+                    <h3>Average quantity by days</h3>
                     <canvas id="averageQuantityByDaysChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Data by Months Group -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingDataByMonths">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByMonths" aria-expanded="false" aria-controls="collapseDataByMonths">
-                Data by Months
+                Data by months
             </button>
         </h2>
         <div id="collapseDataByMonths" class="accordion-collapse collapse" aria-labelledby="headingDataByMonths" data-bs-parent="#groupsAccordion">
             <div class="accordion-body">
-                <!-- Average Sales By Months -->
                 <div class="chart-container">
-                    <h3>Average Sales By Months</h3>
+                    <h3>Average sales by months</h3>
                     <canvas id="averageSalesByMonthsChart"></canvas>
                 </div>
-                <!-- Average Quantity By Months -->
                 <div class="chart-container">
-                    <h3>Average Quantity By Months</h3>
+                    <h3>Average quantity by months</h3>
                     <canvas id="averageQuantityByMonthsChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Data by Users Group -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingDataByUsers">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByUsers" aria-expanded="false" aria-controls="collapseDataByUsers">
-                Data by Users
+                Data by users
             </button>
         </h2>
         <div id="collapseDataByUsers" class="accordion-collapse collapse" aria-labelledby="headingDataByUsers" data-bs-parent="#groupsAccordion">
             <div class="accordion-body">
-                <!-- Working Hours By Users -->
                 <div class="chart-container">
-                    <h3>Working Hours By Users</h3>
+                    <h3>Working hours by users</h3>
                     <canvas id="workingHoursByUsersChart"></canvas>
                 </div>
-                <!-- Leave Hours By Users -->
                 <div class="chart-container">
-                    <h3>Leave Hours By Users</h3>
+                    <h3>Leave hours by users</h3>
                     <canvas id="leaveHoursByUsersChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Waiting Time Comparison Group -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingWaitingTimeComparison">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWaitingTimeComparison" aria-expanded="false" aria-controls="collapseWaitingTimeComparison">
-                Waiting Time Comparison
+                Waiting time comparison
             </button>
         </h2>
         <div id="collapseWaitingTimeComparison" class="accordion-collapse collapse" aria-labelledby="headingWaitingTimeComparison" data-bs-parent="#groupsAccordion">
             <div class="accordion-body">
-                <!-- Waiting Time Comparison Chart -->
                 <div class="chart-container">
                     <canvas id="waitingTimeComparisonChart" class="pie-chart-canvas"></canvas>
                 </div>
@@ -221,11 +194,9 @@
 
 
 @section Scripts {
-    <!-- Include jQuery and Chart.js in the layout as shown above -->
 
     <script>
         $(document).ready(function () {
-            // Initialize default date range (last 30 days)
             const initialDateTo = new Date();
             const initialDateFrom = new Date();
             initialDateFrom.setDate(initialDateTo.getDate() - 30);
@@ -233,13 +204,12 @@
             $('#dateFrom').val(initialDateFrom.toISOString().split('T')[0]);
             $('#dateTo').val(initialDateTo.toISOString().split('T')[0]);
 
-            // Chart configurations
             const chartConfigs = [
                 {
                     chartId: 'salesByProductChart',
                     apiEndpoint: '/api/Chart/SalesByProduct',
                     chartType: 'bar',
-                    labelsKey: 'product', // Adjust based on API response
+                    labelsKey: 'product',
                     dataKey: 'totalSales',
                     datasetLabel: 'Total Sales (PLN)',
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
@@ -391,7 +361,7 @@
                     chartId: 'salesByDeliveryMethodChart',
                     apiEndpoint: '/api/Chart/SalesByDeliveryMethod',
                     chartType: 'pie',
-                    labelsKey: 'deliveryMethod', // e.g., "Dine-In", "Delivery", "Pickup"
+                    labelsKey: 'deliveryMethod',
                     dataKey: 'totalSales',
                     datasetLabel: 'Total Sales (PLN)',
                     backgroundColor: [
@@ -481,12 +451,11 @@
                         }
                     }
                 },
-                // Continue adding configurations for other charts similarly
                 {
                     chartId: 'averageSalesByHoursChart',
                     apiEndpoint: '/api/Chart/AverageSalesByHours',
                     chartType: 'line',
-                    labelsKey: 'hourRange', // e.g., "00:00", "01:00", etc.
+                    labelsKey: 'hourRange',
                     dataKey: 'averageSales',
                     datasetLabel: 'Average Sales (PLN)',
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
@@ -523,7 +492,7 @@
                     chartId: 'averageQuantityByHoursChart',
                     apiEndpoint: '/api/Chart/AverageQuantityByHours',
                     chartType: 'line',
-                    labelsKey: 'hourRange', // e.g., "00:00", "01:00", etc.
+                    labelsKey: 'hourRange',
                     dataKey: 'averageQuantity',
                     datasetLabel: 'Average Quantity',
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
@@ -640,7 +609,7 @@
                     chartId: 'averageSalesByDaysChart',
                     apiEndpoint: '/api/Chart/AverageSalesByDays',
                     chartType: 'bar',
-                    labelsKey: 'dayOfWeek', // e.g., "Monday", "Tuesday", etc.
+                    labelsKey: 'dayOfWeek',
                     dataKey: 'averageSales',
                     datasetLabel: 'Average Sales (PLN)',
                     backgroundColor: 'rgba(255, 99, 132, 0.6)',
@@ -676,7 +645,7 @@
                     chartId: 'averageQuantityByDaysChart',
                     apiEndpoint: '/api/Chart/AverageQuantityByDays',
                     chartType: 'line',
-                    labelsKey: 'dayOfWeek', // e.g., Monday, Tuesday
+                    labelsKey: 'dayOfWeek',
                     dataKey: 'averageQuantity',
                     datasetLabel: 'Average Quantity',
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
@@ -713,7 +682,7 @@
                     chartId: 'averageSalesByMonthsChart',
                     apiEndpoint: '/api/Chart/AverageSalesByMonths',
                     chartType: 'bar',
-                    labelsKey: 'month', // e.g., "January 2023", "February 2023", etc.
+                    labelsKey: 'month',
                     dataKey: 'averageSales',
                     datasetLabel: 'Average Sales (PLN)',
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
@@ -749,7 +718,7 @@
                     chartId: 'averageQuantityByMonthsChart',
                     apiEndpoint: '/api/Chart/AverageQuantityByMonths',
                     chartType: 'line',
-                    labelsKey: 'month', // e.g., February, January
+                    labelsKey: 'month',
                     dataKey: 'averageQuantity',
                     datasetLabel: 'Average Quantity',
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
@@ -862,8 +831,8 @@
                     dataKey: 'orderCount',
                     datasetLabel: 'Order Count',
                     backgroundColor: [
-                        'rgba(75, 192, 192, 0.6)', // Color for "<= Expected"
-                        'rgba(255, 99, 132, 0.6)'  // Color for "> Expected"
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(255, 99, 132, 0.6)'
                     ],
                     borderColor: [
                         'rgba(75, 192, 192, 1)',
@@ -894,12 +863,10 @@
                     success: function (data) {
                         const ctx = document.getElementById(config.chartId).getContext('2d');
 
-                        // If chart instance exists, destroy it to prevent duplication
                         if (chartInstances[config.chartId]) {
                             chartInstances[config.chartId].destroy();
                         }
 
-                        // Prepare datasets
                         let datasets = [];
 
                         if (config.dataKeys && config.dataKeys.length > 0) {
@@ -924,7 +891,6 @@
                             });
                         }
 
-                        // Create new chart
                         chartInstances[config.chartId] = new Chart(ctx, {
                             type: config.chartType,
                             data: {
@@ -946,10 +912,8 @@
                 });
             }
 
-            // Initial fetch on page load
             fetchAndRenderAllCharts($('#dateFrom').val(), $('#dateTo').val());
 
-            // Fetch and render charts when filter button is clicked
             $('#filterButton').click(function () {
                 const dateFrom = $('#dateFrom').val();
                 const dateTo = $('#dateTo').val();

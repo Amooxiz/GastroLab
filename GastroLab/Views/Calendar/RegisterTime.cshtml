@@ -8,7 +8,6 @@
 }
 
 <style>
-    /* Existing styles */
     table {
         border-collapse: collapse;
         width: 100%;
@@ -34,31 +33,26 @@
 
     body {
         overflow: hidden;
-        /* Prevent text selection during drag */
         -webkit-user-select: none; /* Chrome/Safari */
         -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* IE10+ */
         user-select: none; /* Standard */
     }
 
-    /* Apply partly transparent background to all header cells */
     thead th {
         background-color: rgba(232, 247, 154, 0.8) !important;
     }
 
-    /* Style for the date label (larger font size) */
     .date-label {
         font-size: 1.4em;
         font-weight: bold;
     }
 
-    /* Style for the day label (smaller font size) */
     .day-label {
         font-size: 0.8em;
         color: #555;
     }
 
-    /* Additional styles for the hour column */
     .hour-column {
         text-align: right;
         padding: 3px 15px !important;
@@ -70,23 +64,19 @@
         background-color: transparent !important;
     }
 
-    /* Hover effect for selectable cells */
     .calendar-cell:hover {
-        background-color: #e6e6e6; /* Light gray color */
+        background-color: #e6e6e6;
         cursor: pointer;
     }
 
-    /* Disable hover effect on registered cells */
     .registered-cell:hover {
         cursor: pointer;
     }
 
-    /* Highlight all cells in a timeslot on hover */
     .timeslot-hover {
-        background-color: #a0d0f0 !important; /* Slightly darker color */
+        background-color: #a0d0f0 !important;
     }
 
-    /* New styles for the calendar container */
     .calendar-container {
         border: 1px solid #ccc;
         border-radius: 15px;
@@ -116,14 +106,13 @@
         }
 </style>
 
-<h2>Register Time (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
+<h2>Register time (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
 
 <div id="calendarDiv" class="calendar-container">
     <div class="button-container">
         <button type="button" class="btn btn-outline-primary" onclick="changeWeek(-7)">
             <i class="bi bi-arrow-left-circle-fill"></i> Previous week
         </button>
-        <!-- Removed user dropdown -->
         <button type="button" class="btn btn-outline-primary" onclick="changeWeek(7)">
             Next week <i class="bi bi-arrow-right-circle-fill"></i>
         </button>
@@ -132,16 +121,15 @@
     <div class="table-responsive" style="overflow-y: auto; max-height: calc(100vh - 300px);">
         <table class="table">
             <colgroup>
-                <col style="width: 55px;"> <!-- Narrow first column -->
+                <col style="width: 55px;">
                 @foreach (var day in Model.DaysOfWeek)
                 {
-                    <col style="width: auto;"> <!-- Equal widths for other columns -->
+                    <col style="width: auto;">
                 }
             </colgroup>
             <thead class="sticky-top">
                 <tr>
                     <th style="border: none; opacity: 0;">
-                        <!-- Empty header cell -->
                     </th>
 
                     @foreach (var day in Model.DaysOfWeek)
@@ -195,7 +183,6 @@
                                         var timeSlot = timeSlots[timeslotIndex];
                                         if (timeSlot.DateFrom.Date == day.Date && (timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) <= totalMinutes && (timeSlot.DateTo.Hour * 60 + timeSlot.DateTo.Minute) > totalMinutes)
                                         {
-                                            <!-- Include data attributes on all registered cells -->
                                             <td class="calendar-cell registered-cell"
                                                 data-day="@day.ToString("yyyy-MM-dd")"
                                                 data-hour="@hour"
@@ -219,7 +206,6 @@
                                 {
                                     continue;
                                 }
-                                <!-- Added class and data attributes to cells -->
                                 <td class="calendar-cell"
                                     data-day="@day.ToString("yyyy-MM-dd")"
                                     data-hour="@hour"
@@ -234,47 +220,40 @@
     </div>
 </div>
 
-<!-- Modal -->
 <div class="modal fade" id="workingHoursModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="workingHoursModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="workingHoursModalLabel">Add Registered Time</h1>
+                <h1 class="modal-title fs-5" id="workingHoursModalLabel">Add registered time</h1>
                 <button type="button" class="btn-close cancel-modal-btn" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Start Date Row -->
                 <div class="mb-3">
-                    <label for="startDate" class="form-label">Start Date</label>
+                    <label for="startDate" class="form-label">Start date</label>
                     <div class="d-flex">
                         <input type="date" class="form-control me-2" id="startDate" readonly>
                         <select class="form-select" id="startTime">
-                            <!-- Options will be populated by JavaScript -->
                         </select>
                     </div>
                 </div>
-                <!-- Finish Date Row -->
                 <div class="mb-3">
-                    <label for="finishDate" class="form-label">Finish Date</label>
+                    <label for="finishDate" class="form-label">Finish date</label>
                     <div class="d-flex">
                         <input type="date" class="form-control me-2" id="finishDate" readonly>
                         <select class="form-select" id="finishTime">
-                            <!-- Options will be populated by JavaScript -->
                         </select>
                     </div>
                 </div>
-                <!-- Description Row -->
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
                     <textarea class="form-control" id="description" rows="3"></textarea>
                 </div>
             </div>
-            <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary cancel-modal-btn" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" id="deleteRegisteredTimeBtn" style="display: none;">Delete</button>
                 <button type="button" class="btn btn-primary" id="saveRegisteredTimeBtn" style="display: none;">Save</button>
-                <button type="button" class="btn btn-primary" id="addWorkingHoursBtn">Add Registered Time</button>
+                <button type="button" class="btn btn-primary" id="addWorkingHoursBtn">Register time</button>
             </div>
         </div>
     </div>
@@ -300,14 +279,13 @@
     const currentUserId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value';
 
     document.addEventListener('mousedown', function (e) {
-        if (e.button !== 0) return; // Only respond to left-click
+        if (e.button !== 0) return;
         let cell = e.target.closest('.calendar-cell');
         if (cell) {
             if (cell.classList.contains('registered-cell')) {
-                // Do nothing if the cell is a registered cell
                 return;
             }
-            e.preventDefault(); // Prevent text selection
+            e.preventDefault();
             clearSelection();
             isMouseDown = true;
             startCell = cell;
@@ -328,7 +306,7 @@
     });
 
     document.addEventListener('mouseup', function (e) {
-        if (e.button !== 0) return; // Only respond to left-click
+        if (e.button !== 0) return;
         if (isMouseDown) {
             isMouseDown = false;
             if (selectedCells.length > 0 && selectionValid) {
@@ -348,11 +326,10 @@
         let startTime = startCellTime;
         let endTime = currentCellTime;
 
-        selectedCells = []; // Reset selectedCells array
+        selectedCells = [];
 
         selectionValid = true;
 
-        // Get indices of startCell and currentCell in columnCells
         let startIndex = columnCells.findIndex(cell => cell === startCell);
         let endIndex = columnCells.findIndex(cell => cell === currentCell);
 
@@ -368,7 +345,6 @@
             let cell = columnCells[i];
 
             if (cell.classList.contains('registered-cell')) {
-                // Stop selection at the registered cell
                 selectionValid = false;
                 break;
             }
@@ -382,7 +358,6 @@
             i += increment;
         }
 
-        // Remove 'selected' class from cells not in selectedCells
         columnCells.forEach(cell => {
             if (!selectedCells.includes(cell) && cell.classList.contains('selected')) {
                 cell.classList.remove('selected');
@@ -398,7 +373,6 @@
     }
 
     function showModal(isEdit = false) {
-        // Prepare time options
         const timeOptions = [];
         for (let h = 0; h < 24; h++) {
             for (let m = 0; m < 60; m += 30) {
@@ -407,7 +381,6 @@
             }
         }
 
-        // Populate time selects
         const startTimeSelect = document.getElementById('startTime');
         const finishTimeSelect = document.getElementById('finishTime');
 
@@ -427,29 +400,22 @@
         });
 
         if (isEdit) {
-            // Set modal title
             document.getElementById('workingHoursModalLabel').innerText = 'Edit Registered Time';
-            // Show or hide buttons
             document.getElementById('deleteRegisteredTimeBtn').style.display = 'inline-block';
             document.getElementById('addWorkingHoursBtn').style.display = 'none';
             document.getElementById('saveRegisteredTimeBtn').style.display = 'inline-block';
 
-            // Set date fields
             document.getElementById('startDate').value = selectedStartDate;
             document.getElementById('finishDate').value = selectedFinishDate;
 
-            // Set time fields
             document.getElementById('startTime').value = selectedStartTime;
             document.getElementById('finishTime').value = selectedFinishTime;
 
-            // Set description
             document.getElementById('description').value = selectedDescription;
 
         } else {
             editingTimeslotId = null;
             selectedDescription = '';
-            // Existing code for adding a new timeslot
-            // Get start and finish times
             let times = selectedCells.map(cell => {
                 return {
                     hour: parseInt(cell.getAttribute('data-hour')),
@@ -457,7 +423,6 @@
                 };
             });
 
-            // Sort times to find earliest and latest
             times.sort((a, b) => {
                 if (a.hour === b.hour) {
                     return a.minute - b.minute;
@@ -468,17 +433,13 @@
             const earliestTime = times[0];
             const latestTime = times[times.length - 1];
 
-            // Set selected values
             selectedStartDate = selectedDay;
             selectedFinishDate = selectedDay;
 
             selectedStartTime = ('0' + earliestTime.hour).slice(-2) + ':' + ('0' + earliestTime.minute).slice(-2);
-            // Updated finish time calculation
-            // Calculate total minutes from midnight
             let totalMinutes = latestTime.hour * 60 + latestTime.minute + 30;
 
-            // Calculate finish hour and minute
-            let finishHour = Math.floor(totalMinutes / 60) % 24; // Modulo 24 to handle wrap-around at midnight
+            let finishHour = Math.floor(totalMinutes / 60) % 24;
             let finishMinute = totalMinutes % 60;
 
             selectedFinishTime = ('0' + finishHour).slice(-2) + ':' + ('0' + finishMinute).slice(-2);
@@ -488,17 +449,13 @@
             document.getElementById('startTime').value = selectedStartTime;
             document.getElementById('finishTime').value = selectedFinishTime;
 
-            // Clear description
             document.getElementById('description').value = '';
-            // Set modal title
-            document.getElementById('workingHoursModalLabel').innerText = 'Add Registered Time';
-            // Show or hide buttons
+            document.getElementById('workingHoursModalLabel').innerText = 'Add registered time';
             document.getElementById('deleteRegisteredTimeBtn').style.display = 'none';
             document.getElementById('addWorkingHoursBtn').style.display = 'inline-block';
             document.getElementById('saveRegisteredTimeBtn').style.display = 'none';
         }
 
-        // Show the modal
         var workingHoursModal = new bootstrap.Modal(document.getElementById('workingHoursModal'));
         workingHoursModal.show();
     }
@@ -511,21 +468,19 @@
 
     function changeWeek(days) {
         var currentDate = new Date('@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")');
-        currentDate.setDate(currentDate.getDate() + days); // Add days
+        currentDate.setDate(currentDate.getDate() + days);
 
         window.location.href = '?date=' + currentDate.toISOString().split('T')[0];
     }
 
     document.getElementById('addWorkingHoursBtn').addEventListener('click', function () {
-        // Collect data from modal fields
         const startDate = document.getElementById('startDate').value;
         const startTime = document.getElementById('startTime').value;
         const finishDate = document.getElementById('finishDate').value;
         const finishTime = document.getElementById('finishTime').value;
         const description = document.getElementById('description').value;
-        const userId = currentUserId; // Use the current user's ID
+        const userId = currentUserId;
 
-        // Prepare data to send
         const data = {
             startDate: startDate,
             startTime: startTime,
@@ -535,10 +490,8 @@
             description: description
         };
 
-        // Get the anti-forgery token
         const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-        // Send AJAX POST request
         fetch('@Url.Action("RegisterTime", "Calendar")', {
             method: 'POST',
             headers: {
@@ -549,22 +502,17 @@
         })
             .then(response => {
                 if (response.ok) {
-                    // Request was successful
                     return response.json();
                 } else {
-                    // Handle errors
                     throw new Error('Error registering time');
                 }
             })
             .then(result => {
-                // Close the modal
                 var workingHoursModal = bootstrap.Modal.getInstance(document.getElementById('workingHoursModal'));
                 workingHoursModal.hide();
 
-                // Clear the selection
                 clearSelection();
 
-                // Refresh the page to show the updated times
                 location.reload();
             })
             .catch(error => {
@@ -573,16 +521,13 @@
 
     });
 
-    // Event listeners for "Cancel" buttons (both Cancel and Close)
     document.querySelectorAll('.cancel-modal-btn').forEach(function (element) {
         element.addEventListener('click', function () {
-            // Clear the selection when any "Cancel" button is clicked
             clearSelection();
         });
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        // Add event listeners to registered cells for hover and click
         const registeredCells = document.querySelectorAll('.registered-cell');
         registeredCells.forEach(function (cell) {
             cell.addEventListener('mouseenter', function () {
@@ -602,12 +547,10 @@
             });
 
             cell.addEventListener('click', function (event) {
-                // Prevent event propagation to avoid triggering other handlers
                 event.stopPropagation();
                 isEditing = true;
                 editingTimeslotId = this.getAttribute('data-timeslot-id');
 
-                // Get timeslot data
                 const dateFrom = this.getAttribute('data-datefrom');
                 const dateTo = this.getAttribute('data-dateto');
                 selectedDescription = this.getAttribute('data-description');
@@ -618,22 +561,18 @@
                 selectedStartTime = dateFrom.split(' ')[1].slice(0, 5);
                 selectedFinishTime = dateTo.split(' ')[1].slice(0, 5);
 
-                // Show modal in edit mode
                 showModal(true);
             });
 
         });
 
-        // Set the scroll position of the calendar to the middle when the page loads
         var calendarDiv = document.querySelector('#calendarDiv .table-responsive');
         if (calendarDiv) {
             calendarDiv.scrollTop = (calendarDiv.scrollHeight - calendarDiv.clientHeight) / 2;
         }
     });
 
-    // Save button handler
     document.getElementById('saveRegisteredTimeBtn').addEventListener('click', function () {
-        // Collect data from modal fields
         const startDate = document.getElementById('startDate').value;
         const startTime = document.getElementById('startTime').value;
         const finishDate = document.getElementById('finishDate').value;
@@ -641,7 +580,6 @@
         const description = document.getElementById('description').value;
         const userId = currentUserId;
 
-        // Prepare data to send
         const data = {
             TimeslotId: editingTimeslotId,
             StartDate: startDate + 'T' + startTime,
@@ -650,7 +588,6 @@
         };
 
 
-        // Get the anti-forgery token
         const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
         fetch('@Url.Action("UpdateRegisteredTime", "Calendar")', {
@@ -673,11 +610,9 @@
             }
         })
         .then(result => {
-            // Zamknij modal
             var workingHoursModal = bootstrap.Modal.getInstance(document.getElementById('workingHoursModal'));
             workingHoursModal.hide();
         
-            // Odśwież stronę, aby pokazać zaktualizowane czasy
             location.reload();
         })
         .catch(error => {
@@ -686,17 +621,13 @@
 
     });
 
-    // Delete button handler
     document.getElementById('deleteRegisteredTimeBtn').addEventListener('click', function () {
-        // Prepare data to send
         const data = {
             timeslotId: editingTimeslotId
         };
 
-        // Get the anti-forgery token
         const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-        // Send AJAX POST request to delete
         fetch('@Url.Action("DeleteRegisteredTime", "Calendar")', {
             method: 'POST',
             headers: {
@@ -707,19 +638,15 @@
         })
             .then(response => {
                 if (response.ok) {
-                    // Request was successful
                     return response.json();
                 } else {
-                    // Handle errors
                     throw new Error('Error deleting time');
                 }
             })
             .then(result => {
-                // Close the modal
                 var workingHoursModal = bootstrap.Modal.getInstance(document.getElementById('workingHoursModal'));
                 workingHoursModal.hide();
 
-                // Refresh the page to show the updated times
                 location.reload();
             })
             .catch(error => {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GastroLab.Presentation.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class GlobalSettingsController : Controller
     {
         private readonly IGlobalSettingsService _globalSettingsService;
@@ -14,7 +15,6 @@ namespace GastroLab.Presentation.Controllers
             _globalSettingsService = globalSettingsService;
         }
 
-        [Authorize(Roles = "Admin,Director")]
         public IActionResult Index()
         {
             var settings = _globalSettingsService.GetSettings();
@@ -23,22 +23,10 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Director")]
         public IActionResult Index(GlobalSettingsVM model)
         {
             if (ModelState.IsValid)
             {
-                //var settings = _globalSettingsService.GetSettings();
-
-                //settings.RestaurantName = model.RestaurantName;
-                //settings.DefaultDineInWaitingTimeInMinutes = model.DefaultDineInWaitingTimeInMinutes;
-                //settings.DefaultDeliveryWaitingTimeInMinutes = model.DefaultDeliveryWaitingTimeInMinutes;
-
-                //settings.AddressVM.Street = model.AddressVM.Street;
-                //settings.AddressVM.City = model.AddressVM.City;
-                //settings.AddressVM.HouseNumber = model.AddressVM.HouseNumber;
-                //settings.AddressVM.FlatNumber = model.AddressVM.FlatNumber;
-                //settings.AddressVM.PostCode = model.AddressVM.PostCode;
 
                 _globalSettingsService.UpdateSettings(model);
 

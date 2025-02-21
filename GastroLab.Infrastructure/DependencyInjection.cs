@@ -22,19 +22,6 @@ namespace GastroLab.Infrastructure
             var connectionString = conf.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             services.AddDbContext<GastroLabDbContext>(options =>
                 options.UseSqlServer(connectionString));
-            //services.AddDbContext<GrownOverDbContext>(options =>
-            //    options.UseSqlServer(conf.GetConnectionString("DefaultConnection")));
-
-            //services.AddDefaultIdentity<User>(options =>
-            //{
-            //    options.SignIn.RequireConfirmedAccount = false;
-            //    options.SignIn.RequireConfirmedEmail = false;
-            //    options.Password.RequiredLength = 8;
-            //}).AddRoles<IdentityRole>()
-            //.AddEntityFrameworkStores<GrownOverDbContext>()
-            //.AddDefaultTokenProviders();
-
-            //services.AddAuthentication().AddJwtBearer
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IProductRepository, ProductRepository>();
             services.AddTransient<IOptionSetService, OptionSetService>();

@@ -27,10 +27,6 @@ namespace GastroLab.Application.ViewModels
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            // Since AddressVM is only validated if DeliveryMethod = Delivery in OrderVM,
-            // we can treat these fields as required here. If not delivery, no validation call is made.
-
-            // City: Required, max 70 chars
             if (string.IsNullOrWhiteSpace(City))
             {
                 yield return new ValidationResult("City is required for Delivery orders.", new[] { nameof(City) });
@@ -40,7 +36,6 @@ namespace GastroLab.Application.ViewModels
                 yield return new ValidationResult("City cannot exceed 70 characters.", new[] { nameof(City) });
             }
 
-            // Street: Required, max 70 chars
             if (string.IsNullOrWhiteSpace(Street))
             {
                 yield return new ValidationResult("Street is required for Delivery orders.", new[] { nameof(Street) });
@@ -50,7 +45,6 @@ namespace GastroLab.Application.ViewModels
                 yield return new ValidationResult("Street cannot exceed 70 characters.", new[] { nameof(Street) });
             }
 
-            // PostCode: Required, format NN-NNN
             if (string.IsNullOrWhiteSpace(PostCode))
             {
                 yield return new ValidationResult("Postal code is required for Delivery orders.", new[] { nameof(PostCode) });
@@ -63,14 +57,11 @@ namespace GastroLab.Application.ViewModels
                 }
             }
 
-            // FlatNumber: Required, positive number
-            // Since FlatNumber is an int?, first ensure it's not null
             if (FlatNumber.HasValue && FlatNumber.Value <= 0)
             {
                 yield return new ValidationResult("Flat number must be a positive number.", new[] { nameof(FlatNumber) });
             }
 
-            // HouseNumber: Required, positive number
             if (HouseNumber == null)
             {
                 yield return new ValidationResult("House number is required for Delivery orders.", new[] { nameof(HouseNumber) });
