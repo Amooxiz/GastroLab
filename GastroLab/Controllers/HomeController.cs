@@ -1,4 +1,4 @@
-﻿using GastroLab.Domain.Models;
+﻿using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

@@ -1,139 +1,460 @@
-﻿@model GastroLab.Application.ViewModels.OrderVM
+﻿@using GastroLab.Domain.Models
+@model GastroLab.Application.ViewModels.OrderVM
 
 @{
     ViewData["Title"] = "AddOrder";
 }
 
-<h1>AddOrder</h1>
+<style>
+    ul.list-unstyled {
+        padding-left: 0;
+        margin-bottom: 10px;
+    }
 
-<h4>Order</h4>
+    ul.list-unstyled li {
+        margin-bottom: 5px;
+    }
+
+    h4 {
+        margin-top: 20px;
+    }
+
+    hr {
+        margin: 10px 0;
+    }
+</style>
+
+<h1>Add order</h1>
 <hr />
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Image
-            </th>
-            <th>
-                Name
-            </th>
-            <th>
-                Price
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in ViewBag.Products)
-        {
-            <tr>
-                <td>
-                    @item.Image
-                </td>
-                <td>
-                    @item.Name
-                </td>
-                <td>
-                    @item.Price
-                </td>
-                <td>
-                    <a class="add-button" id="@item.Id">Add</a>
-                </td>
-            </tr>
-            <tr class="optionsetscontainer" id="@item.Id">
-                
-            </tr>
-        }
-    </tbody>
-</table>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="AddOrder">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="DeliveryMethod" class="control-label"></label>
-                <select asp-for="DeliveryMethod" class="form-control"></select>
-                <span asp-validation-for="DeliveryMethod" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TableNr" class="control-label"></label>
-                <input asp-for="TableNr" class="form-control" />
-                <span asp-validation-for="TableNr" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalPrice" class="control-label"></label>
-                <input asp-for="TotalPrice" class="form-control" />
-                <span asp-validation-for="TotalPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Comment" class="control-label"></label>
-                <input asp-for="Comment" class="form-control" />
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control"></select>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="card bg-light mb-3">
+    <div class="card-header">
+        <h4>All products</h4>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.AllProducts)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Description</td>
+                        <td>@item.Price PLN</td>
+                        <td>
+                            <a class="add-button btn btn-primary btn-sm" id="@item.Id" price="@item.Price" name="@item.Name">Add</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
-<div>
-    <a asp-action="ManageOrders">Back to List</a>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card bg-light mb-3">
+            <div class="card-header">
+                <h4>Order details</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="AddOrder">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="DeliveryMethod" class="control-label"></label>
+                        <select asp-for="DeliveryMethod" class="form-control" id="deliveryMethod" asp-items="ViewBag.DeliveryMethods"></select>
+                        <span asp-validation-for="DeliveryMethod" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check mb-3">
+                            <input asp-for="isScheduledDelivery" class="form-check-input" type="checkbox" id="isScheduled" />
+                            <label asp-for="isScheduledDelivery" class="form-check-label"></label>
+                        </div>
+                        <span asp-validation-for="isScheduledDelivery" class="text-danger"></span>
+                    </div>
+                    <div class="form-group" id="scheduledDate">
+                        <label asp-for="ScheduledDeliveryDate" class="control-label">Scheduled delivery date <span class="text-danger">*</span></label>
+                        <input asp-for="ScheduledDeliveryDate" class="form-control" />
+                        <span asp-validation-for="ScheduledDeliveryDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group" id="waitingTime">
+                        <label asp-for="WaitingTime" class="control-label">Waiting time <span class="text-danger">*</span></label>
+                        <input asp-for="WaitingTime" class="form-control" />
+                        <span asp-validation-for="WaitingTime" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Comment" class="control-label"></label>
+                        <input asp-for="Comment" class="form-control" />
+                        <span asp-validation-for="Comment" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="form-group" id="tableNrGroup">
+                        <label asp-for="TableNr" class="control-label">Table number <span class="text-danger">*</span></label>
+                        <input asp-for="TableNr" class="form-control" />
+                        <span asp-validation-for="TableNr" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group address-group" id="addressCityGroup">
+                        <label asp-for="Address.City" class="control-label">City <span class="text-danger">*</span></label>
+                        <input asp-for="Address.City" class="form-control" />
+                        <span asp-validation-for="Address.City" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group address-group" id="addressStreetGroup">
+                        <label asp-for="Address.Street" class="control-label">Street <span class="text-danger">*</span></label>
+                        <input asp-for="Address.Street" class="form-control" />
+                        <span asp-validation-for="Address.Street" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group address-group" id="addressPostCodeGroup">
+                        <label asp-for="Address.PostCode" class="control-label">Postal code <span class="text-danger">*</span></label>
+                        <input asp-for="Address.PostCode" class="form-control" />
+                        <span asp-validation-for="Address.PostCode" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group address-group" id="addressHouseNumberGroup">
+                        <label asp-for="Address.HouseNumber" class="control-label">House number <span class="text-danger">*</span></label>
+                        <input asp-for="Address.HouseNumber" class="form-control" />
+                        <span asp-validation-for="Address.HouseNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group address-group" id="addressFlatNumberGroup">
+                        <label asp-for="Address.FlatNumber" class="control-label"></label>
+                        <input asp-for="Address.FlatNumber" class="form-control" />
+                        <span asp-validation-for="Address.FlatNumber" class="text-danger"></span>
+                    </div>
+
+                    @if (ViewBag.AddedProducts == null)
+                    {
+                        <label id="totalPrice">
+                            Total price: 0.00 PLN
+                        </label>
+                    }
+                    else
+                    {
+                        <label id="totalPrice">
+                            Total price: @ViewBag.AddedProducts.TotalPrice.ToString("F2") PLN
+                        </label>
+                    }
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-success" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-light mb-3">
+            <div class="card-header">
+                <h4>Your order</h4>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.AddedProducts != null && ViewBag.AddedProducts.Products.Count > 0)
+                {
+                    <ul class="list-group" id="orderSummary">
+                        @foreach (var product in ViewBag.AddedProducts.Products)
+                        {
+                            <li class="list-group-item" id="product-@product.ProductId-@product.ItemId">
+                                <strong>@product.Quantity x @product.ProductName</strong>
+                                <span class="float-right">@((product.Price * product.Quantity).ToString("F2")) PLN</span>
+                                <ul class="list-unstyled">
+                                    @{
+                                        var options = product.SelectedOptions == null ? new List<SelectedOption>() : (List<SelectedOption>)product.SelectedOptions;
+
+                                        var groupedOptionSets = options
+                                        .GroupBy(o => o.OptionSetName)
+                                        .ToList();
+                                    }
+
+                                    @foreach (var group in groupedOptionSets)
+                                    {
+                                        <li>@group.Key:</li>
+                                        <ul class="list-unstyled">
+                                            @foreach (var optionSet in group)
+                                            {
+                                                @if (optionSet.Price != null && optionSet.Price > 0)
+                                                {
+                                                    <li>- @optionSet.OptionName +@optionSet.Price.ToString("F2") PLN</li>
+                                                }
+                                                else
+                                                {
+                                                    <li>- @optionSet.OptionName</li>
+                                                }
+                                            }
+                                        </ul>
+                                    }
+                                </ul>
+                                <button class="remove-product-button btn btn-danger btn-sm mt-2" data-product-id="@product.ProductId" data-item-id="@product.ItemId">Remove</button>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No items in your order.</p>
+                    <span asp-validation-for="products" class="text-danger"></span>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="modal fade" id="productOptionsModal" tabindex="-1" role="dialog" aria-labelledby="productOptionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productOptionsModalLabel">Select Options</h5>
+            </div>
+            <div class="modal-body">
+                <div id="modalOptionsContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="addToOrderButton">Add to order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div>
+    <a asp-action="ManageAllOrders">Back to List</a>
+</div>
+
 
 @section Scripts {
     <script>
-        // Add event listeners to all "Add" buttons
-        var addButtons = document.querySelectorAll('.add-button');
-        addButtons.forEach(function (button) {
-            button.addEventListener('click', function (event) {
-                event.preventDefault();
-                var productId = button.getAttribute('id');
-                var optionSetsContainer = document.querySelector(`tr.optionsetscontainer[id = "${productId}"]`); // Get the option sets container for the selected product
-                
-                if (optionSetsContainer == null) {
-                    console.log('Option sets container not found');
-                }
-                
-                // Make an AJAX request to fetch the option sets and options for the selected product
-                fetch('/Product/GetOptions/' + productId)
-                    .then(function (response) {
-                        return response.json();
-                    })
-                    .then(function (data) {
-                        // Build the HTML for option sets and options
-                        var optionSetsHTML = '';
-                        data.optionSets.forEach(function (optionSet) {
-                            optionSetsHTML += `
-                                    <h5>${optionSet.displayName}</h5>
-                                    <ul class="option-list">
-                                `;
-                            optionSet.options.forEach(function (option) {
-                                optionSetsHTML += `
-                                        <li>
-                                            <label>
-                                                <input type="checkbox" class="option-checkbox" data-price="${option.price}" data-optionset-id="${optionSet.id}" data-option-id="${option.id}" />
-                                                ${option.displayName} +${option.price.toFixed(2)}
-                                            </label>
-                                        </li>
-                                    `;
-                            });
-                            optionSetsHTML += '</ul>';
-                        });
+        var defaultDeliveryWaitingTimeInMinutes = @ViewBag.GlobalSettings.DefaultDeliveryWaitingTimeInMinutes;
+        var defaultDineInWaitingTimeInMinutes = @ViewBag.GlobalSettings.DefaultDineInWaitingTimeInMinutes;
 
-                        // Update the option sets container with the generated HTML
-                        optionSetsContainer.innerHTML = optionSetsHTML;
-                    })
-                    .catch(function (error) {
-                        console.error('Error fetching options:', error);
-                    });
+        window.addEventListener('load', function () {
+            var addButtons = document.querySelectorAll('.add-button');
+            addButtons.forEach(function (button) {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    var productId = button.getAttribute('id');
+                    var price = button.getAttribute('price');
+                    var productName = button.getAttribute('name');
+
+                    fetch('/OptionSet/GetOptions/' + productId)
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            var optionSetsHTML = '';
+                            data.optionSets.forEach(function (optionSet, index) {
+                                var requiredIndicator = optionSet.isRequired ? ' <span style="color:red">*</span>' : '';
+                                optionSetsHTML += `
+                                        <div class="option-set-container mb-4">
+                                            <div class="form-group">
+                                                <label><strong>${optionSet.name}${requiredIndicator}</strong></label>
+                                                <div>`;
+                                var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
+                                optionSet.options.forEach(function (option) {
+                                    var optionId = `option-${optionSet.id}-${option.id}`;
+                                    var priceDisplay = (option.price && option.price > 0) ? ` +${option.price.toFixed(2)} PLN` : '';
+                                    optionSetsHTML += `
+                                            <div class="form-check">
+                                                <input class="form-check-input option-input" type="${inputType}" name="optionSet-${optionSet.id}" id="${optionId}"
+                                                    data-price="${option.price ?? 0}" data-optionset-id="${optionSet.id}" data-optionset-name="${optionSet.name}"
+                                                    data-option-id="${option.id}" data-option-name="${option.name}">
+                                                <label class="form-check-label" for="${optionId}">
+                                                    ${option.name}${priceDisplay}
+                                                </label>
+                                            </div>`;
+                                });
+                                optionSetsHTML += `
+                                                </div>
+                                                <div class="text-danger validation-error" id="validation-error-${optionSet.id}" style="display:none;">
+                                                    Select at least 1 option.
+                                                </div>
+                                            </div>
+                                            <hr />
+                                        </div>`;
+                            });
+                            optionSetsHTML += `
+                                    <div class="form-group">
+                                        <label for="quantityInput"><strong>Quantity:</strong></label>
+                                        <input type="number" id="quantityInput" class="form-control" value="1" min="1" />
+                                    </div>`;
+
+                            document.getElementById('modalOptionsContent').innerHTML = optionSetsHTML;
+
+                            document.getElementById('productOptionsModalLabel').textContent = 'Select options for ' + productName;
+
+                            $('#productOptionsModal').modal('show');
+
+                            var optionInputs = document.querySelectorAll('.option-input');
+
+                            var addToOrderButton = document.getElementById('addToOrderButton');
+                            addToOrderButton.onclick = function () {
+                                var selectedOptions = [];
+                                var isValid = true;
+
+                                var validationErrors = document.querySelectorAll('.validation-error');
+                                validationErrors.forEach(function (error) {
+                                    error.style.display = 'none';
+                                });
+
+                                data.optionSets.forEach(function (optionSet) {
+                                    var optionsSelected = [];
+                                    var options = document.querySelectorAll(`.option-input[name="optionSet-${optionSet.id}"]`);
+                                    options.forEach(function (input) {
+                                        if (input.checked) {
+                                            optionsSelected.push({
+                                                OptionSetId: parseInt(input.getAttribute('data-optionset-id')),
+                                                OptionSetName: input.getAttribute('data-optionset-name'),
+                                                OptionId: parseInt(input.getAttribute('data-option-id')),
+                                                OptionName: input.getAttribute('data-option-name'),
+                                                Price: parseFloat(input.getAttribute('data-price'))
+                                            });
+                                        }
+                                    });
+
+                                    if (optionSet.isRequired && optionsSelected.length === 0) {
+                                        document.getElementById('validation-error-' + optionSet.id).style.display = 'block';
+                                        isValid = false;
+                                    }
+
+                                    selectedOptions = selectedOptions.concat(optionsSelected);
+                                });
+
+                                if (!isValid) {
+                                    return;
+                                }
+
+                                var quantityInput = document.getElementById('quantityInput');
+                                var quantity = parseInt(quantityInput.value) || 1;
+
+                                var dataToSend = {
+                                    ProductId: parseInt(productId),
+                                    ProductName: productName,
+                                    Quantity: quantity,
+                                    Price: parseFloat(price.replace(',', '.')),
+                                    SelectedOptions: selectedOptions,
+                                };
+
+                                fetch('/Order/StoreProduct', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(dataToSend)
+                                })
+                                    .then(response => response.json())
+                                    .then(result => {
+                                        console.log('Server response:', result);
+                                        $('#productOptionsModal').modal('hide');
+                                        window.location.href = '@Url.Action("AddOrder", "Order")';
+                                    })
+                                    .catch(error => {
+                                        console.error('Error sending data:', error);
+                                    });
+                            };
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching options:', error);
+                        });
+                });
             });
         });
+        $(document).ready(function () {
+            function toggleFormElements() {
+                var selectedMethod = $('#deliveryMethod').val();
+                var isScheduledChecked = $('#isScheduled').prop('checked');
+
+                if (selectedMethod == '3') { // DineIn
+                    $('#tableNrGroup').show();
+                    $('.address-group').hide();
+                } else if (selectedMethod == '1') { // Delivery
+                    $('#tableNrGroup').hide();
+                    $('.address-group').show();
+                } else if (selectedMethod == '2') { // Pickup
+                    $('#tableNrGroup').hide();
+                    $('.address-group').hide();
+                }
+
+                if (isScheduledChecked) {
+                    $('#scheduledDate').show();
+                    $('#waitingTime').hide();
+                } else {
+                    $('#scheduledDate').hide();
+                    $('#waitingTime').show();
+
+                    if (selectedMethod == '1') { // Delivery
+                        $('#WaitingTime').val(defaultDeliveryWaitingTimeInMinutes);
+                    } else if (selectedMethod == '3' || selectedMethod == '2') { // DineIn lub Pickup
+                        $('#WaitingTime').val(defaultDineInWaitingTimeInMinutes);
+                    }
+                }
+            }
+
+            toggleFormElements();
+
+            $('#deliveryMethod').change(function () {
+                toggleFormElements();
+            });
+
+            $('#isScheduled').change(function () {
+                toggleFormElements();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var orderSummary = document.getElementById('orderSummary');
+
+            orderSummary.addEventListener('click', function (event) {
+                if (event.target && event.target.matches('.remove-product-button')) {
+                    debugger;
+                    var productId = event.target.getAttribute('data-product-id');
+                    var itemId = event.target.getAttribute('data-item-id');
+
+                    fetch('/Order/RemoveProduct?productId=' + productId + '&itemId=' + itemId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ ProductId: parseInt(productId), ItemId: itemId })
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            var productElement = document.getElementById('product-' + productId + '-' + itemId);
+                            var quantityLabel = productElement.querySelector('strong');
+                            var priceLabel = productElement.querySelector('span');
+                            var quantity = parseInt(quantityLabel.textContent.split('x')[0].trim());
+
+                            if (quantity > 1) {
+                                quantity--;
+                                quantityLabel.textContent = `${quantity} x ${result.productName}`;
+                                priceLabel.textContent = `${(result.productPrice * quantity).toFixed(2)} PLN`;
+                            } else {
+                                productElement.remove();
+                            }
+
+                            if (orderSummary.children.length === 0) {
+                                orderSummary.innerHTML = '<p>No items in your order.</p>';
+                            }
+
+                            document.querySelector('#totalPrice').textContent = `Total price: ${result.totalPrice} PLN`;
+                        } else {
+                            console.error('Failed to remove the product.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error removing product:', error);
+                    });
+                }
+            });
+        });
+
     </script>
 
     

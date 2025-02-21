@@ -1,0 +1,93 @@
+﻿@model GastroLab.Application.ViewModels.GlobalSettingsVM
+
+@{
+    ViewData["Title"] = "Global settings";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success">
+        @ViewBag.Message
+    </div>
+}
+
+<form asp-action="Index" method="post">
+    <div class="mb-4">
+        <div class="form-group">
+            <label asp-for="RestaurantName" class="form-label"></label>
+            <input asp-for="RestaurantName" class="form-control" />
+            <span asp-validation-for="RestaurantName" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="card mb-4 bg-light">
+        <div class="card-header">
+            <h3 class="card-title">Address</h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="AddressVM.Street" class="form-label"></label>
+                <input asp-for="AddressVM.Street" class="form-control" />
+                <span asp-validation-for="AddressVM.Street" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="AddressVM.HouseNumber" class="form-label"></label>
+                    <input asp-for="AddressVM.HouseNumber" class="form-control" type="number" />
+                    <span asp-validation-for="AddressVM.HouseNumber" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="AddressVM.FlatNumber" class="form-label"></label>
+                    <input asp-for="AddressVM.FlatNumber" class="form-control" type="number" />
+                    <span asp-validation-for="AddressVM.FlatNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AddressVM.City" class="form-label"></label>
+                <input asp-for="AddressVM.City" class="form-control" />
+                <span asp-validation-for="AddressVM.City" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AddressVM.PostCode" class="form-label"></label>
+                <input asp-for="AddressVM.PostCode" class="form-control" />
+                <span asp-validation-for="AddressVM.PostCode" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4 bg-light">
+        <div class="card-header">
+            <h3 class="card-title">Default waiting times (in minutes)</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DefaultDineInWaitingTimeInMinutes" class="form-label"></label>
+                    <input asp-for="DefaultDineInWaitingTimeInMinutes" class="form-control" type="number" min="1" max="1440" />
+                    <span asp-validation-for="DefaultDineInWaitingTimeInMinutes" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DefaultDeliveryWaitingTimeInMinutes" class="form-label"></label>
+                    <input asp-for="DefaultDeliveryWaitingTimeInMinutes" class="form-control" type="number" min="1" max="1440" />
+                    <span asp-validation-for="DefaultDeliveryWaitingTimeInMinutes" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

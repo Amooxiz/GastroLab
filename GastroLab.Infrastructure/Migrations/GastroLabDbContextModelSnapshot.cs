@@ -17,12 +17,12 @@ namespace GastroLab.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.10")
+                .HasAnnotation("ProductVersion", "7.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Address", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,7 +34,7 @@ namespace GastroLab.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FlatNumber")
+                    b.Property<int?>("FlatNumber")
                         .HasColumnType("int");
 
                     b.Property<int>("HouseNumber")
@@ -48,17 +48,12 @@ namespace GastroLab.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Category", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,7 +70,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Feedback", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.GlobalSettings", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,24 +78,27 @@ namespace GastroLab.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Comment")
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("DefaultDeliveryWaitingTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("DefaultDineInWaitingTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("RestaurantName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AddressId");
 
-                    b.ToTable("Feedbacks");
+                    b.ToTable("GlobalSettings");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Ingredient", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Ingredient", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -112,21 +110,21 @@ namespace GastroLab.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
                     b.HasKey("Id");
 
                     b.ToTable("Ingredients");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.LeaveRequest", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.LeaveRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateFrom")
                         .HasColumnType("datetime2");
@@ -136,6 +134,12 @@ namespace GastroLab.Infrastructure.Migrations
 
                     b.Property<string>("Desciption")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ResolvedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -151,7 +155,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("LeaveRequests");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Option", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Option", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -175,7 +179,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("Options");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.OptionSet", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OptionSet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -191,6 +195,15 @@ namespace GastroLab.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsGlobal")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsMultiple")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -200,7 +213,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("OptionSets");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.OptionSetOption", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OptionSetOption", b =>
                 {
                     b.Property<int>("OptionId")
                         .HasColumnType("int");
@@ -211,6 +224,9 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("OptionId", "OptionSetId");
 
                     b.HasIndex("OptionSetId");
@@ -218,7 +234,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("OptionSetOptions");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Order", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -226,11 +242,8 @@ namespace GastroLab.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AddressId")
+                    b.Property<int?>("AddressId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ClientId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
@@ -244,6 +257,9 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<int>("DeliveryMethod")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("ScheduledDeliveryDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -253,24 +269,31 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<TimeSpan?>("WaitingTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("isScheduledDelivery")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
 
-                    b.HasIndex("ClientId");
-
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.OrderProduct", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OrderProduct", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -279,43 +302,38 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("OrderId", "ProductId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderProducts");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.OrderProductOption", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OrderProductOption", b =>
                 {
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(1);
+                    b.Property<int>("OrderProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("OptionSetId")
                         .HasColumnType("int")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(1);
 
                     b.Property<int>("OptionId")
                         .HasColumnType("int")
-                        .HasColumnOrder(3);
+                        .HasColumnOrder(2);
 
-                    b.HasKey("OrderId", "ProductId", "OptionSetId", "OptionId");
+                    b.HasKey("OrderProductId", "OptionSetId", "OptionId");
 
                     b.HasIndex("OptionId");
 
                     b.HasIndex("OptionSetId");
 
-                    b.HasIndex("ProductId");
-
                     b.ToTable("OrderProductOptions");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Product", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -324,11 +342,6 @@ namespace GastroLab.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -348,7 +361,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductCategory", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductCategory", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -366,7 +379,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("ProductCategories");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductIngredient", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductIngredient", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -384,7 +397,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("ProductIngredients");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductOptionSet", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductOptionSet", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -402,7 +415,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("ProductOptionSets");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductOptionSetOption", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductOptionSetOption", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("int")
@@ -428,7 +441,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("ProductOptionSetOptions");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductPricing", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductPricing", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -444,7 +457,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("productPricings");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.RegisteredTime", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.RegisteredTime", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -461,6 +474,9 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("int");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<TimeSpan>("TimeInterval")
                         .HasColumnType("time");
 
@@ -474,7 +490,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("RegisteredTimes");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Supply", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Supply", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -493,15 +509,12 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("Supplies");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.User", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -567,7 +580,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.WorkingTime", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.WorkingTime", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -730,27 +743,20 @@ namespace GastroLab.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Address", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.GlobalSettings", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.User", "User")
-                        .WithMany("Address")
-                        .HasForeignKey("UserId");
+                    b.HasOne("GastroLab.Domain.DBO.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Address");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Feedback", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.LeaveRequest", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.User", "User")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("GastroLab.Domain.Models.LeaveRequest", b =>
-                {
-                    b.HasOne("GastroLab.Domain.Models.User", "User")
+                    b.HasOne("GastroLab.Domain.DBO.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -759,15 +765,15 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.OptionSetOption", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OptionSetOption", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.Option", "Option")
+                    b.HasOne("GastroLab.Domain.DBO.Option", "Option")
                         .WithMany("OptionSetOptions")
                         .HasForeignKey("OptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.OptionSet", "OptionSet")
+                    b.HasOne("GastroLab.Domain.DBO.OptionSet", "OptionSet")
                         .WithMany("OptionSetOptions")
                         .HasForeignKey("OptionSetId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -778,32 +784,24 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("OptionSet");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Order", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Order", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.Address", "Address")
+                    b.HasOne("GastroLab.Domain.DBO.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GastroLab.Domain.Models.User", "Client")
-                        .WithMany("Orders")
-                        .HasForeignKey("ClientId");
+                        .HasForeignKey("AddressId");
 
                     b.Navigation("Address");
-
-                    b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.OrderProduct", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OrderProduct", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.Order", "Order")
+                    b.HasOne("GastroLab.Domain.DBO.Order", "Order")
                         .WithMany("OrderProducts")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.Product", "Product")
+                    b.HasOne("GastroLab.Domain.DBO.Product", "Product")
                         .WithMany("OrderProducts")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -814,29 +812,23 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.OrderProductOption", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OrderProductOption", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.Option", "Option")
+                    b.HasOne("GastroLab.Domain.DBO.Option", "Option")
                         .WithMany("OrderProductOptions")
                         .HasForeignKey("OptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.OptionSet", "OptionSet")
+                    b.HasOne("GastroLab.Domain.DBO.OptionSet", "OptionSet")
                         .WithMany("OrderProductOptions")
                         .HasForeignKey("OptionSetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.Order", "Order")
+                    b.HasOne("GastroLab.Domain.DBO.OrderProduct", "OrderProduct")
                         .WithMany("OrderProductOptions")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GastroLab.Domain.Models.Product", "Product")
-                        .WithMany("OrderProductOptions")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("OrderProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -844,14 +836,12 @@ namespace GastroLab.Infrastructure.Migrations
 
                     b.Navigation("OptionSet");
 
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
+                    b.Navigation("OrderProduct");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Product", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Product", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.ProductPricing", "ProductPricing")
+                    b.HasOne("GastroLab.Domain.DBO.ProductPricing", "ProductPricing")
                         .WithMany()
                         .HasForeignKey("ProductPricingId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -860,15 +850,15 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("ProductPricing");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductCategory", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductCategory", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.Category", "Category")
+                    b.HasOne("GastroLab.Domain.DBO.Category", "Category")
                         .WithMany("ProductCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.Product", "Product")
+                    b.HasOne("GastroLab.Domain.DBO.Product", "Product")
                         .WithMany("ProductCategories")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -879,15 +869,15 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductIngredient", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductIngredient", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.Ingredient", "Ingredient")
+                    b.HasOne("GastroLab.Domain.DBO.Ingredient", "Ingredient")
                         .WithMany("ProductIngredients")
                         .HasForeignKey("IngredientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.Product", "Product")
+                    b.HasOne("GastroLab.Domain.DBO.Product", "Product")
                         .WithMany("ProductIngredients")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -898,15 +888,15 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductOptionSet", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductOptionSet", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.OptionSet", "OptionSet")
+                    b.HasOne("GastroLab.Domain.DBO.OptionSet", "OptionSet")
                         .WithMany("ProductOptionSets")
                         .HasForeignKey("OptionSetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.Product", "Product")
+                    b.HasOne("GastroLab.Domain.DBO.Product", "Product")
                         .WithMany("ProductOptionSets")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -917,21 +907,21 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.ProductOptionSetOption", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.ProductOptionSetOption", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.Option", "Option")
+                    b.HasOne("GastroLab.Domain.DBO.Option", "Option")
                         .WithMany("ProductOptionSetOptions")
                         .HasForeignKey("OptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.OptionSet", "OptionSet")
+                    b.HasOne("GastroLab.Domain.DBO.OptionSet", "OptionSet")
                         .WithMany("ProductOptionSetOptions")
                         .HasForeignKey("OptionSetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.Product", "Product")
+                    b.HasOne("GastroLab.Domain.DBO.Product", "Product")
                         .WithMany("ProductOptionSetOptions")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -944,18 +934,18 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.RegisteredTime", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.RegisteredTime", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.User", "User")
+                    b.HasOne("GastroLab.Domain.DBO.User", "User")
                         .WithMany("RegisteredTimes")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.WorkingTime", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.WorkingTime", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.User", "User")
+                    b.HasOne("GastroLab.Domain.DBO.User", "User")
                         .WithMany("WorkingTimes")
                         .HasForeignKey("UserId");
 
@@ -973,7 +963,7 @@ namespace GastroLab.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.User", null)
+                    b.HasOne("GastroLab.Domain.DBO.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -982,7 +972,7 @@ namespace GastroLab.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.User", null)
+                    b.HasOne("GastroLab.Domain.DBO.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -997,7 +987,7 @@ namespace GastroLab.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GastroLab.Domain.Models.User", null)
+                    b.HasOne("GastroLab.Domain.DBO.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1006,24 +996,24 @@ namespace GastroLab.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("GastroLab.Domain.Models.User", null)
+                    b.HasOne("GastroLab.Domain.DBO.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Category", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Category", b =>
                 {
                     b.Navigation("ProductCategories");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Ingredient", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Ingredient", b =>
                 {
                     b.Navigation("ProductIngredients");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Option", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Option", b =>
                 {
                     b.Navigation("OptionSetOptions");
 
@@ -1032,7 +1022,7 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("ProductOptionSetOptions");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.OptionSet", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OptionSet", b =>
                 {
                     b.Navigation("OptionSetOptions");
 
@@ -1043,17 +1033,18 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("ProductOptionSets");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Order", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.Order", b =>
                 {
-                    b.Navigation("OrderProductOptions");
-
                     b.Navigation("OrderProducts");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.Product", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.OrderProduct", b =>
                 {
                     b.Navigation("OrderProductOptions");
+                });
 
+            modelBuilder.Entity("GastroLab.Domain.DBO.Product", b =>
+                {
                     b.Navigation("OrderProducts");
 
                     b.Navigation("ProductCategories");
@@ -1065,14 +1056,8 @@ namespace GastroLab.Infrastructure.Migrations
                     b.Navigation("ProductOptionSets");
                 });
 
-            modelBuilder.Entity("GastroLab.Domain.Models.User", b =>
+            modelBuilder.Entity("GastroLab.Domain.DBO.User", b =>
                 {
-                    b.Navigation("Address");
-
-                    b.Navigation("Feedbacks");
-
-                    b.Navigation("Orders");
-
                     b.Navigation("RegisteredTimes");
 
                     b.Navigation("WorkingTimes");

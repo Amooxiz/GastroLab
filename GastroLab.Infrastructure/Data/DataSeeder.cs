@@ -1,4 +1,4 @@
-﻿using GastroLab.Domain.Models;
+﻿using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +56,34 @@ namespace GastroLab.Infrastructure.Data
                 {
                     throw new InvalidOperationException($"Adding {adminEmail} user to AdminRole failed.");
                 }
+            }
+        }
+
+        public static void SeedGlobalSettings(GastroLabDbContext context)
+        {
+            if (!context.GlobalSettings.Any())
+            {
+                var address = new Address
+                {
+                    Street = "Default Street",
+                    City = "Default City",
+                    HouseNumber = 1,
+                    PostCode = "00-000"
+                };
+
+                context.Addresses.Add(address);
+                context.SaveChanges();
+
+                var globalSettings = new GlobalSettings
+                {
+                    RestaurantName = "Default Restaurant",
+                    AddressId = address.Id,
+                    DefaultDineInWaitingTime = TimeSpan.FromMinutes(30),
+                    DefaultDeliveryWaitingTime = TimeSpan.FromMinutes(45)
+                };
+
+                context.GlobalSettings.Add(globalSettings);
+                context.SaveChanges();
             }
         }
     }

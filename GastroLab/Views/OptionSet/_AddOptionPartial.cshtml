@@ -1,0 +1,22 @@
+﻿@model GastroLab.Application.ViewModels.OptionVM
+
+<form asp-action="AddOption" method="post">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Option Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DisplayName" class="control-label">Display Name</label>
+        <input asp-for="DisplayName" class="form-control" />
+        <span asp-validation-for="DisplayName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Price" class="control-label">Price</label>
+        <input asp-for="Price" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Add Option" class="btn btn-success" />
+    </div>
+</form>

@@ -1,0 +1,96 @@
+﻿@model GastroLab.Application.ViewModels.OrderVM
+
+@{
+    ViewData["Title"] = "Delete Order";
+}
+
+<h3 class="mb-4">Once you cancel this order, you won't be able to reactivate it.</h3>
+<h3 class="mb-4">Are you sure you want to cancel this order?</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card rounded-3 bg-light p-4 mb-4">
+                <h4>Order Details</h4>
+                <hr />
+                <dl class="row">
+                    <dt class="col-sm-4">Order ID</dt>
+                    <dd class="col-sm-8">@Model.Id</dd>
+
+                    <dt class="col-sm-4">Total Price</dt>
+                    <dd class="col-sm-8">@Model.TotalPrice.ToString("F2") PLN</dd>
+
+                    <dt class="col-sm-4">Delivery Method</dt>
+                    <dd class="col-sm-8">@Model.DeliveryMethod.ToString()</dd>
+
+                    @if (Model.DeliveryMethod == DeliveryMethod.Delivery && Model.Address != null)
+                    {
+                        <dt class="col-sm-4">Delivery Address</dt>
+                        <dd class="col-sm-8">
+                            @{
+                                var FlatNumber = Model.Address.FlatNumber != null ? "/" + Model.Address.FlatNumber : "";
+                                <p>@Model.Address.City @Model.Address.Street @Model.Address.HouseNumber@FlatNumber</p>
+                            }
+                        </dd>
+                    }
+                    else if (Model.DeliveryMethod == DeliveryMethod.DineIn)
+                    {
+                        <dt class="col-sm-4">Table Number</dt>
+                        <dd class="col-sm-8">@Model.TableNr</dd>
+                    }
+                    else if (Model.DeliveryMethod == DeliveryMethod.Pickup)
+                    {
+                        <dt class="col-sm-4">Pickup Time</dt>
+                        <dd class="col-sm-8">
+                            @(
+                                Model.ScheduledDeliveryDate.HasValue
+                                ? Model.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                : (Model.CreationDate + (TimeSpan.FromMinutes(Model.WaitingTime))).ToString("dd.MM.yyyy HH:mm")
+                                )
+                        </dd>
+                    }
+
+                    <dt class="col-sm-4">Products</dt>
+                    <dd class="col-sm-8">
+                        <ul>
+                            @foreach (var product in Model.products)
+                            {
+                                <li>
+                                    <strong>@product.Quantity x @product.Name</strong>
+                                    @if (product.OrderOptions != null && product.OrderOptions.Any())
+                                    {
+                                        <ul>
+                                            @foreach (var optionSet in product.OrderOptions)
+                                            {
+                                                <li>- @optionSet.Option.Name</li>
+                                            }
+                                        </ul>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </dd>
+
+                    @if (!string.IsNullOrEmpty(Model.Comment))
+                    {
+                        <dt class="col-sm-4">Note</dt>
+                        <dd class="col-sm-8">@Model.Comment</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="CancelOrder" method="post" class="d-flex">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-danger me-2">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </button>
+                <a asp-action="ManageAllOrders" class="btn btn-primary">
+                    <i class="bi bi-arrow-return-left"></i> Back to List
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

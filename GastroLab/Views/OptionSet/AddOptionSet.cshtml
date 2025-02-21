@@ -1,0 +1,86 @@
+﻿@model GastroLab.Application.ViewModels.OptionSetVM
+
+@{
+    ViewData["Title"] = "AddOptionSet";
+}
+
+<h1>AddOptionSet</h1>
+
+<h4>OptionSet</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddOptionSet">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DisplayName" class="control-label"></label>
+                <input asp-for="DisplayName" class="form-control" />
+                <span asp-validation-for="DisplayName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsRequired" class="control-label"></label>
+                <input asp-for="IsRequired" type="checkbox" />
+                <span asp-validation-for="IsRequired" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsMultiple" class="control-label"></label>
+                <input asp-for="IsMultiple" type="checkbox" />
+                <span asp-validation-for="IsMultiple" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Select Existing Options:</label>
+                @for (int i = 0; i < Model.options.Count; i++)
+                {
+                    <div class="checkbox">
+                        <input asp-for="@Model.options[i].Id" type="hidden" />
+                        <input asp-for="@Model.options[i].Name" type="hidden" />
+                        <input asp-for="@Model.options[i].DisplayName" type="hidden" />
+                        <label>
+                            <input asp-for="@Model.options[i].IsSelected" />
+                            @Model.options[i].DisplayName
+                        </label>
+                        <input asp-for="@Model.options[i].SelectedPrice" class="form-control" disabled="@(Model.options[i].IsSelected ? "" : "disabled")" />
+                    </div>
+                }
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="ManageOptionSets">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.querySelectorAll('.checkbox input[type="checkbox"]').forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                debugger;
+                var parentDiv = checkbox.closest('.checkbox');
+                var priceInput = parentDiv.getElementsByTagName('input')[4];
+                if (priceInput) {
+                    priceInput.disabled = !checkbox.checked;
+                } else {
+                    console.error('No matching price input found!');
+                }
+            });
+        });
+    </script>
+
+}

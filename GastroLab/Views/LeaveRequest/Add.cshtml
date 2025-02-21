@@ -1,0 +1,57 @@
+﻿@model GastroLab.Application.ViewModels.LeaveRequestVM
+
+@{
+    ViewData["Title"] = "Apply for leave";
+}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<style>
+    .leave-request-form {
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        background: #f7f7f7;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+        max-width: 600px;
+        margin-right: auto;
+    }
+</style>
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="leave-request-form">
+    <form asp-action="Add" method="post">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DateFrom">Date From</label>
+                    <input asp-for="DateFrom" class="form-control" type="date" />
+                    <span asp-validation-for="DateFrom" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DateTo">Date To</label>
+                    <input asp-for="DateTo" class="form-control" type="date" />
+                    <span asp-validation-for="DateTo" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Desciption">Description</label>
+            <textarea asp-for="Desciption" class="form-control" rows="5"></textarea>
+            <span asp-validation-for="Desciption" class="text-danger"></span>
+        </div>
+
+        <div class="form-group text-right">
+            <button type="submit" class="btn btn-primary">Create</button>
+            <a asp-action="MyLeaveRequests" class="btn btn-secondary">Back to list</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

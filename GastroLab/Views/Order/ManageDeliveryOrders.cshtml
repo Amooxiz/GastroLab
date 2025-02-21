@@ -1,0 +1,140 @@
+﻿@using GastroLab.Application.Extensions
+@model IEnumerable<GastroLab.Application.ViewModels.OrderVM>
+
+@{
+    ViewData["Title"] = "ManageDeliveryOrders";
+}
+
+
+<style>
+    .btn-disabled {
+        background-color: #d3d3d3 !important;
+        border-color: #d3d3d3 !important;
+        color: #000F !important;
+        pointer-events: none;
+    }
+</style>
+
+<h1>Manage delivery orders</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Order details</th>
+            <th>Delivery info</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>
+                    <div class="btn-group-vertical">
+                        <button class="btn btn-sm btn-primary change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.Done ? "btn-disabled" : "")"
+                                data-order-id="@order.Id" data-status="Done">
+                            Done
+                        </button>
+
+                        <button class="btn btn-sm btn-warning change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.OnTheWay ? "btn-disabled" : "")"
+                                data-order-id="@order.Id" data-status="OnTheWay">
+                            On The Way
+                        </button>
+
+                        <button class="btn btn-sm btn-success change-status-btn @(order.Status == GastroLab.Domain.DBO.OrderStatus.Finished ? "btn-disabled" : "")"
+                                data-order-id="@order.Id" data-status="Finished">
+                            Finished
+                        </button>
+                    </div>
+                </td>
+
+
+
+                <td>
+                    @foreach (var product in order.products)
+                    {
+                        <div>
+                            <strong>@product.Quantity x @product.Name</strong>
+                            <span>(@string.Join(", ", product.ingredients.Select(i => i.Name)))</span>
+                            <ul>
+                                @foreach (var optionSet in product.OrderOptions)
+                                {
+                                    <li>- @optionSet.Option.Name</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(order.Comment))
+                    {
+                        <p><strong>Note:</strong> @order.Comment</p>
+                    }
+                </td>
+
+                <td>
+                    <div>
+                        <strong>Created on:</strong> @order.CreationDate.ToString("dd.MM.yyyy HH:mm")<br />
+                        @{
+                            if (order.isScheduledDelivery)
+                            {
+                                <strong>Scheduled delivery:</strong> @order.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                <br />
+                            }
+
+                            var remainingTime = order.GetRemainingTime();
+
+                            <strong>Remaining time: </strong>
+                            <span style="
+                                        color: @remainingTime.Color;
+                                            ">
+                                @remainingTime.RemainingMinutes min
+                            </span>
+                        }
+                        <br />
+                        @if (order.Address != null)
+                        {
+                            var FlatNumber = order.Address.FlatNumber != null ? "/" + order.Address.FlatNumber : "";
+                            <p>@order.Address.City @order.Address.Street @order.Address.HouseNumber@FlatNumber</p>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const statusButtons = document.querySelectorAll('.change-status-btn');
+
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const orderId = button.getAttribute('data-order-id');
+                const status = button.getAttribute('data-status');
+
+                fetch('/Order/ChangeStatusOfOrder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        OrderId: parseInt(orderId),
+                        OrderStatus: status
+                    })
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            console.log('Status zmieniony na: ' + status);
+                            window.location.reload();
+                        } else {
+                            console.error('Zmiana statusu nie powiodła się.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Błąd podczas zmiany statusu:', error);
+                    });
+            });
+        });
+    });
+</script>

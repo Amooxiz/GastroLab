@@ -1,5 +1,5 @@
 ﻿using GastroLab.Application.Interfaces;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using GastroLab.Infrastructure.Data;
 using GastroLab.Infrastructure.Repositories;
 using GastroLab.Infrastructure.Services;
@@ -22,25 +22,22 @@ namespace GastroLab.Infrastructure
             var connectionString = conf.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             services.AddDbContext<GastroLabDbContext>(options =>
                 options.UseSqlServer(connectionString));
-            //services.AddDbContext<GrownOverDbContext>(options =>
-            //    options.UseSqlServer(conf.GetConnectionString("DefaultConnection")));
-
-            //services.AddDefaultIdentity<User>(options =>
-            //{
-            //    options.SignIn.RequireConfirmedAccount = false;
-            //    options.SignIn.RequireConfirmedEmail = false;
-            //    options.Password.RequiredLength = 8;
-            //}).AddRoles<IdentityRole>()
-            //.AddEntityFrameworkStores<GrownOverDbContext>()
-            //.AddDefaultTokenProviders();
-
-            //services.AddAuthentication().AddJwtBearer
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IProductRepository, ProductRepository>();
             services.AddTransient<IOptionSetService, OptionSetService>();
             services.AddTransient<IOptionSetRepository, OptionSetRepository>();
             services.AddTransient<IOrderRepository, OrderRepository>();
             services.AddTransient<IOrderService, OrderService>();
+            services.AddTransient<ICookieService, CookieService>();
+            services.AddTransient<IRegisteredTimeRepository, RegisteredTimeRepository>();
+            services.AddTransient<IRegisteredTimeService, RegisteredTimeService>();
+            services.AddTransient<ICalendarRepository, CalendarRepository>();
+            services.AddTransient<ICalendarService, CalendarService>();
+            services.AddTransient<IGlobalSettingsRepository, GlobalSettingsRepository>();
+            services.AddTransient<IGlobalSettingsService, GlobalSettingsService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ILeaveRequestRepository, LeaveRequestRepository>();
+            services.AddTransient<ILeaveRequestService, LeaveRequestService>();
             return services;
         }
     }

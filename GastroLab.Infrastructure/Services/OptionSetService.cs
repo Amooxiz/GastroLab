@@ -1,7 +1,8 @@
 ﻿using GastroLab.Application.Extensions;
 using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,25 @@ namespace GastroLab.Infrastructure.Services
         public OptionSetService(IOptionSetRepository optionSetRepository)
         {
             _optionSetRepository = optionSetRepository;
+        }
+
+        public List<OptionSetVM> GetUsedOptionSetsByIds(List<int> optionSetIds)
+        {
+            return _optionSetRepository.GetUsedOptionSetsByIds(optionSetIds).Select(x => x.ToVM()).ToList();
+        }
+        public void DeleteGlobalOptionSets(List<int> optionSetIds)
+        {
+            _optionSetRepository.DeleteGlobalOptionSets(optionSetIds);
+        }
+
+        public List<OptionSetVM> GetGlobalOptionSets()
+        {
+            return _optionSetRepository.GetGlobalOptionSets().Select(opt => opt.ToVM()).ToList();
+        }
+
+        public OptionSetVM CreateGlobalOptionSet(OptionSetVM optionSetVm)
+        {
+            return _optionSetRepository.CreateGlobalOptionSet(optionSetVm.ToModel()).ToVM();
         }
 
         public void AddOptionSet(OptionSetVM optionSetVm)
@@ -39,10 +59,6 @@ namespace GastroLab.Infrastructure.Services
         {
             return _optionSetRepository.GetAllOptionSets().Select(x => x.ToVM());
         }
-        public void AddOptionToOptionSet(int optionId, int optionSetId)
-        {
-            _optionSetRepository.AddOptionToOptionSet(optionId, optionSetId);
-        }
         public void DeleteOptionFromOptionSet(int optionId, int optionSetId)
         {
             _optionSetRepository.DeleteOptionFromOptionSet(optionId, optionSetId);
@@ -62,6 +78,30 @@ namespace GastroLab.Infrastructure.Services
         public OptionVM GetOption(int optionId)
         {
             return _optionSetRepository.GetOption(optionId).ToVM();
+        }
+
+        public void UpdateOption(OptionVM option)
+        {
+            _optionSetRepository.UpdateOption(option.ToModel());
+        }
+
+        public void AddOptionToOptionSet(int optionId, int optionSetId, decimal price)
+        {
+            var optionSetOption = new OptionSetOption
+            {
+                OptionSetId = optionSetId,
+                OptionId = optionId,
+                Price = price
+            };
+            _optionSetRepository.AddOptionToOptionSet(optionSetOption);
+        }
+        public void UpdateOptionSetOption(int optionId, int optionSetId, decimal price)
+        {
+            _optionSetRepository.UpdateOptionSetOption(optionId, optionSetId, price);
+        }
+        public void RemoveOption(int id, int optionSetId)
+        {
+            _optionSetRepository.RemoveOption(id, optionSetId);
         }
     }
 }

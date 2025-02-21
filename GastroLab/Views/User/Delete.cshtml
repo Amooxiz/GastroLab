@@ -1,0 +1,51 @@
+﻿@model GastroLab.Application.ViewModels.UserVM
+
+@{
+    ViewData["Title"] = "Delete user";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<h3>Are you sure you want to delete this user?</h3>
+
+<div>
+    <h4>User Details</h4>
+    <dl class="row">
+        <dt class="col-sm-2">
+            Username
+        </dt>
+        <dd class="col-sm-10">
+            @Model.UserName
+        </dd>
+        <dt class="col-sm-2">
+            Email
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Email
+        </dd>
+        <dt class="col-sm-2">
+            Name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Name
+        </dd>
+        <dt class="col-sm-2">
+            Surname
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Surname
+        </dd>
+        <dt class="col-sm-2">
+            Roles
+        </dt>
+        <dd class="col-sm-10">
+            @string.Join(", ", Model.Roles)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

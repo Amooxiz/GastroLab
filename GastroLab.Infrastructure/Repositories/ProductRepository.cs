@@ -1,6 +1,6 @@
 ﻿using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using GastroLab.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,6 +17,89 @@ namespace GastroLab.Infrastructure.Repositories
         public ProductRepository(GastroLabDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        public void DeleteIngredient(int id)
+        {
+            var ingredientToDelete = _context.Ingredients.Find(id);
+            if (ingredientToDelete == null)
+            {
+                throw new ArgumentNullException(nameof(ingredientToDelete));
+            }
+            _context.Ingredients.Remove(ingredientToDelete);
+            _context.SaveChanges();
+        }
+        public void DeleteCategory(int id)
+        {
+            var categoryToDelete = _context.Categories.Find(id);
+            if (categoryToDelete == null)
+            {
+                throw new ArgumentNullException(nameof(categoryToDelete));
+            }
+            _context.Categories.Remove(categoryToDelete);
+            _context.SaveChanges();
+        }
+
+        public void DeleteProductOptionSet(ProductOptionSet productOptionSet)
+        {
+            if (productOptionSet == null)
+            {
+                throw new ArgumentNullException(nameof(productOptionSet));
+            }
+
+            if (!productOptionSet.OptionSet.IsGlobal)
+            {
+                _context.OptionSets.Remove(productOptionSet.OptionSet);
+            }
+
+            _context.ProductOptionSets.Remove(productOptionSet);
+        }
+
+        public void DeleteProductCategory(ProductCategory existingCategory)
+        {
+            if (existingCategory == null)
+            {
+                throw new ArgumentNullException(nameof(existingCategory));
+            }
+            _context.ProductCategories.Remove(existingCategory);
+        }
+
+        public void DeleteProductIngredient(ProductIngredient productIngredient)
+        {
+            if (productIngredient == null)
+            {
+                throw new ArgumentNullException(nameof(productIngredient));
+            }
+            _context.ProductIngredients.Remove(productIngredient);
+        }
+        public IEnumerable<Product> GetProducts(string searchName, int? categoryId)
+        {
+
+            var products = _context.Products
+                                .Include(x => x.ProductPricing)
+                                .Include(x => x.ProductIngredients)
+                                    .ThenInclude(x => x.Ingredient)
+                                .Include(x => x.OrderProducts)
+                                    .ThenInclude(x => x.Order)
+                                .Include(x => x.ProductCategories)
+                                    .ThenInclude(x => x.Category)
+                                .Include(x => x.ProductOptionSets)
+                                    .ThenInclude(x => x.OptionSet)
+                                        .ThenInclude(x => x.OptionSetOptions)
+                                            .ThenInclude(x => x.Option)
+                                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchName))
+            {
+                products = products.Where(x => x.Name.Contains(searchName));
+            }
+
+            if (categoryId.HasValue)
+            {
+                products = products.Where(x => x.ProductCategories.Any(y => y.CategoryId == categoryId));
+            }
+
+            return products;
         }
 
         public void AddProduct(Product product)

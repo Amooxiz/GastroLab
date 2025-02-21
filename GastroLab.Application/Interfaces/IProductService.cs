@@ -1,5 +1,5 @@
 ﻿using GastroLab.Application.ViewModels;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +10,7 @@ namespace GastroLab.Application.Interfaces
 {
     public interface IProductService
     {
+        public IEnumerable<ProductVM> GetProducts(string searchName, int? categoryId);
         public void UpdateProductStatus(int id, bool status);
         public void UpdateProduct(ProductVM product);
         public ProductVM GetProductById(int id);
@@ -20,5 +21,7 @@ namespace GastroLab.Application.Interfaces
         public IEnumerable<IngredientVM> GetAllIngredients();
         void AddCategory(CategoryVM category);
         void AddIngredient(IngredientVM ingredient);
+        void DeleteIngredient(int id);
+        void DeleteCategory(int id);
     }
 }

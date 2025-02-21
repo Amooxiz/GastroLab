@@ -8,7 +8,6 @@ namespace GastroLab.Application.ViewModels
 {
     public class OrderProductOptionVM
     {
-        public int ProductId { get; set; }
         public OptionSetVM OptionSet { get; set; }
         public OptionVM Option { get; set; }
     }

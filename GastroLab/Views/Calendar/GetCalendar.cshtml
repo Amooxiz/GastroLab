@@ -1,0 +1,202 @@
+﻿@using GastroLab.Application.ViewModels;
+@using System.Globalization
+@model GastroLab.Presentation.Controllers.CalendarController.WeeklyCalendarVM
+
+@{
+    ViewData["Title"] = "Kalendarz Tygodniowy";
+}
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    th, td {
+        border: 1px solid black;
+        text-align: center;
+        padding: 5px;
+        height: 40px;
+    }
+
+    .sticky-top {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+    }
+
+    body {
+        overflow: hidden;
+        -webkit-user-select: none; /* Chrome/Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+ */
+        user-select: none; /* Standard */
+    }
+
+    thead th {
+        background-color: rgba(232, 247, 154, 0.8) !important;
+    }
+
+    .date-label {
+        font-size: 1.4em;
+        font-weight: bold;
+    }
+
+    .day-label {
+        font-size: 0.8em;
+        color: #555;
+    }
+
+    .hour-column {
+        text-align: right;
+        padding: 3px 15px !important;
+        border: none;
+    }
+
+    .hour-column,
+    .empty-cell {
+        background-color: transparent !important;
+    }
+
+    .calendar-container {
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        background: #e4f5e5;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+</style>
+
+<h2>Weekly calendar (@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd") - @Model.BeginningOfTheWeek.AddDays(6).ToString("yyyy-MM-dd"))</h2>
+
+<div id="calendarDiv" class="calendar-container">
+
+    <div class="button-container">
+        <button type="button" class="btn btn-outline-primary" onclick="changeWeek(-7)">
+            <i class="bi bi-arrow-left-circle-fill"></i> Previous week
+        </button>
+        <button type="button" class="btn btn-outline-primary" onclick="changeWeek(7)">
+            Next week <i class="bi bi-arrow-right-circle-fill"></i>
+        </button>
+    </div>
+
+
+
+    <div class="table-responsive" style="overflow-y: auto; max-height: calc(100vh - 300px);">
+        <table class="table">
+            <colgroup>
+                <col style="width: 55px;">
+                @foreach (var day in Model.DaysOfWeek)
+                {
+                    <col style="width: auto;">
+                }
+            </colgroup>
+            <thead class="sticky-top">
+                <tr>
+                    <th style="border: none; opacity: 0;">
+                    </th>
+
+                    @foreach (var day in Model.DaysOfWeek)
+                    {
+                        <th style="border: none;">
+                            <span class="date-label">
+                                @(day.Day < 10 ? "0" + day.Day : day.Day)
+                            </span>
+                            <br />
+                            <span class="day-label">
+                                @day.ToString("dddd", new CultureInfo("en-US"))
+                            </span>
+                        </th>
+                    }
+
+                </tr>
+            </thead>
+            <tbody>
+                @for (int hour = 0; hour < 24; hour++)
+                {
+                    @for (int minute = 0; minute < 60; minute += 30)
+                    {
+                        int totalMinutes = hour * 60 + minute;
+                        string tableCellStyle = "";
+                        @if (minute == 0)
+                        {
+                            tableCellStyle = "border-top: 2px solid black; border-bottom: 2px dashed black;";
+                        }
+                        else
+                        {
+                            tableCellStyle = "border-top: 2px dashed black; border-bottom: 2px solid black;";
+                        }
+                        <tr>
+                            @if (minute == 0)
+                            {
+                                <td class="hour-column"><span>@hour</span></td>
+                            }
+                            else
+                            {
+                                <td class="empty-cell" style="border: none;"></td>
+                            }
+                            @foreach (var day in Model.DaysOfWeek)
+                            {
+                                string tileId = day.ToString("yyyy-MM-dd") + "T" + String.Format("{0:00}:{1:00}", hour, minute);
+                                bool isBreak = false;
+                                if (ViewBag.UserWorkingTimes != null && ViewBag.UserWorkingTimes.Count > 0)
+                                {
+                                    List<TimeSlotVM> timeSlots = ViewBag.UserWorkingTimes;
+                                    @foreach (var timeSlot in timeSlots)
+                                    {
+                                        @if (timeSlot.DateFrom.Date == day.Date && (timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) <= totalMinutes && (timeSlot.DateTo.Hour * 60 + timeSlot.DateTo.Minute) > totalMinutes)
+                                        {
+                                            if ((timeSlot.DateFrom.Hour * 60 + timeSlot.DateFrom.Minute) == totalMinutes)
+                                            {
+                                                <td class="calendar-cell registered-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="background-color: #cadefc; @tableCellStyle">@String.Format("{0:00}:{1:00} - {2:00}:{3:00}", timeSlot.DateFrom.Hour, timeSlot.DateFrom.Minute, timeSlot.DateTo.Hour, timeSlot.DateTo.Minute)</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="calendar-cell registered-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="background-color: #cadefc; @tableCellStyle"></td>
+                                            }
+                                            isBreak = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (isBreak)
+                                {
+                                    continue;
+                                }
+                                <td class="calendar-cell" data-day="@day.ToString("yyyy-MM-dd")" data-hour="@hour" data-minute="@minute" style="@tableCellStyle"></td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function changeWeek(days) {
+        debugger;
+        var currentDate = new Date('@Model.BeginningOfTheWeek.ToString("yyyy-MM-dd")');
+        currentDate = new Date(currentDate.getTime() + days * 86400000); // Dodaj dni
+
+        window.location.href = '?date=' + currentDate.toISOString().split('T')[0];
+    }
+
+    // Add the DOMContentLoaded event listener
+    document.addEventListener('DOMContentLoaded', function () {
+        // Set the scroll position of the calendar to the middle when the page loads
+        var calendarDiv = document.querySelector('#calendarDiv .table-responsive');
+        if (calendarDiv) {
+            calendarDiv.scrollTop = (calendarDiv.scrollHeight - calendarDiv.clientHeight) / 2;
+        }
+    });
+</script>

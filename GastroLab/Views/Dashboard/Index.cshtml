@@ -1,0 +1,930 @@
+﻿
+@{
+    ViewBag.Title = "Analytics Dashboard";
+}
+
+<style>
+    .pie-chart-canvas {
+        max-width: 400px;
+        max-height: 400px;
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .chart-container {
+        margin-bottom: 2rem;
+    }
+</style>
+
+<h2>Analytics dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <label for="dateFrom">Date from:</label>
+        <input type="date" id="dateFrom" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label for="dateTo">Date to:</label>
+        <input type="date" id="dateTo" class="form-control" />
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <button id="filterButton" class="btn btn-primary">Filter</button>
+    </div>
+</div>
+
+<div class="accordion" id="groupsAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDataByProduct">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByProduct" aria-expanded="true" aria-controls="collapseDataByProduct">
+                Data by product
+            </button>
+        </h2>
+        <div id="collapseDataByProduct" class="accordion-collapse collapse show" aria-labelledby="headingDataByProduct" data-bs-parent="#groupsAccordion">
+            <div class="accordion-body">
+                <div class="chart-container">
+                    <h3>Sales by product</h3>
+                    <canvas id="salesByProductChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Quantity by product</h3>
+                    <canvas id="quantityByProductChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Average waiting time by product</h3>
+                    <canvas id="averageWaitingTimeByProductChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Delivery method by product</h3>
+                    <canvas id="deliveryMethodByProductChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDataByDeliveryMethod">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByDeliveryMethod" aria-expanded="false" aria-controls="collapseDataByDeliveryMethod">
+                Data by delivery method
+            </button>
+        </h2>
+        <div id="collapseDataByDeliveryMethod" class="accordion-collapse collapse" aria-labelledby="headingDataByDeliveryMethod" data-bs-parent="#groupsAccordion">
+            <div class="accordion-body">
+                <div class="chart-container">
+                    <h3>Sales by delivery method</h3>
+                    <canvas id="salesByDeliveryMethodChart" class="pie-chart-canvas"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Quantity by delivery method</h3>
+                    <canvas id="quantityByDeliveryMethodChart" class="pie-chart-canvas"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Average waiting time by delivery method</h3>
+                    <canvas id="averageWaitingTimeByDeliveryMethodChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDataByHours">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByHours" aria-expanded="false" aria-controls="collapseDataByHours">
+                Data by hours
+            </button>
+        </h2>
+        <div id="collapseDataByHours" class="accordion-collapse collapse" aria-labelledby="headingDataByHours" data-bs-parent="#groupsAccordion">
+            <div class="accordion-body">
+                <div class="chart-container">
+                    <h3>Average sales by hours</h3>
+                    <canvas id="averageSalesByHoursChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Average quantity by hours</h3>
+                    <canvas id="averageQuantityByHoursChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Average waiting time by hours</h3>
+                    <canvas id="averageWaitingTimeByHoursChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Average delivery method by hours</h3>
+                    <canvas id="averageDeliveryMethodByHoursChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDataByDays">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByDays" aria-expanded="false" aria-controls="collapseDataByDays">
+                Data by days
+            </button>
+        </h2>
+        <div id="collapseDataByDays" class="accordion-collapse collapse" aria-labelledby="headingDataByDays" data-bs-parent="#groupsAccordion">
+            <div class="accordion-body">
+                <div class="chart-container">
+                    <h3>Average sales by days</h3>
+                    <canvas id="averageSalesByDaysChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Average quantity by days</h3>
+                    <canvas id="averageQuantityByDaysChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDataByMonths">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByMonths" aria-expanded="false" aria-controls="collapseDataByMonths">
+                Data by months
+            </button>
+        </h2>
+        <div id="collapseDataByMonths" class="accordion-collapse collapse" aria-labelledby="headingDataByMonths" data-bs-parent="#groupsAccordion">
+            <div class="accordion-body">
+                <div class="chart-container">
+                    <h3>Average sales by months</h3>
+                    <canvas id="averageSalesByMonthsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Average quantity by months</h3>
+                    <canvas id="averageQuantityByMonthsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDataByUsers">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataByUsers" aria-expanded="false" aria-controls="collapseDataByUsers">
+                Data by users
+            </button>
+        </h2>
+        <div id="collapseDataByUsers" class="accordion-collapse collapse" aria-labelledby="headingDataByUsers" data-bs-parent="#groupsAccordion">
+            <div class="accordion-body">
+                <div class="chart-container">
+                    <h3>Working hours by users</h3>
+                    <canvas id="workingHoursByUsersChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Leave hours by users</h3>
+                    <canvas id="leaveHoursByUsersChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingWaitingTimeComparison">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWaitingTimeComparison" aria-expanded="false" aria-controls="collapseWaitingTimeComparison">
+                Waiting time comparison
+            </button>
+        </h2>
+        <div id="collapseWaitingTimeComparison" class="accordion-collapse collapse" aria-labelledby="headingWaitingTimeComparison" data-bs-parent="#groupsAccordion">
+            <div class="accordion-body">
+                <div class="chart-container">
+                    <canvas id="waitingTimeComparisonChart" class="pie-chart-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            const initialDateTo = new Date();
+            const initialDateFrom = new Date();
+            initialDateFrom.setDate(initialDateTo.getDate() - 30);
+
+            $('#dateFrom').val(initialDateFrom.toISOString().split('T')[0]);
+            $('#dateTo').val(initialDateTo.toISOString().split('T')[0]);
+
+            const chartConfigs = [
+                {
+                    chartId: 'salesByProductChart',
+                    apiEndpoint: '/api/Chart/SalesByProduct',
+                    chartType: 'bar',
+                    labelsKey: 'product',
+                    dataKey: 'totalSales',
+                    datasetLabel: 'Total Sales (PLN)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Total Sales (PLN)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Products'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'quantityByProductChart',
+                    apiEndpoint: '/api/Chart/QuantityByProduct',
+                    chartType: 'bar',
+                    labelsKey: 'product',
+                    dataKey: 'totalQuantity',
+                    datasetLabel: 'Total Quantity',
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Total Quantity'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Products'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageWaitingTimeByProductChart',
+                    apiEndpoint: '/api/Chart/AverageWaitingTimeByProduct',
+                    chartType: 'bar',
+                    labelsKey: 'product',
+                    dataKeys: ['averageExpectedWaitingTime', 'averageActualWaitingTime'],
+                    datasetLabels: ['Avg Expected Waiting Time (min)', 'Avg Actual Waiting Time (min)'],
+                    backgroundColors: ['rgba(255, 206, 86, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                    borderColors: ['rgba(255, 206, 86, 1)', 'rgba(255,99,132,1)'],
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Waiting Time (min)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Products'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'deliveryMethodByProductChart',
+                    apiEndpoint: '/api/Chart/DeliveryMethodByProduct',
+                    chartType: 'bar',
+                    labelsKey: 'product',
+                    dataKeys: ['quantityDelivery', 'quantityDineIn', 'quantityPickup'],
+                    datasetLabels: ['Delivery Method Orders', 'Dine-In Orders', 'Pickup Orders'],
+                    backgroundColors: [
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 99, 132, 0.6)'
+                    ],
+                    borderColors: [
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Order Quantity'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Products'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'salesByDeliveryMethodChart',
+                    apiEndpoint: '/api/Chart/SalesByDeliveryMethod',
+                    chartType: 'pie',
+                    labelsKey: 'deliveryMethod',
+                    dataKey: 'totalSales',
+                    datasetLabel: 'Total Sales (PLN)',
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    options: {
+                        responsive: false,
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'quantityByDeliveryMethodChart',
+                    apiEndpoint: '/api/Chart/QuantityByDeliveryMethod',
+                    chartType: 'pie',
+                    labelsKey: 'deliveryMethod',
+                    dataKey: 'totalQuantity',
+                    datasetLabel: 'Total Quantity',
+                    backgroundColor: [
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(153, 102, 255, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    options: {
+                        responsive: false,
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageWaitingTimeByDeliveryMethodChart',
+                    apiEndpoint: '/api/Chart/AverageWaitingTimeByDeliveryMethod',
+                    chartType: 'bar',
+                    labelsKey: 'deliveryMethod',
+                    dataKeys: ['averageExpectedWaitingTime', 'averageActualWaitingTime'],
+                    datasetLabels: ['Avg Expected Waiting Time (min)', 'Avg Actual Waiting Time (min)'],
+                    backgroundColors: ['rgba(255, 206, 86, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                    borderColors: ['rgba(255, 206, 86, 1)', 'rgba(255,99,132,1)'],
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Waiting Time (min)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Delivery Methods'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageSalesByHoursChart',
+                    apiEndpoint: '/api/Chart/AverageSalesByHours',
+                    chartType: 'line',
+                    labelsKey: 'hourRange',
+                    dataKey: 'averageSales',
+                    datasetLabel: 'Average Sales (PLN)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    fill: false,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Average Sales (PLN)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Hours'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageQuantityByHoursChart',
+                    apiEndpoint: '/api/Chart/AverageQuantityByHours',
+                    chartType: 'line',
+                    labelsKey: 'hourRange',
+                    dataKey: 'averageQuantity',
+                    datasetLabel: 'Average Quantity',
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    fill: false,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Average Quantity'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Hours'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageWaitingTimeByHoursChart',
+                    apiEndpoint: '/api/Chart/AverageWaitingTimeByHours',
+                    chartType: 'line',
+                    labelsKey: 'hourRange',
+                    dataKeys: ['averageExpectedWaitingTime', 'averageActualWaitingTime'],
+                    datasetLabels: ['Avg Expected Waiting Time (min)', 'Avg Actual Waiting Time (min)'],
+                    backgroundColors: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)'],
+                    borderColors: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Average Waiting Time (min)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Hours'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageDeliveryMethodByHoursChart',
+                    apiEndpoint: '/api/Chart/AverageDeliveryMethodByHours',
+                    chartType: 'line',
+                    labelsKey: 'hourRange',
+                    dataKeys: ['averageQuantityDelivery', 'averageQuantityDineIn', 'averageQuantityPickup'],
+                    datasetLabels: ['Delivery', 'Dine-In', 'Pickup'],
+                    backgroundColors: [
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 206, 86, 0.6)'
+                    ],
+                    borderColors: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Average Quantity'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Hours'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageSalesByDaysChart',
+                    apiEndpoint: '/api/Chart/AverageSalesByDays',
+                    chartType: 'bar',
+                    labelsKey: 'dayOfWeek',
+                    dataKey: 'averageSales',
+                    datasetLabel: 'Average Sales (PLN)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Average Sales (PLN)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Day of Week'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageQuantityByDaysChart',
+                    apiEndpoint: '/api/Chart/AverageQuantityByDays',
+                    chartType: 'line',
+                    labelsKey: 'dayOfWeek',
+                    dataKey: 'averageQuantity',
+                    datasetLabel: 'Average Quantity',
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    fill: false,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Average Quantity'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Days'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageSalesByMonthsChart',
+                    apiEndpoint: '/api/Chart/AverageSalesByMonths',
+                    chartType: 'bar',
+                    labelsKey: 'month',
+                    dataKey: 'averageSales',
+                    datasetLabel: 'Average Sales (PLN)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Average Sales (PLN)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Month'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'averageQuantityByMonthsChart',
+                    apiEndpoint: '/api/Chart/AverageQuantityByMonths',
+                    chartType: 'line',
+                    labelsKey: 'month',
+                    dataKey: 'averageQuantity',
+                    datasetLabel: 'Average Quantity',
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    fill: false,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Average Quantity'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Months'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'workingHoursByUsersChart',
+                    apiEndpoint: '/api/Chart/WorkingHoursByUsers',
+                    chartType: 'bar',
+                    labelsKey: 'user',
+                    dataKeys: ['totalWorkingHours', 'totalRegisteredHours'],
+                    datasetLabels: ['Total Working Hours', 'Total Registered Hours'],
+                    backgroundColors: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                    borderColors: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Hours'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Users'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'leaveHoursByUsersChart',
+                    apiEndpoint: '/api/Chart/LeaveHoursByUsers',
+                    chartType: 'bar',
+                    labelsKey: 'user',
+                    dataKey: 'totalLeaveHours',
+                    datasetLabel: 'Total Leave Hours',
+                    backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Hours'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Users'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    }
+                },
+                {
+                    chartId: 'waitingTimeComparisonChart',
+                    apiEndpoint: '/api/Chart/WaitingTimeComparison',
+                    chartType: 'pie',
+                    labelsKey: 'comparison',
+                    dataKey: 'orderCount',
+                    datasetLabel: 'Order Count',
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(255, 99, 132, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    options: {
+                        responsive: false,
+                        plugins: {
+                            title: {
+                                display: false,
+                            },
+                            legend: {
+                                display: true,
+                            }
+                        }
+                    }
+                }
+            ];
+
+            const chartInstances = {};
+
+            function fetchAndRenderChart(config, dateFrom, dateTo) {
+                console.log(config);
+                $.ajax({
+                    url: config.apiEndpoint,
+                    type: 'GET',
+                    data: { dateFrom: dateFrom, dateTo: dateTo },
+                    success: function (data) {
+                        const ctx = document.getElementById(config.chartId).getContext('2d');
+
+                        if (chartInstances[config.chartId]) {
+                            chartInstances[config.chartId].destroy();
+                        }
+
+                        let datasets = [];
+
+                        if (config.dataKeys && config.dataKeys.length > 0) {
+                            config.dataKeys.forEach((key, index) => {
+                                datasets.push({
+                                    label: config.datasetLabels[index],
+                                    data: data.map(item => item[key]),
+                                    backgroundColor: config.backgroundColors[index],
+                                    borderColor: config.borderColors[index],
+                                    borderWidth: 1,
+                                    fill: config.fill || false
+                                });
+                            });
+                        } else {
+                            datasets.push({
+                                label: config.datasetLabel,
+                                data: data.map(item => item[config.dataKey]),
+                                backgroundColor: config.backgroundColor,
+                                borderColor: config.borderColor,
+                                borderWidth: 1,
+                                fill: config.fill || false
+                            });
+                        }
+
+                        chartInstances[config.chartId] = new Chart(ctx, {
+                            type: config.chartType,
+                            data: {
+                                labels: data.map(item => item[config.labelsKey]),
+                                datasets: datasets
+                            },
+                            options: config.options
+                        });
+                    },
+                    error: function () {
+                        alert(`Failed to load data for ${config.datasetLabel}.`);
+                    }
+                });
+            }
+
+            function fetchAndRenderAllCharts(dateFrom, dateTo) {
+                chartConfigs.forEach(config => {
+                    fetchAndRenderChart(config, dateFrom, dateTo);
+                });
+            }
+
+            fetchAndRenderAllCharts($('#dateFrom').val(), $('#dateTo').val());
+
+            $('#filterButton').click(function () {
+                const dateFrom = $('#dateFrom').val();
+                const dateTo = $('#dateTo').val();
+
+                if (new Date(dateFrom) > new Date(dateTo)) {
+                    alert('Date From cannot be later than Date To.');
+                    return;
+                }
+
+                fetchAndRenderAllCharts(dateFrom, dateTo);
+            });
+        });
+    </script>
+}

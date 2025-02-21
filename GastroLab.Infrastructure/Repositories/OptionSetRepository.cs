@@ -1,6 +1,6 @@
 ﻿using GastroLab.Application.Interfaces;
 using GastroLab.Application.ViewModels;
-using GastroLab.Domain.Models;
+using GastroLab.Domain.DBO;
 using GastroLab.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,6 +18,51 @@ namespace GastroLab.Infrastructure.Repositories
         public OptionSetRepository(GastroLabDbContext context)
         {
             _context = context;
+        }
+
+        public List<OptionSet> GetUsedOptionSetsByIds(List<int> optionSetIds)
+        {
+            return _context.ProductOptionSets
+                           .Where(x => optionSetIds.Contains(x.OptionSetId))
+                           .Select(x => x.OptionSet)
+                           .Distinct()
+                           .ToList();
+        }
+
+        public void DeleteGlobalOptionSets(List<int> optionSetIds)
+        {
+            var optionSets = _context.OptionSets.Where(x => optionSetIds.Contains(x.Id));
+
+            if (optionSets.Count() != optionSetIds.Count())
+            {
+                throw new Exception("Some of provided global option set Id's are invalid");
+            }
+
+            foreach (var optionSet in optionSets)
+            {
+                _context.OptionSets.Remove(optionSet);
+            }
+            _context.SaveChanges();
+        }
+
+        public OptionSet CreateGlobalOptionSet(OptionSet optionSet)
+        {
+            foreach (var optionSetOption in optionSet.OptionSetOptions)
+            {
+                _context.Options.Add(optionSetOption.Option);
+            }
+
+            _context.OptionSets.Add(optionSet);
+            _context.SaveChanges();
+            return optionSet;
+        }
+
+        public List<OptionSet> GetGlobalOptionSets()
+        {
+            return _context.OptionSets.Where(opt => opt.IsGlobal == true)
+                .Include(x => x.OptionSetOptions)
+                .ThenInclude(x => x.Option)
+                .ToList();
         }
 
         public void AddOptionSet(OptionSet optionSet)
@@ -43,7 +88,10 @@ namespace GastroLab.Infrastructure.Repositories
         }
         public OptionSet GetOptionSet(int optionSetId)
         {
-            var optionSet = _context.OptionSets.Find(optionSetId);
+            var optionSet = _context.OptionSets.Where(x => x.Id == optionSetId)?
+                .Include(x => x.OptionSetOptions)
+                .ThenInclude(x => x.Option)
+                .FirstOrDefault();
 
             if (optionSet == null)
             {
@@ -57,28 +105,7 @@ namespace GastroLab.Infrastructure.Repositories
                 .Include(x => x.OptionSetOptions)
                 .ThenInclude(x => x.Option);
         }
-        public void AddOptionToOptionSet(int optionId, int optionSetId)
-        {
-            if (_context.OptionSetOptions.Any(x => x.OptionId == optionId && x.OptionSetId == optionSetId))
-            {
-                throw new Exception("Option already exists in OptionSet");
-            }
-
-            var option = _context.Options.Find(optionId);
-            var optionSet = _context.OptionSets.Find(optionSetId);
-
-            if (option == null || optionSet == null)
-            {
-                throw new Exception("Option or OptionSet not found");
-            }
-
-            _context.OptionSetOptions.Add(new OptionSetOption
-            {
-                Option = option,
-                OptionSet = optionSet
-            });
-            _context.SaveChanges();
-        }
+        
         public void DeleteOptionFromOptionSet(int optionId, int optionSetId)
         {
             var optionSetOption = _context.OptionSetOptions.FirstOrDefault(x => x.OptionId == optionId && x.OptionSetId == optionSetId);
@@ -120,6 +147,43 @@ namespace GastroLab.Infrastructure.Repositories
                 throw new Exception("Cannot find Option with Id = " + optionId);
             }
             return option;
+        }
+        public void UpdateOption(Option option)
+        {
+            _context.Options.Update(option);
+            _context.SaveChanges();
+        }
+
+        public void AddOptionToOptionSet(OptionSetOption optionSetOption)
+        {
+            _context.OptionSetOptions.Add(optionSetOption);
+            _context.SaveChanges();
+        }
+
+        public void UpdateOptionSetOption(int optionId, int optionSetId, decimal price)
+        {
+            var optionSetOption = _context.OptionSetOptions.Find(optionId, optionSetId);
+
+            if (optionSetOption == null)
+            {
+                throw new Exception("OptionSetOption not found");
+            }
+
+            optionSetOption.Price = price;
+            _context.SaveChanges();
+        }
+
+        public void RemoveOption(int id, int optionSetId)
+        {
+            var optionSetOption = _context.OptionSetOptions.FirstOrDefault(x => x.OptionId == id && x.OptionSetId == optionSetId);
+
+            if (optionSetOption == null)
+            {
+                throw new Exception("OptionSetOption not found");
+            }
+
+            _context.OptionSetOptions.Remove(optionSetOption);
+            _context.SaveChanges();
         }
     }
 }

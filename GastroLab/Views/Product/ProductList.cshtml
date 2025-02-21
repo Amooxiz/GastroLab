@@ -1,59 +1,59 @@
-﻿@model IEnumerable<GastroLab.Application.ViewModels.ProductVM>
+﻿@model GastroLab.Application.ViewModels.ProductListVM
 
 @{
     ViewData["Title"] = "ProductList";
 }
 
-<h1>ProductList</h1>
+<h1>Product list</h1>
 
-<p>
-    <a asp-action="AddProduct">Create New</a>
-</p>
-<table class="table">
+<div class="d-flex justify-content-between mb-3 align-items-center">
+    <form class="d-flex" method="get" action="@Url.Action("ProductList")">
+        <input type="text" name="searchString" class="form-control me-2" placeholder="Search by name" value="@Model.SearchString" />
+
+        @Html.DropDownList("categoryId", new SelectList(Model.Categories, "Value", "Text", Model.CategoryId), "All Categories", new { @class = "form-select me-2" })
+
+        <button type="submit" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-search"></i> Search
+        </button>
+    </form>
+
+    <a asp-action="AddProduct" class="btn btn-link text-decoration-none">
+        <i class="bi bi-plus-circle"></i> Create New
+    </a>
+</div>
+
+<table class="table table-light table-striped table-bordered border-dark" style="table-layout: auto;">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Image)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.productStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th></th>
+            <th>@Html.DisplayNameFor(model => model.Products.FirstOrDefault().Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Products.FirstOrDefault().Description)</th>
+            <th style="width: 100px;">@Html.DisplayNameFor(model => model.Products.FirstOrDefault().productStatus)</th>
+            <th>@Html.DisplayNameFor(model => model.Products.FirstOrDefault().Price)</th>
+            <th>Actions</th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Image)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.productStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                <a asp-action="EditProduct" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="ProductDetails" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="DeleteProduct" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody class="table-group-divider">
+        @foreach (var item in Model.Products)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td class="text-truncate" style="max-width: 200px;">@Html.DisplayFor(modelItem => item.Description)</td>
+                <td style="width: 130px;">@Html.DisplayFor(modelItem => item.productStatus)</td>
+                <td>@Html.DisplayFor(modelItem => item.Price) PLN</td>
+                <td style="max-width: 120px;">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="EditProduct" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil-fill"></i> Edit
+                        </a>
+                        <a asp-action="ProductDetails" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-info-lg"></i> Details
+                        </a>
+                        <a asp-action="DeleteProduct" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-trash3-fill"></i> Delete
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
