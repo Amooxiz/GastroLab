@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GastroLab.Contracts\GastroLab.Contracts.csproj" />
+    <ProjectReference Include="..\GastroLab.Infrastructure\GastroLab.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

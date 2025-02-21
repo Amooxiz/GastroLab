@@ -4,7 +4,6 @@
     ViewData["Title"] = "Edit Leave Request";
 }
 
-<!-- Include Bootstrap CSS if not already included -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
 <style>
@@ -15,8 +14,8 @@
         box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
         padding: 20px;
         margin-top: 20px;
-        max-width: 600px; /* Reduced width */
-        margin-right: auto; /* Center the form */
+        max-width: 600px;
+        margin-right: auto;
     }
 </style>
 
@@ -31,7 +30,6 @@
         @Html.HiddenFor(model => model.UserId)
         @Html.HiddenFor(model => model.Status)
 
-        <!-- DateFrom and DateTo in the same row -->
         <div class="form-group">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -48,14 +46,12 @@
             </div>
         </div>
 
-        <!-- Description field remains the same -->
         <div class="form-group">
             <label asp-for="Desciption">Description</label>
             <textarea asp-for="Desciption" class="form-control" rows="5"></textarea>
             <span asp-validation-for="Desciption" class="text-danger"></span>
         </div>
 
-        <!-- Buttons aligned to the right -->
         <div class="form-group text-right">
             <button type="submit" class="btn btn-primary">Save</button>
             <a asp-action="MyLeaveRequests" class="btn btn-secondary">Back to list</a>

@@ -44,13 +44,13 @@ namespace GastroLab.Application.ViewModels
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            // 1. Must have at least one product
+
             if (products == null || products.Count == 0)
             {
                 yield return new ValidationResult("You must add at least one product to the order.", new[] { nameof(products) });
             }
 
-            // 2. If not scheduled delivery, WaitingTime is required and must be positive
+
             if (!isScheduledDelivery)
             {
                 if (WaitingTime <= 0)
@@ -58,7 +58,7 @@ namespace GastroLab.Application.ViewModels
                     yield return new ValidationResult("Waiting time is required and must be a positive number if scheduled delivery is not selected.", new[] { nameof(WaitingTime) });
                 }
 
-                // If DineIn and not scheduled, TableNr required and positive
+
                 if (DeliveryMethod == DeliveryMethod.DineIn)
                 {
                     if (string.IsNullOrWhiteSpace(TableNr))
@@ -72,7 +72,7 @@ namespace GastroLab.Application.ViewModels
                 }
             }
 
-            // 3. If scheduled delivery, ScheduledDeliveryDate required and must be future
+
             if (isScheduledDelivery)
             {
                 if (!ScheduledDeliveryDate.HasValue)
@@ -94,10 +94,10 @@ namespace GastroLab.Application.ViewModels
                 {
                     foreach (var vr in addressResults)
                     {
-                        // Map each AddressVM error from "City" to "Address.City"
+
                         var updatedMemberNames = vr.MemberNames.Select(m => "Address." + m).ToList();
 
-                        // If no member names are supplied or it's a general error, still show it at "Address"
+
                         if (!updatedMemberNames.Any())
                         {
                             updatedMemberNames.Add("Address");
@@ -108,8 +108,8 @@ namespace GastroLab.Application.ViewModels
                 }
             }
 
-            // If DeliveryMethod != Delivery, we do not run Address validation,
-            // so those fields remain optional.
+
+
         }
     }
 }

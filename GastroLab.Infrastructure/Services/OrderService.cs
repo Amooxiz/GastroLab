@@ -202,12 +202,25 @@ namespace GastroLab.Infrastructure.Services
 
         public IEnumerable<OrderVM> GetDeliveryOrders()
         {
-            return _orderRepository.GetDeliveryOrders().Select(x => x.ToVM());
+            return _orderRepository.GetDeliveryOrders()
+                .Select(x => x.ToVM())
+                .OrderBy(x => x.Status == OrderStatus.Done ? 0 : 1)
+                .ThenBy(x => x.isScheduledDelivery ? (int)((x.ScheduledDeliveryDate.Value - DateTime.Now).TotalMinutes) 
+                : x.WaitingTime - (int)((DateTime.Now - x.CreationDate).TotalMinutes))
+                .ToList();
         }
 
         public IEnumerable<OrderVM> GetAllActiveOrders()
         {
-            return _orderRepository.GetAllActiveOrders().Select(x => x.ToVM());
+            var activeOrders = _orderRepository.GetAllActiveOrders()
+                        .Select(x => x.ToVM());
+
+            return activeOrders.OrderBy(x =>
+                (x.Status == OrderStatus.Done && x.DeliveryMethod != DeliveryMethod.Delivery) ? 0 :
+                x.Status == OrderStatus.New ? 1 : 2)
+                .ThenBy(x => x.isScheduledDelivery ? (int)((x.ScheduledDeliveryDate.Value - DateTime.Now).TotalMinutes)
+                : x.WaitingTime - (int)((DateTime.Now - x.CreationDate).TotalMinutes))
+                .ToList();
         }
 
         public void ChangeStatusOfOrder(int orderId, OrderStatus orderStatus)
@@ -222,7 +235,13 @@ namespace GastroLab.Infrastructure.Services
 
         public IEnumerable<OrderVM> GetNewAndInProgressOrders()
         {
-            return _orderRepository.GetNewAndInProgressOrders().Select(x => x.ToVM());
+            return _orderRepository.GetNewAndInProgressOrders()
+                .Select(x => x.ToVM())
+                .OrderBy(x => x.Status == OrderStatus.InProgress ? 0 :
+                              x.Status == OrderStatus.New ? 1 : 3)
+                .ThenBy(x => x.isScheduledDelivery ? (int)((x.ScheduledDeliveryDate.Value - DateTime.Now).TotalMinutes)
+                : x.WaitingTime - (int)((DateTime.Now - x.CreationDate).TotalMinutes))
+                .ToList();
         }
 
         public void CreateOrder(OrderVM order)

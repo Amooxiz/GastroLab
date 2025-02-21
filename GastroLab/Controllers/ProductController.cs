@@ -10,7 +10,7 @@ using System.Drawing.Printing;
 
 namespace GastroLab.Presentation.Controllers
 {
-    [Authorize(Roles = "Admin,Director")]
+    [Authorize(Roles = "Admin")]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
@@ -29,8 +29,6 @@ namespace GastroLab.Presentation.Controllers
         [HttpPost]
         public IActionResult DeleteGlobalOptionSets([FromBody] List<int> optionSetIds)
         {
-            // Pseudocode:
-            // 1. Check which of these OptionSetIds are in use by products.
             var usedOptionSets = _optionSetService.GetUsedOptionSetsByIds(optionSetIds);
 
             if (usedOptionSets.Any())
@@ -38,7 +36,6 @@ namespace GastroLab.Presentation.Controllers
                 return Json(new { success = false, usedOptionSets = usedOptionSets.Select(u => new { id = u.Id, name = u.Name }) });
             }
 
-            // 2. If not in use, delete them.
             _optionSetService.DeleteGlobalOptionSets(optionSetIds);
 
             return Json(new { success = true, deletedCount = optionSetIds.Count });
@@ -88,11 +85,9 @@ namespace GastroLab.Presentation.Controllers
                 ViewBag.AllCategories = _productService.GetAllCategories();
                 ViewBag.AllIngredients = _productService.GetAllIngredients();
 
-                // Return the same view so that user can correct errors
                 return View(model);
             }
 
-            // If valid, proceed
             _productService.AddProduct(model);
             return RedirectToAction("ProductList");
         }

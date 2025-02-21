@@ -7,7 +7,6 @@
 <h1>Manage leave requests</h1>
 
 <div class="d-flex justify-content-between align-items-center">
-    <!-- Radio Button Group -->
     <form method="get" asp-action="ManageLeaveRequests" class="mb-0">
         <div class="btn-group" role="group" aria-label="Leave Request Status">
             <input type="radio" class="btn-check" name="status" id="pending" value="Pending" autocomplete="off" @(ViewBag.Status == "Pending" ? "checked" : "") onchange="this.form.submit();">
@@ -18,10 +17,8 @@
         </div>
     </form>
 
-    <!-- Apply for Leave Button is removed -->
 </div>
 
-<!-- Leave Requests Table -->
 <table class="table mt-3">
     <thead>
         <tr>
@@ -30,7 +27,7 @@
             <th>Period of Absence</th>
             <th>Creation Date</th>
             <th>Applicant</th>
-            <th></th> <!-- For Buttons -->
+            <th></th>
         </tr>
     </thead>
     <tbody>

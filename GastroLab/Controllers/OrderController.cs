@@ -32,6 +32,13 @@ namespace GastroLab.Presentation.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult CancelOrder(int id)
+        {
+            _orderService.ChangeStatusOfOrder(id, OrderStatus.Canceled);
+            return RedirectToAction("ManageAllOrders");
+        }
+
         [HttpGet]
         [Authorize(Roles = "Admin,Director,Waiter")]
         public JsonResult GetOrderDetails(int id)
@@ -50,7 +57,6 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult GetHistoricalOrders(OrderFilterVM filter)
         {
-            // If no filter is provided, initialize a new one
             if (filter == null)
             {
                 filter = new OrderFilterVM();
@@ -62,10 +68,8 @@ namespace GastroLab.Presentation.Controllers
                 filter.SortDirection = "desc";
             }
 
-            // Retrieve all orders
             var orders = _orderService.GetFinishedOrders();
 
-            // Apply filters
             if (filter.DeliveryMethod.HasValue)
             {
                 orders = orders.Where(o => o.DeliveryMethod == filter.DeliveryMethod.Value).ToList();
@@ -136,13 +140,11 @@ namespace GastroLab.Presentation.Controllers
                 }
             }
 
-            // Filter by selected products
             if (filter.SelectedProductIds != null && filter.SelectedProductIds.Any())
             {
                 orders = orders.Where(o => o.products.Any(p => filter.SelectedProductIds.Contains(p.Id))).ToList();
             }
 
-            // Sorting
             if (!string.IsNullOrEmpty(filter.SortColumn))
             {
                 switch (filter.SortColumn)
@@ -174,29 +176,24 @@ namespace GastroLab.Presentation.Controllers
                         orders = (filter.SortDirection == "asc") ? orders.OrderBy(o => o.TotalPrice).ToList() : orders.OrderByDescending(o => o.TotalPrice).ToList();
                         break;
                     default:
-                        // Default sorting by CreationDate descending
                         orders = orders.OrderByDescending(o => o.CreationDate).ToList();
                         break;
                 }
             }
             else
             {
-                // Default sorting by CreationDate descending
                 orders = orders.OrderByDescending(o => o.CreationDate).ToList();
             }
 
             filter.TotalRecords = orders.Count();
 
-            // Paging
             orders = orders.Skip((filter.PageNumber - 1) * filter.PageSize)
                            .Take(filter.PageSize)
                            .ToList();
 
 
-            // Map to ViewModel
             filter.Orders = orders.ToList();
 
-            // Populate filter dropdowns and other necessary data
             PopulateFilterViewBag();
 
             return View(filter);
@@ -223,7 +220,6 @@ namespace GastroLab.Presentation.Controllers
                 new SelectListItem { Value = "custom", Text = "Custom" }
             };
 
-            // Add this line to pass all products to the view
             ViewBag.AllProducts = _productService.GetAllProducts().ToList();
         }
 
@@ -257,7 +253,6 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Waiter,Director,Admin")]
         public IActionResult EditOrder(OrderVM order)
         {
-            // Recalculate the total price based on the products
             decimal totalPrice = 0;
             foreach (var product in order.products)
             {
@@ -267,7 +262,6 @@ namespace GastroLab.Presentation.Controllers
 
             if (!ModelState.IsValid)
             {
-                // Re-populate ViewBag and return the view
                 ViewBag.DeliveryMethods = Enum.GetValues(typeof(DeliveryMethod))
                                   .Cast<DeliveryMethod>()
                                   .Select(d => new SelectListItem
@@ -281,7 +275,6 @@ namespace GastroLab.Presentation.Controllers
                 return View(order);
             }
 
-            // Update the order in the database
             _orderService.UpdateOrder(order);
 
             return RedirectToAction("ManageAllOrders");
@@ -297,7 +290,6 @@ namespace GastroLab.Presentation.Controllers
                 return NotFound();
             }
 
-            // Map the product to a DTO to send to the client
             var productDetails = new
             {
                 id = product.Id,
@@ -359,7 +351,7 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Admin,Director,Delivery")]
         public IActionResult ManageDeliveryOrders()
         {
-            ViewData.Model = _orderService.GetDeliveryOrders().OrderByDescending(x => x.CreationDate);
+            ViewData.Model = _orderService.GetDeliveryOrders();
             return View();
         }
 
@@ -387,7 +379,7 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Admin,Director,Cook")]
         public IActionResult ManageOrders()
         {
-            ViewData.Model = _orderService.GetNewAndInProgressOrders().OrderByDescending(x => x.CreationDate);
+            ViewData.Model = _orderService.GetNewAndInProgressOrders();
             return View();
         }
 
@@ -464,14 +456,11 @@ namespace GastroLab.Presentation.Controllers
                 }
             }
             
-
-            // After assigning products
             ModelState.Clear();
             TryValidateModel(order);
 
             if (!ModelState.IsValid)
             {
-                // Re-populate ViewBag and return the view
                 ViewBag.DeliveryMethods = Enum.GetValues(typeof(DeliveryMethod))
                     .Cast<DeliveryMethod>()
                     .Select(d => new SelectListItem
@@ -498,10 +487,7 @@ namespace GastroLab.Presentation.Controllers
         [Authorize(Roles = "Admin,Director,Waiter")]
         public IActionResult StoreProduct([FromBody] CartProduct request)
         {
-            // Here you can process the request and add the product with options to the order
-            // Example: Call a service to handle order updates
 
-            // Assuming AddProductWithOptionsToOrderService is a method in your service
             if (request == null)
             {
                 throw new ArgumentNullException(nameof(request));
@@ -543,7 +529,6 @@ namespace GastroLab.Presentation.Controllers
             if (product != null)
             {
                 var productPrice = product.Price;
-                
 
                 if (product.Quantity > 1)
                 {

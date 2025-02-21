@@ -14,7 +14,6 @@
 </head>
 <body>
     <header>
-        @* <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"> *@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 gradient-navbar">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
@@ -57,7 +56,6 @@
                         <ul class="navbar-nav">
                             @if (User.IsInRole("Admin"))
                             {
-                                <!-- Advanced Settings Dropdown -->
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="advancedSettingsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Advanced Settings
@@ -70,7 +68,6 @@
                                     </div>
                                 </li>
                             }
-                            <!-- Calendar Icon Dropdown -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="calendarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="bi bi-calendar-check"></i>

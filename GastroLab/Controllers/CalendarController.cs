@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using GastroLab.Domain.DBO;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using JasperFx.CodeGeneration.Frames;
+//using JasperFx.CodeGeneration.Frames;
 using Microsoft.AspNetCore.Authorization;
 using GastroLab.Presentation.RequestModels;
 using GastroLab.Application.ViewModels;
@@ -25,7 +25,7 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Director")]
         [ValidateAntiForgeryToken]
         public IActionResult UpdateWorkingTime([FromBody] UpdateWorkingTimeRequest request)
         {
@@ -35,7 +35,6 @@ namespace GastroLab.Presentation.Controllers
             }
 
 
-            // Walidacja, czy StartDate jest przed FinishDate
             if (request.StartDate >= request.FinishDate)
             {
                 return BadRequest("Start time must be before finish time.");
@@ -49,7 +48,6 @@ namespace GastroLab.Presentation.Controllers
                 UserId = request.UserId
             };
 
-            // Sprawdzenie, czy nie ma nakładających się czasów
             var overlappingTimes = _calendarService.CheckForOverlappingWorkingTimes(timeSlot);
 
             if (overlappingTimes)
@@ -64,11 +62,10 @@ namespace GastroLab.Presentation.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Director")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteWorkingTime([FromBody] DeleteWorkingTimeRequest request)
         {
-            // Retrieve the working time from the database
             var workingTime = _calendarService.GetWorkingTimeById(request.TimeslotId);
 
             if (workingTime == null)
@@ -76,7 +73,6 @@ namespace GastroLab.Presentation.Controllers
                 return NotFound("Working time not found.");
             }
 
-            // Delete the working time
             _calendarService.DeleteWorkingTime(workingTime.Id);
 
             return Json(new { success = true });
@@ -95,7 +91,6 @@ namespace GastroLab.Presentation.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 
-            // Walidacja, czy StartDate jest przed FinishDate
             if (request.StartDate >= request.FinishDate)
             {
                 return BadRequest("Start time must be before finish time.");
@@ -110,7 +105,6 @@ namespace GastroLab.Presentation.Controllers
                 UserId = userId
             };
 
-            // Sprawdzenie, czy nie ma nakładających się czasów
             var overlappingTimes = _calendarService.CheckForOverlappingRegisteredTimes(userId, timeSlot);
 
             if (overlappingTimes)
@@ -161,18 +155,15 @@ namespace GastroLab.Presentation.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Director,Manager")]
+        [Authorize(Roles = "Admin,Director")]
         public IActionResult GetRegisteredTimesSummary(int year, int month)
         {
-            // Retrieve all users
             var users = _userManager.Users.ToList();
 
-            // Prepare the data
             var data = new List<object>();
 
             foreach (var user in users)
             {
-                // Sum of registered hours for the user in the specified month and year
                 var totalHours = _calendarService.GetRegisteredTimesByUserId(user.Id)
                     .Where(rt => rt.DateFrom.Year == year && rt.DateFrom.Month == month)
                     .Sum(rt => (rt.DateTo - rt.DateFrom).TotalHours);
@@ -191,7 +182,7 @@ namespace GastroLab.Presentation.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Director,Manager")]
+        [Authorize(Roles = "Admin,Director")]
         public IActionResult ManageRegisteredTimes(DateTime? date, string userId)
         {
             var model = new WeeklyCalendarVM
@@ -200,11 +191,9 @@ namespace GastroLab.Presentation.Controllers
                 DaysOfWeek = new List<DateTime>()
             };
 
-            // Retrieve the list of users
             var users = _userManager.Users.ToList();
             ViewBag.Users = new SelectList(users, "Id", "UserName", userId);
 
-            // Set the default user if none is selected
             if (string.IsNullOrEmpty(userId) && users.Any())
             {
                 userId = users.First().Id;
@@ -251,7 +240,6 @@ namespace GastroLab.Presentation.Controllers
         [Authorize]
         public IActionResult RegisterTime([FromBody] RegisterWorkingTimeRequest request)
         {
-            // Combine startDate and startTime
             DateTime startDateTime;
             if (!DateTime.TryParseExact(
                 $"{request.StartDate.Value:yyyy-MM-dd} {request.StartTime}",
@@ -263,7 +251,6 @@ namespace GastroLab.Presentation.Controllers
                 return BadRequest("Invalid start time format.");
             }
 
-            // Combine finishDate and finishTime
             DateTime finishDateTime;
             if (!DateTime.TryParseExact(
                 $"{request.FinishDate.Value:yyyy-MM-dd} {request.FinishTime}",
@@ -275,7 +262,6 @@ namespace GastroLab.Presentation.Controllers
                 return BadRequest("Invalid finish time format.");
             }
 
-            // Validate that startDateTime is before finishDateTime
             if (startDateTime >= finishDateTime)
             {
                 return BadRequest("Start time must be before finish time.");
@@ -318,7 +304,7 @@ namespace GastroLab.Presentation.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "Admin,Director,Manager")]
+        [Authorize(Roles = "Admin,Director")]
         public IActionResult ManageWorkingTimes(DateTime? date, string userId)
         {
             var model = new WeeklyCalendarVM
@@ -326,10 +312,8 @@ namespace GastroLab.Presentation.Controllers
                 BeginningOfTheWeek = FindBeginningOfTheWeek(date ?? DateTime.Now),
                 DaysOfWeek = new List<DateTime>()
             };
-            // Retrieve the list of users
             var users = _userManager.Users.ToList();
 
-            // Set the default user if none is selected
             if (string.IsNullOrEmpty(userId) && users.Any())
             {
                 userId = users.First().Id;
@@ -348,10 +332,9 @@ namespace GastroLab.Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Director,Manager")]
+        [Authorize(Roles = "Admin,Director")]
         public IActionResult RegisterWorkingTime([FromBody] RegisterWorkingTimeRequest request)
         {
-            // Combine startDate and startTime
             DateTime startDateTime;
             if (!DateTime.TryParseExact(
                 $"{request.StartDate.Value:yyyy-MM-dd} {request.StartTime}",
@@ -363,7 +346,6 @@ namespace GastroLab.Presentation.Controllers
                 return BadRequest("Invalid start time format.");
             }
 
-            // Combine finishDate and finishTime
             DateTime finishDateTime;
             if (!DateTime.TryParseExact(
                 $"{request.FinishDate.Value:yyyy-MM-dd} {request.FinishTime}",
@@ -375,7 +357,6 @@ namespace GastroLab.Presentation.Controllers
                 return BadRequest("Invalid finish time format.");
             }
 
-            // Validate that startDateTime is before finishDateTime
             if (startDateTime >= finishDateTime)
             {
                 return BadRequest("Start time must be before finish time.");

@@ -200,19 +200,6 @@ namespace GastroLab.Infrastructure.Repositories
                     OrderCount = g.Count()
                 });
 
-                //.Select(order => new
-                //{
-                //    IsWithinExpected = EF.Functions.DateDiffSecond(order.CreationDate, order.CompletionDate.Value) <= ((TimeSpan)order.WaitingTime).TotalSeconds
-                //})
-                //.GroupBy(x => x.IsWithinExpected)
-                //.Select(g => new
-                //{
-                //    Comparison = g.Key ? "<= Expected" : "> Expected",
-                //    OrderCount = g.Count()
-                //})
-                //.OrderByDescending(x => x.OrderCount)
-                //.AsEnumerable();
-
             return result.Select(x => (x.Comparison, x.OrderCount)).ToList();
         }
 
@@ -486,11 +473,11 @@ namespace GastroLab.Infrastructure.Repositories
         private IQueryable<OrderProduct> FilterOrderProductsByDates(DateTime dateFrom, DateTime dateTo)
         {
             var query = _context.OrderProducts
-                .Include(op => op.Product) // Ensure Product data is loaded
-                .Include(op => op.Order) // Ensure Order data is loaded
+                .Include(op => op.Product)
+                .Include(op => op.Order)
+                .Where(x => x.Order.Status == OrderStatus.Finished)
                 .AsQueryable();
 
-            // Apply date filters if provided
             if (dateFrom != null)
             {
                 query = query.Where(op => op.Order.CreationDate >= dateFrom);
@@ -505,9 +492,8 @@ namespace GastroLab.Infrastructure.Repositories
 
         private IQueryable<Order> FilterOrdersByDates(DateTime dateFrom, DateTime dateTo)
         {
-            var query = _context.Orders.AsQueryable();
+            var query = _context.Orders.Where(x => x.Status == OrderStatus.Finished).AsQueryable();
 
-            // Apply date filters if provided
             if (dateFrom != null)
             {
                 query = query.Where(op => op.CreationDate >= dateFrom);
@@ -559,8 +545,10 @@ namespace GastroLab.Infrastructure.Repositories
 
         public IEnumerable<Order> GetDeliveryOrders()
         {
-            return _context.Orders
-                .Where(x => (x.Status == OrderStatus.Done || x.Status == OrderStatus.OnTheWay) && x.DeliveryMethod == DeliveryMethod.Delivery)
+            return _context.Orders.Where(x => 
+            (x.Status == OrderStatus.Done || x.Status == OrderStatus.OnTheWay) 
+            && x.DeliveryMethod == DeliveryMethod.Delivery && (!x.isScheduledDelivery 
+            || (x.ScheduledDeliveryDate.HasValue ? x.ScheduledDeliveryDate.Value.AddDays(-1) : DateTime.MaxValue) <= DateTime.Now))
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
                         .ThenInclude(p => p.ProductIngredients)
@@ -578,12 +566,17 @@ namespace GastroLab.Infrastructure.Repositories
 
         public IEnumerable<Order> GetAllActiveOrders()
         {
-            // Pobieramy wszystkie zamówienia spełniające kryteria jednym zapytaniem
-            var allOrders = _context.Orders
-                .Where(x =>
-                    (x.Status == OrderStatus.Done && x.DeliveryMethod != DeliveryMethod.Delivery) ||
-                    (x.Status == OrderStatus.New) ||
-                    (x.Status != OrderStatus.Finished))
+            var scheduledOrders = _context.Orders
+                .Where(o =>
+                    o.Status != OrderStatus.Finished &&
+                    o.Status != OrderStatus.Canceled &&
+                    (
+                        !o.isScheduledDelivery ||
+                        (o.isScheduledDelivery &&
+                         o.ScheduledDeliveryDate.HasValue &&
+                         o.ScheduledDeliveryDate.Value <= DateTime.Now.AddDays(1))
+                    )
+                )
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
                         .ThenInclude(p => p.ProductIngredients)
@@ -595,27 +588,9 @@ namespace GastroLab.Infrastructure.Repositories
                     .ThenInclude(op => op.Product)
                         .ThenInclude(p => p.ProductOptionSets)
                             .ThenInclude(pos => pos.OptionSet)
-                .Include(o => o.Address)
-                .ToList();
+                .Include(o => o.Address);
 
-            // HashSet do przechowywania unikalnych identyfikatorów zamówień
-            var seenOrderIds = new HashSet<int>();
-
-            var doneOrders = allOrders
-                .Where(o => o.Status == OrderStatus.Done && o.DeliveryMethod != DeliveryMethod.Delivery && seenOrderIds.Add(o.Id))
-                .OrderBy(o => o.CreationDate);
-
-            var newOrders = allOrders
-                .Where(o => o.Status == OrderStatus.New && seenOrderIds.Add(o.Id))
-                .OrderByDescending(o => o.CreationDate);
-
-            var unFinishedOrders = allOrders
-                .Where(o => o.Status != OrderStatus.Finished && seenOrderIds.Add(o.Id))
-                .OrderByDescending(o => o.CreationDate);
-
-            return doneOrders
-                .Concat(newOrders)
-                .Concat(unFinishedOrders);
+            return scheduledOrders.ToList();
         }
 
 
@@ -643,8 +618,13 @@ namespace GastroLab.Infrastructure.Repositories
 
         public IEnumerable<Order> GetNewAndInProgressOrders()
         {
-            return _context.Orders
-                .Where(x => x.Status == OrderStatus.New || x.Status == OrderStatus.InProgress)
+            var newAndInProgressOrders = _context.Orders.Where(x =>
+                     (x.Status == OrderStatus.New || x.Status == OrderStatus.InProgress)
+                     && (
+                         !x.isScheduledDelivery
+                         || (x.ScheduledDeliveryDate.HasValue && x.ScheduledDeliveryDate.Value <= DateTime.Now.AddHours(24))
+                     )
+                )
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
                         .ThenInclude(p => p.ProductIngredients)
@@ -654,11 +634,12 @@ namespace GastroLab.Infrastructure.Repositories
                         .ThenInclude(opo => opo.Option)
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
-                        .ThenInclude(p => p.ProductOptionSets)              
-                            .ThenInclude(pos => pos.OptionSet)              
+                        .ThenInclude(p => p.ProductOptionSets)
+                            .ThenInclude(pos => pos.OptionSet)
                 .Include(o => o.Address)
                 .ToList();
 
+            return newAndInProgressOrders;
         }
 
         public void CreateOrder(Order order)

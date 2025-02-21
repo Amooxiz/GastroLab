@@ -5,7 +5,6 @@
 }
 
 <style>
-    /* Styles for the view */
     ul.list-unstyled {
         padding-left: 0;
         margin-bottom: 10px;
@@ -27,14 +26,11 @@
 
 <h1>Edit order</h1>
 
-<!-- Save Button in the Top Right Corner -->
 
 
-<!-- Order Form -->
 <form asp-action="EditOrder" method="post" id="editOrderForm">
     <input type="hidden" asp-for="Id" />
     <div class="row">
-        <!-- Left Column: Order Details -->
 
         <div class="col-md-8">
             <div class="card mb-3">
@@ -128,7 +124,10 @@
                                     <strong>
                                         @product.Quantity x @product.Name
                                     </strong>
-                                    <span style="float:right">@product.Price.ToString("F2") PLN</span>
+                                    @{
+                                        var productTotalPrice = product.Price * product.Quantity;
+                                    }
+                                    <span style="float:right">@productTotalPrice.ToString("F2") PLN</span>
                                     @{
                                         var groupedOptions = product.OrderOptions.GroupBy(o => o.OptionSet.Name);
                                     }
@@ -173,57 +172,6 @@
                     <span asp-validation-for="products" class="text-danger" id="productsValidationText"></span>
                 </div>
             </div>
-
-
-            @* <div class="card mb-3">
-                <div class="card-header">
-                    <h4>Your order</h4>
-                </div>
-                <div class="card-body bg-light">
-                    <ul class="list-unstyled" id="orderSummary">
-                        @if (Model.products != null && Model.products.Count > 0)
-                        {
-                            @for (int i = 0; i < Model.products.Count; i++)
-                            {
-                                var product = Model.products[i];
-                                <li id="product-@product.Id-@i">
-                                    <input type="hidden" name="products[@i].Id" value="@product.Id" />
-                                    <input type="hidden" name="products[@i].OrderProductId" value="@product.OrderProductId" />
-                                    <input type="hidden" name="products[@i].Name" value="@product.Name" />
-                                    <input type="hidden" name="products[@i].Price" value="@product.Price" />
-                                    <input type="hidden" name="products[@i].UnitPrice" value="@(product.Price / product.Quantity)" />
-                                    <input type="hidden" name="products[@i].Quantity" value="@product.Quantity" class="quantity-input" />
-
-                                    <strong>
-                                        @product.Quantity x @product.Name
-                                    </strong>
-                                    <span style="float:right">@product.Price.ToString("F2") PLN</span>
-                                    <ul class="list-unstyled">
-                                        @for (int j = 0; j < product.OrderOptions.Count; j++)
-                                        {
-                                            var optionSet = product.OrderOptions[j];
-                                            <li>@optionSet.OptionSet.Name:</li>
-                                            <ul class="list-unstyled">
-                                                <li>- @optionSet.Option.Name @(optionSet.Option.Price != 0 ? "+" + optionSet.Option.Price.Value.ToString("F2") + " PLN" : "")</li>
-                                            </ul>
-                                        }
-                                    </ul>
-                                    <button type="button" class="edit-product-button btn btn-secondary btn-sm" data-index="@i">Edit</button>
-                                    <button type="button" class="remove-product-button btn btn-danger btn-sm" data-index="@i">Remove</button>
-                                    <hr />
-                                </li>
-                            }
-                        }
-                    </ul>
-                    <p id="noItemsMessage" @(Model.products != null && Model.products.Count > 0 ? "style='display:none;'" : "")>No items in your order.</p>
-                    <div class="form-group">
-                        <label id="totalPrice">
-                            Total price: @Model.TotalPrice.ToString("F2") PLN
-                        </label>
-                    </div>
-                    <span asp-validation-for="products" class="text-danger" id="productsValidationText"></span>
-                </div>
-            </div> *@
         </div>
 
         <div class="col-md-4">
@@ -233,7 +181,6 @@
                 </div>
                 <div class="card-body bg-light">
                     <table class="table">
-                        <!-- Istniejąca zawartość tabeli -->
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -275,7 +222,6 @@
                 <h5 class="modal-title">Choose product options</h5>
             </div>
             <div class="modal-body">
-                <!-- Opcje zostaną tutaj załadowane przez JavaScript -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -297,9 +243,8 @@
         var defaultDineInWaitingTimeInMinutes = @ViewBag.GlobalSettings.DefaultDineInWaitingTimeInMinutes;
 
         $(document).ready(function () {
-            var selectedProduct = null; // Global variable to store the selected product
+            var selectedProduct = null;
 
-            // Toggle form elements based on delivery method and scheduled delivery
             function toggleFormElements() {
                 var selectedMethod = $('#deliveryMethod').val();
                 var isScheduledChecked = $('#isScheduled').prop('checked');
@@ -321,19 +266,11 @@
                 } else {
                     $('#scheduledDate').hide();
                     $('#waitingTime').show();
-
-                    if (selectedMethod == '1') { // Delivery
-                        $('#WaitingTime').val(defaultDeliveryWaitingTimeInMinutes);
-                    } else if (selectedMethod == '3' || selectedMethod == '2') { // DineIn lub Pickup
-                        $('#WaitingTime').val(defaultDineInWaitingTimeInMinutes);
-                    }
                 }
             }
 
-            // Run on page load
             toggleFormElements();
 
-            // Run whenever the selection changes
             $('#deliveryMethod').change(function () {
                 toggleFormElements();
             });
@@ -347,7 +284,6 @@
                 var $li = $('#orderSummary').children('li').eq(index);
                 var productId = $li.find('input[name$=".Id"]').val();
 
-                // Retrieve the product data from the list item
                 var product = {
                     id: parseInt($li.find('input[name$=".Id"]').val()),
                     name: $li.find('input[name$=".Name"]').val(),
@@ -364,11 +300,9 @@
                     var value = $(this).val();
 
                     if (name.endsWith('.OptionSet.Id')) {
-                        // Jeśli trafiamy na nową opcję, dodajemy poprzednią do kolekcji (jeśli istnieje)
                         if (Object.keys(currentOption).length > 0) {
                             productOptions.push(currentOption);
                         }
-                        // Rozpoczynamy nową opcję
                         currentOption = {
                             OptionSetId: parseInt(value)
                         };
@@ -383,24 +317,19 @@
                     }
                 });
 
-                // Dodajemy ostatnią opcję, jeśli istnieje
                 if (Object.keys(currentOption).length > 0) {
                     productOptions.push(currentOption);
                 }
 
-                // Przypisujemy opcje do produktu
                 product.orderOptions = productOptions;
 
-                // Fetch the product details and options via AJAX
                 $.ajax({
                     url: '/Order/GetProductDetailsWithOptions',
                     type: 'GET',
                     data: { id: productId },
                     success: function (productDetails) {
-                        // Pre-select options based on the existing product data
                         selectedProduct = productDetails;
 
-                        // Build the options selection UI with pre-selected options
                         var optionSetsHTML = '';
                         productDetails.optionSets.forEach(function (optionSet) {
                             var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
@@ -410,7 +339,6 @@
                                     <ul class="option-list">
                                 `;
                             optionSet.options.forEach(function (option) {
-                                // Check if this option is selected in the existing product
                                 var isChecked = product.orderOptions.some(function (selectedOption) {
                                     return selectedOption.OptionSetId === optionSet.id && selectedOption.OptionId === option.id;
                                 });
@@ -435,7 +363,6 @@
                             optionSetsHTML += '</ul>';
                         });
 
-                        // Add the quantity input with the existing quantity
                         optionSetsHTML += `
                                 <div class="form-group">
                                     <label for="product-quantity">Ilość:</label>
@@ -443,14 +370,12 @@
                                 </div>
                             `;
 
-                        // Update the modal footer buttons
                         $('#productOptionsModal .modal-footer .confirm-add-product')
                             .text('Update Product')
                             .addClass('confirm-update-product')
                             .removeClass('confirm-add-product')
-                            .data('index', index); // Store the index of the product being edited
+                            .data('index', index);
 
-                        // Display options and quantity in the modal
                         $('#productOptionsModal .modal-body').html(optionSetsHTML);
                         $('#productOptionsModal').modal('show');
                     },
@@ -461,130 +386,16 @@
             });
 
 
-            // $(document).on('click', '.edit-product-button', function () {
-            //     var index = $(this).data('index');
-            //     var $li = $('#orderSummary').children('li').eq(index);
-            //     var productId = $li.find('input[name$=".Id"]').val();
-
-            //     // Retrieve the product data from the list item
-            //     var product = {
-            //         id: parseInt($li.find('input[name$=".Id"]').val()),
-            //         name: $li.find('input[name$=".Name"]').val(),
-            //         price: parseFloat($li.find('input[name$=".UnitPrice"]').val()),
-            //         quantity: parseInt($li.find('input[name$=".Quantity"]').val()),
-            //         orderOptions: []
-            //     };
-
-            //     // Collect the existing options
-            //     $li.find('input[name^="products[' + index + '].OrderOptions"]').each(function () {
-            //         var name = $(this).attr('name');
-            //         var value = $(this).val();
-            //         var optionIndexMatch = name.match(/OrderOptions\[(\d+)\]/);
-            //         if (optionIndexMatch) {
-            //             var optionIndex = optionIndexMatch[1];
-
-            //             if (!product.orderOptions[optionIndex]) {
-            //                 product.orderOptions[optionIndex] = {};
-            //             }
-
-            //             if (name.endsWith('.OptionSet.Id')) {
-            //                 product.orderOptions[optionIndex].OptionSetId = parseInt(value);
-            //             } else if (name.endsWith('.OptionSet.Name')) {
-            //                 product.orderOptions[optionIndex].OptionSetName = value;
-            //             } else if (name.endsWith('.Option.Id')) {
-            //                 product.orderOptions[optionIndex].OptionId = parseInt(value);
-            //             } else if (name.endsWith('.Option.Name')) {
-            //                 product.orderOptions[optionIndex].OptionName = value;
-            //             } else if (name.endsWith('.Option.Price')) {
-            //                 product.orderOptions[optionIndex].Price = parseFloat(value);
-            //             }
-            //         }
-            //     });
-
-            //     // Fetch the product details and options via AJAX
-            //     $.ajax({
-            //         url: '/Order/GetProductDetailsWithOptions',
-            //         type: 'GET',
-            //         data: { id: productId },
-            //         success: function (productDetails) {
-            //             // Pre-select options based on the existing product data
-            //             selectedProduct = productDetails;
-
-            //             // Build the options selection UI with pre-selected options
-            //             var optionSetsHTML = '';
-            //             productDetails.optionSets.forEach(function (optionSet) {
-            //                 var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
-            //                 var requiredIndicator = optionSet.isRequired ? ' *' : '';
-            //                 optionSetsHTML += `
-            //                 <h5>${optionSet.name}${requiredIndicator}</h5>
-            //                 <ul class="option-list">
-            //             `;
-            //                 optionSet.options.forEach(function (option) {
-            //                     // Check if this option is selected in the existing product
-            //                     var isChecked = product.orderOptions.some(function (selectedOption) {
-            //                         return selectedOption.OptionSetId === optionSet.id && selectedOption.OptionId === option.id;
-            //                     });
-
-            //                     optionSetsHTML += `
-            //                     <li>
-            //                         <label>
-            //                             <input type="${inputType}" class="option-input"
-            //                                 data-price="${option.price ?? 0}"
-            //                                 data-optionset-id="${optionSet.id}"
-            //                                 data-optionset-name="${optionSet.name}"
-            //                                 data-option-id="${option.id}"
-            //                                 data-option-name="${option.name}"
-            //                                 name="optionset-${optionSet.id}"
-            //                                 ${isChecked ? 'checked' : ''}
-            //                             />
-            //                             ${option.name} +${(option.price ?? 0).toFixed(2)} PLN
-            //                         </label>
-            //                     </li>
-            //                 `;
-            //                 });
-            //                 optionSetsHTML += '</ul>';
-            //             });
-
-            //             // Add the quantity input with the existing quantity
-            //             optionSetsHTML += `
-            //             <div class="form-group">
-            //                 <label for="product-quantity">Ilość:</label>
-            //                 <input type="number" id="product-quantity" class="form-control" value="${product.quantity}" min="1" />
-            //             </div>
-            //         `;
-
-            //             // Update the modal footer buttons
-            //             $('#productOptionsModal .modal-footer .confirm-add-product')
-            //                 .text('Update Product')
-            //                 .addClass('confirm-update-product')
-            //                 .removeClass('confirm-add-product')
-            //                 .data('index', index); // Store the index of the product being edited
-
-            //             // Display options and quantity in the modal
-            //             $('#productOptionsModal .modal-body').html(optionSetsHTML);
-            //             $('#productOptionsModal').modal('show');
-            //         },
-            //         error: function () {
-            //             alert('Error retrieving product details.');
-            //         }
-            //     });
-            // });
-
-
-            // Add product to order
             $('.add-product-button').click(function () {
                 var productId = $(this).data('product-id');
 
-                // Send AJAX request to get product details and options
                 $.ajax({
                     url: '/Order/GetProductDetailsWithOptions',
                     type: 'GET',
                     data: { id: productId },
                     success: function (product) {
-                        // Store the fetched product
                         selectedProduct = product;
 
-                        // Build the options selection UI
                         var optionSetsHTML = '';
                         product.optionSets.forEach(function (optionSet) {
                             var inputType = optionSet.isMultiple ? 'checkbox' : 'radio';
@@ -620,13 +431,11 @@
                             </div>
                         `;
 
-                        // Update the modal footer buttons
                         $('#productOptionsModal .modal-footer .confirm-update-product')
                             .text('Add to order')
                             .addClass('confirm-add-product')
                             .removeClass('confirm-update-product');
 
-                        // Display options in the modal
                         $('#productOptionsModal .modal-body').html(optionSetsHTML);
                         $('#productOptionsModal').modal('show');
                     },
@@ -656,23 +465,19 @@
 
             updateNoItemsMessage();
 
-            // Handle "Add to Order" or "Update Product" button click
             $(document).on('click', '.confirm-add-product, .confirm-update-product', function () {
                 if (!selectedProduct) {
                     alert('No product selected.');
                     return;
                 }
 
-                // Get the quantity
                 var quantity = parseInt($('#productOptionsModal #product-quantity').val()) || 1;
 
-                // Validate quantity
                 if (quantity < 1) {
                     alert('Quantity must be at least 1.');
                     return;
                 }
 
-                // Collect selected options and validate required ones
                 var selectedOptions = [];
                 var validationErrors = [];
 
@@ -702,20 +507,16 @@
                     return;
                 }
 
-                // Calculate unit price
                 var unitPrice = parseFloat(selectedProduct.price);
                 selectedOptions.forEach(function (option) {
                     unitPrice += option.Price;
                 });
 
-                // Calculate total product price
                 var productPrice = unitPrice * quantity;
 
-                // Determine if we're adding a new product or updating an existing one
                 var isUpdating = $(this).hasClass('confirm-update-product');
                 var index = isUpdating ? $(this).data('index') : $('#orderSummary li').length;
 
-                // Start building the HTML for the product
                 var html = `
             <li id="product-${selectedProduct.id}-${index}">
                 <input type="hidden" name="products[${index}].Id" value="${selectedProduct.id}" />
@@ -730,7 +531,6 @@
                 <ul class="list-unstyled">
             `;
 
-                // Group selectedOptions by OptionSetName
                 var groupedOptions = {};
                 selectedOptions.forEach(function (opt) {
                     if (!groupedOptions[opt.OptionSetName]) {
@@ -739,18 +539,14 @@
                     groupedOptions[opt.OptionSetName].push(opt);
                 });
 
-                // We'll need a counter to properly name the input indexes for order options
                 var optionIndexCounter = 0;
 
-                // Render grouped options
                 for (var optionSetName in groupedOptions) {
                     if (groupedOptions.hasOwnProperty(optionSetName)) {
                         var group = groupedOptions[optionSetName];
 
-                        // Display OptionSetName once
                         html += `${optionSetName}:<br>`;
 
-                        // Display each option in this OptionSet group
                         group.forEach(function (option) {
                             html += `
                                 <li class="option-item">
@@ -777,25 +573,20 @@
             `;
 
                 if (isUpdating) {
-                    // Replace the existing product in the order summary
                     $('#product-' + selectedProduct.id + '-' + index).replaceWith(html);
                 } else {
-                    // Append the new product to the order summary
                     $('#orderSummary').append(html);
                 }
 
-                reindexProducts(); // Re-index products
+                reindexProducts();
                 updateTotalPrice();
                 updateNoItemsMessage();
                 updateProductsValidationText();
 
-                // Clear the selected product
                 selectedProduct = null;
 
-                // Close the modal
                 $('#productOptionsModal').modal('hide');
 
-                // Reset the confirm button
                 $(this).text('Add to order').addClass('confirm-add-product').removeClass('confirm-update-product').removeData('index');
             });
 
@@ -812,17 +603,15 @@
                 if (quantity > 1) {
                     quantity--;
                     quantityInput.val(quantity);
-                    // Update product price
                     var newProductPrice = unitPrice * quantity;
                     $li.find('input[name$=".Price"]').val(newProductPrice.toFixed(2));
                     $li.find('strong').text(quantity + ' x ' + $li.find('input[name$=".Name"]').val());
                     $li.find('span[style="float:right"]').text(newProductPrice.toFixed(2) + ' PLN');
                 } else {
                     $li.remove();
-                    reindexProducts(); // Re-index after removal
+                    reindexProducts();
                     updateNoItemsMessage();
                 }
-                // Update total price
                 updateTotalPrice();
             });
 
@@ -843,27 +632,15 @@
                     var $productLi = $(this);
                     $productLi.attr('id', 'product-' + $productLi.find('input[name$=".Id"]').val() + '-' + productIndex);
 
-                    // Aktualizuj nazwy pól dla produktu
                     $productLi.find('input, select').each(function () {
                         var name = $(this).attr('name');
                         if (name) {
-                            // Aktualizuj indeks produktu
                             var newName = name.replace(/products\[\d+\]/, 'products[' + productIndex + ']');
-
-                            // // Jeśli pole należy do OrderOptions, zaktualizuj również indeks opcji
-                            // if (newName.includes('OrderOptions')) {
-                            //     var $optionLi = $(this).closest('.option-item');
-                            //     var optionIndex = $optionLi.index();
-
-                            //     // Aktualizuj indeks opcji
-                            //     newName = newName.replace(/OrderOptions\[\d+\]/, 'OrderOptions[' + optionIndex + ']');
-                            // }
 
                             $(this).attr('name', newName);
                         }
                     });
 
-                    // Użyj .attr() do aktualizacji data-index
                     $productLi.find('.edit-product-button, .remove-product-button').attr('data-index', productIndex);
                 });
             }

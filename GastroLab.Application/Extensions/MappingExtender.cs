@@ -12,6 +12,46 @@ namespace GastroLab.Application.Extensions
 {
     public static class MappingExtender
     {
+        public static (int RemainingMinutes, string Color) GetRemainingTime(this OrderVM orderVm)
+        {
+            var elapsedTime = new TimeSpan();
+            var remainingMinutes = new int();
+            if (orderVm.isScheduledDelivery)
+            {
+                elapsedTime = orderVm.ScheduledDeliveryDate.Value - DateTime.Now;
+                remainingMinutes = (int)Math.Ceiling(elapsedTime.TotalMinutes);
+            }
+            else
+            {
+                elapsedTime = DateTime.Now - orderVm.CreationDate;
+                remainingMinutes = (int)Math.Ceiling(orderVm.WaitingTime - elapsedTime.TotalMinutes);
+            }
+
+            if (remainingMinutes < 0)
+            {
+                remainingMinutes = 0;
+            }
+
+            string remainingTimeColor;
+            switch (remainingMinutes)
+            {
+                case > 60:
+                    remainingTimeColor = "green";
+                    break;
+                case > 30:
+                    remainingTimeColor = "#FFA000";
+                    break;
+                case > 20:
+                    remainingTimeColor = "darkorange";
+                    break;
+                default:
+                    remainingTimeColor = "red";
+                    break;
+            }
+
+            return (remainingMinutes, remainingTimeColor);
+        }
+
         public static LeaveRequest ToModel(this LeaveRequestVM leaveRequestVM)
         {
             var leaveRequest = new LeaveRequest
@@ -176,7 +216,6 @@ namespace GastroLab.Application.Extensions
                 Id = product.Id,
                 Name = product.Name,
                 Description = product.Description,
-                Image = product.Image,
                 productStatus = product.productStatus
             };
             if (product.ProductCategories != null && product.ProductCategories.Count > 0)
@@ -204,7 +243,6 @@ namespace GastroLab.Application.Extensions
                 Id = productVM.Id,
                 Name = productVM.Name,
                 Description = productVM.Description,
-                Image = productVM.Image,
                 productStatus = productVM.productStatus,
                 ProductPricing = new ProductPricing { Price = productVM.Price },
                 ProductOptionSets = new List<ProductOptionSet>()
@@ -335,7 +373,6 @@ namespace GastroLab.Application.Extensions
                 Comment = order.Comment,
                 isScheduledDelivery = order.isScheduledDelivery,
                 ScheduledDeliveryDate = order.ScheduledDeliveryDate,
-                //WaitingTime = (int)((TimeSpan)order.WaitingTime).TotalMinutes,
             };
             
             if (order.WaitingTime != null)
@@ -421,7 +458,6 @@ namespace GastroLab.Application.Extensions
                 Price = orderProduct.TotalPrice,
                 Name = orderProduct.Product.Name,
                 Description = orderProduct.Product.Description,
-                Image = orderProduct.Product.Image,
                 productStatus = orderProduct.Product.productStatus,
             };
 

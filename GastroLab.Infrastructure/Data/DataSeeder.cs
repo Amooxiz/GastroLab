@@ -61,10 +61,8 @@ namespace GastroLab.Infrastructure.Data
 
         public static void SeedGlobalSettings(GastroLabDbContext context)
         {
-            // Check if GlobalSettings already exists
             if (!context.GlobalSettings.Any())
             {
-                // Create default Address
                 var address = new Address
                 {
                     Street = "Default Street",
@@ -74,9 +72,8 @@ namespace GastroLab.Infrastructure.Data
                 };
 
                 context.Addresses.Add(address);
-                context.SaveChanges(); // Save to generate AddressId
+                context.SaveChanges();
 
-                // Create GlobalSettings with the newly created Address
                 var globalSettings = new GlobalSettings
                 {
                     RestaurantName = "Default Restaurant",

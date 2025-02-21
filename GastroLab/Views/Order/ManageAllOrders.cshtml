@@ -1,4 +1,6 @@
-﻿@model IEnumerable<GastroLab.Application.ViewModels.OrderVM>
+﻿@using GastroLab.Application.ViewModels
+@using GastroLab.Application.Extensions
+@model IEnumerable<GastroLab.Application.ViewModels.OrderVM>
 
 @{
     ViewData["Title"] = "Manage All Orders";
@@ -8,7 +10,7 @@
 
 <div class="d-flex justify-content-end mb-3 align-items-center">
     <a asp-action="AddOrder" class="btn btn-link text-decoration-none">
-        <i class="bi bi-plus-circle"></i> Create New
+        <i class="bi bi-plus-circle"></i> Create new
     </a>
 </div>
 
@@ -17,8 +19,8 @@
         <thead>
             <tr>
                 <th>Status</th>
-                <th>Order Details</th>
-                <th>Delivery Info</th>
+                <th>Order details</th>
+                <th>Delivery info</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -26,7 +28,6 @@
             @foreach (var order in Model)
             {
                 <tr id="order-row-@order.Id">
-                    <!-- First Column: Status -->
                     <td>
                         @{
                             string badgeClass = order.Status.ToString() switch
@@ -41,7 +42,6 @@
                         <span class="badge rounded-pill @badgeClass">@order.Status</span>
                     </td>
 
-                    <!-- Second Column: Order Details -->
                     <td>
                         @foreach (var product in order.products)
                         {
@@ -68,7 +68,6 @@
                         }
                     </td>
 
-                    <!-- Third Column: Delivery Info -->
                     <td>
                         <div>
                             <strong>Created on:</strong> @order.CreationDate.ToString("dd.MM.yyyy HH:mm")<br />
@@ -77,30 +76,16 @@
                                 {
                                     <strong>Scheduled delivery:</strong> @order.ScheduledDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
                                     <br />
-
-                                    var elapsedTime = order.ScheduledDeliveryDate.Value - DateTime.Now;
-                                    var remainingMinutes = (int)Math.Ceiling(elapsedTime.TotalMinutes);
-
-                                    // Ensure remaining minutes are not negative
-                                    if (remainingMinutes < 0)
-                                    {
-                                        remainingMinutes = 0;
-                                    }
-                                    <strong>Remaining time: </strong>
-                                    <span>@remainingMinutes min</span>
                                 }
-                                else
-                                {
-                                    var elapsedTime = DateTime.Now - order.CreationDate;
-                                    var remainingMinutes = (int)Math.Ceiling(order.WaitingTime - elapsedTime.TotalMinutes);
 
-                                    if (remainingMinutes < 0)
-                                    {
-                                        remainingMinutes = 0;
-                                    }
-                                    <strong>Remaining time: </strong>
-                                    <span>@remainingMinutes min</span>
-                                }
+                                var remainingTime = order.GetRemainingTime();
+
+                                <strong>Remaining time: </strong>
+                                <span style="
+                                    color: @remainingTime.Color;
+                                    ">
+                                    @remainingTime.RemainingMinutes min
+                                </span>
                             }
                             <br />
                             <strong>@order.DeliveryMethod</strong><br />
@@ -125,10 +110,9 @@
                         </div>
                     </td>
 
-                    <!-- Fourth Column: Total Price and Actions -->
                     <td>
                         <div>
-                            <strong>Total Price:</strong> @order.TotalPrice.ToString("F2") PLN
+                            <strong>Total price:</strong> @order.TotalPrice.ToString("F2") PLN
                         </div>
                         <div class="mt-2">
                             @if (order.Status == GastroLab.Domain.DBO.OrderStatus.Done && order.DeliveryMethod != GastroLab.Domain.DBO.DeliveryMethod.Delivery)
@@ -140,12 +124,23 @@
                             }
                             else
                             {
-                                <a asp-action="EditOrder" asp-route-id="@order.Id" class="btn btn-sm btn-warning me-2">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
+                                @if (order.Status == GastroLab.Domain.DBO.OrderStatus.New || order.Status == GastroLab.Domain.DBO.OrderStatus.InProgress)
+                                {
+                                    <a asp-action="EditOrder" asp-route-id="@order.Id" class="btn btn-sm btn-warning me-2">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="Editing is available only for orders with status 'New' or 'InProgress'">
+                                        <a class="btn btn-sm btn-warning me-2 disabled" role="button" tabindex="0">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </a>
+                                    </span>
+                                }
                             }
                             <a asp-action="DeleteOrder" asp-route-id="@order.Id" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash3"></i> Delete
+                                <i class="bi bi-x-lg"></i> Cancel
                             </a>
                         </div>
                     </td>
@@ -159,6 +154,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ordersTable = document.getElementById('ordersTable');
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
 
             ordersTable.addEventListener('click', function (event) {
                 const button = event.target.closest('.finish-order-button');

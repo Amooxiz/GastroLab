@@ -74,13 +74,6 @@ namespace GastroLab.Presentation.Controllers
             return RedirectToAction("OptionList");
         }
 
-        //[HttpGet]
-        //public IActionResult AddOptionSet()
-        //{
-        //    ViewBag.AllOptions = _optionSetService.GetAllOptions();
-        //    return View();
-        //}
-
         [HttpGet]
         public IActionResult AddOptionSet()
         {
@@ -101,23 +94,6 @@ namespace GastroLab.Presentation.Controllers
         }
 
 
-        //[HttpPost]
-        //public IActionResult AddOptionSet(OptionSetVM optionSet, int[] selectedOptions)
-        //{
-        //    if (selectedOptions != null)
-        //    {
-        //        foreach (var optionId in selectedOptions)
-        //        {
-        //            optionSet.options.Add(new OptionVM()
-        //            {
-        //                Id = optionId
-        //            });
-        //        }
-        //    }
-        //    _optionSetService.AddOptionSet(optionSet);
-        //    return RedirectToAction("ManageOptionSets");
-        //}
-
         [HttpPost]
         public IActionResult AddOptionSet(OptionSetVM optionSet)
         {
@@ -135,7 +111,6 @@ namespace GastroLab.Presentation.Controllers
                 return RedirectToAction("ManageOptionSets");
             }
 
-            // Reload options if model state is not valid or if submission fails
             optionSet.options = _optionSetService.GetAllOptions().Select(o => new OptionVM
             {
                 Id = o.Id,
@@ -242,7 +217,6 @@ namespace GastroLab.Presentation.Controllers
         public IActionResult RemoveOption(int id, int optionSetId)
         {
             _optionSetService.RemoveOption(id, optionSetId);
-            // Implementacja usunięcia opcji
             return RedirectToAction("EditOptionSet", new { id = optionSetId });
         }
         
@@ -250,7 +224,6 @@ namespace GastroLab.Presentation.Controllers
         [HttpPost]
         public IActionResult SaveOptionSetOption(int optionId, int optionSetId, decimal price)
         {
-            // Znajdź i zaktualizuj opcję
             _optionSetService.UpdateOptionSetOption(optionId, optionSetId, price);
 
             return RedirectToAction("EditOptionSet", new { id = optionSetId });
